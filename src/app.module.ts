@@ -18,6 +18,7 @@ import { MunicipioModule } from './municipio/municipio.module';
 import { NacionalidadesModule } from './nacionalidades/nacionalidades.module';
 import { SistemasModule } from './sistemas/sistemas.module';
 import { OrganismosUsuarioModule } from './organismos-usuario/organismos-usuario.module';
+import { OrganismosModule } from './organismos/organismos.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { OrganismosUsuarioModule } from './organismos-usuario/organismos-usuario
     NacionalidadesModule,
     SistemasModule,
     OrganismosUsuarioModule,
+    OrganismosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
