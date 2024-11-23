@@ -19,6 +19,7 @@ import { NacionalidadesModule } from './nacionalidades/nacionalidades.module';
 import { SistemasModule } from './sistemas/sistemas.module';
 import { OrganismosUsuarioModule } from './organismos-usuario/organismos-usuario.module';
 import { OrganismosModule } from './organismos/organismos.module';
+import { ProhibicionesVisitaModule } from './prohibiciones-visita/prohibiciones-visita.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { OrganismosModule } from './organismos/organismos.module';
     SistemasModule,
     OrganismosUsuarioModule,
     OrganismosModule,
+    ProhibicionesVisitaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
