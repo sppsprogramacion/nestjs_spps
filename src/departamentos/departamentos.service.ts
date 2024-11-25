@@ -34,6 +34,26 @@ export class DepartamentosService {
     );
   }
 
+  //BUSCAR  XPROVINCIA
+  async findXProvincia(id_provincia: string) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    
+      const departamentos = await this.departamentoRepository.find(
+        {        
+          where: {
+            provincia_id: id_provincia
+          },
+          order:{
+            departamento: "ASC"
+          }
+        }
+      );   
+          
+      return departamentos;
+    
+  }
+  //FIN BUSCAR  XPROVINCIA..................................................................
+
   //BUSCAR  XID
   async findOne(id: number) {
 

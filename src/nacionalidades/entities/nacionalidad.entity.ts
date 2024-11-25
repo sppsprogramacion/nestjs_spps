@@ -13,7 +13,7 @@ export class Nacionalidad {
     
     @Column({
         type: 'varchar',
-        length: 50,
+        length: 100,
         nullable: false,
         unique: true
     })

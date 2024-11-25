@@ -35,6 +35,26 @@ export class MunicipioService {
     );
   }
 
+  //BUSCAR  XDEPARTAMENTO
+  async findXDepartamento(id_departamento: number) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    
+      const municipios = await this.municipioRepository.find(
+        {        
+          where: {
+            departamento_id: id_departamento
+          },
+          order:{
+            municipio: "ASC"
+          }
+        }
+      );   
+          
+      return municipios;
+    
+  }
+  //FIN BUSCAR  XDEPARTAMENTO..................................................................
+
   //BUSCAR  XID
   async findOne(id: number) {
 

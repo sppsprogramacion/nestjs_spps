@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Query } from '@nestjs/common';
 import { DepartamentosService } from './departamentos.service';
 import { CreateDepartamentoDto } from './dto/create-departamento.dto';
 import { UpdateDepartamentoDto } from './dto/update-departamento.dto';
@@ -16,6 +16,17 @@ export class DepartamentosController {
   findAll() {
     return this.departamentosService.findAll();
   }
+
+  //BUSCAR  XID PROVINCIA
+  @Get('buscar-xprovincia')  
+  async findXPais(
+    @Query('id_provincia') id_provincia: string
+    
+  ) {    
+    
+    return this.departamentosService.findXProvincia(id_provincia);
+  }
+  //FIN BUSCAR  XID PROVINCIA....................................................
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    

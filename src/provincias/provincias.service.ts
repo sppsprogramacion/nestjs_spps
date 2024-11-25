@@ -3,7 +3,7 @@ import { CreateProvinciaDto } from './dto/create-provincia.dto';
 import { UpdateProvinciaDto } from './dto/update-provincia.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Provincia } from './entities/provincia.entity';
-import { Repository } from 'typeorm';
+import { Brackets, IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class ProvinciasService {
@@ -33,6 +33,43 @@ export class ProvinciasService {
       }
     );
   }
+
+  //BUSCAR  XPAIS
+  async findXPais(id_pais: string) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    if (id_pais == 'AR'){
+      const provincias = await this.provinciaRepository.find(
+        {        
+          where: {
+            pais_id: id_pais
+          },
+          order:{
+            provincia: "ASC"
+          }
+        }
+      );   
+          
+      return provincias;
+    }
+
+    if (id_pais != 'AR'){
+      const provincias = await this.provinciaRepository.find(
+        {        
+          where: [
+            {pais_id: id_pais},
+            {pais_id: IsNull()}
+          ],
+          order:{
+            provincia: "ASC"
+          }
+        }
+      );   
+          
+      return provincias;
+
+    }
+  }
+  //FIN BUSCAR  XPAIS..................................................................
 
   //BUSCAR  XID
   async findOne(id: string) {
