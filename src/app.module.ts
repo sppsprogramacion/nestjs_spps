@@ -20,6 +20,7 @@ import { SistemasModule } from './sistemas/sistemas.module';
 import { OrganismosUsuarioModule } from './organismos-usuario/organismos-usuario.module';
 import { OrganismosModule } from './organismos/organismos.module';
 import { ProhibicionesVisitaModule } from './prohibiciones-visita/prohibiciones-visita.module';
+import { BitacoraProhibicionesVisitaModule } from './bitacora-prohibiciones-visita/bitacora-prohibiciones-visita.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ProhibicionesVisitaModule } from './prohibiciones-visita/prohibiciones-
     OrganismosUsuarioModule,
     OrganismosModule,
     ProhibicionesVisitaModule,
+    BitacoraProhibicionesVisitaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,8 @@
 import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Organismo } from '../../organismos/entities/organismo.entity';
 
-@Entity('prohibiciones-visita')
+@Entity('prohibiciones_visita')
 export class ProhibicionVisita {
     
     @PrimaryGeneratedColumn()
@@ -21,6 +22,28 @@ export class ProhibicionVisita {
     })
     ciudadano: Ciudadano;
     //FIN CIUDADANO
+    
+    //ORGANISMO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_id: number;
+
+    @ManyToOne(type => Organismo, {eager: true} )
+    @JoinColumn({
+        name: 'organismo_id',
+        referencedColumnName: 'id_organismo'
+    })
+    Organismo: Organismo;
+    //FIN ORGANISMO
+
+    @Column({
+        type: 'date',
+        nullable: false
+    })
+    fecha_prohibicion: Date;
 
     @Column({
         type: 'varchar',
@@ -35,12 +58,7 @@ export class ProhibicionVisita {
         nullable: false
     })
     detalle: string;
-
-    @Column({
-        type: 'date',
-        nullable: false
-    })
-    fecha_prohibicion: Date;
+    
 
     @Column({
         type: 'date',
@@ -59,6 +77,12 @@ export class ProhibicionVisita {
         default: true
     })
     vigente: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    anulado: boolean;
 
 }
 

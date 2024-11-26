@@ -4,8 +4,6 @@ import { PrimaryGeneratedColumn } from "typeorm";
 
 export class CreateCiudadanoDto {
 
-    @PrimaryGeneratedColumn()
-    id_ciudadano: number;
     
     @IsInt({message: "El dni debe ser un número entero."})
     dni: number;
