@@ -13,30 +13,11 @@ export class BitacoraProhibicionesVisitaService {
     private readonly bitacoraProhibicionVisitaRepository: Repository<BitacoraProhibicionVisita>
   ){}
 
-  async create(data: CreateProhibicionesVisitaDto): Promise<BitacoraProhibicionVisita> {
-    console.log("en bitacora");
-    console.log(data);
-    let fecha_actual: any = new Date().toISOString().split('T')[0];
-    let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
+  async create(data: CreateBitacoraProhibicionesVisitaDto): Promise<BitacoraProhibicionVisita> {
     
-    dataBitacora.prohibicion_visita_id = data.id_prohibicion_visita;
-    dataBitacora.disposicion = data.disposicion;
-    dataBitacora.detalle = data.detalle;
-    dataBitacora.fecha_inicio = data.fecha_inicio;
-    dataBitacora.fecha_fin = data.fecha_fin;
-    dataBitacora.vigente = data.vigente;
-    dataBitacora.anulado = data.anulado;
-    dataBitacora.motivo = "CREACION PROHIBICION";
-    dataBitacora.detalle_motivo = "CREACION PROHIBICION";
-    dataBitacora.usuario_id = 2;
-    dataBitacora.fecha_cambio = fecha_actual;
-
-    console.log("datos bitacora");
-    console.log(dataBitacora);
-
     try {
       
-      const nuevo = await this.bitacoraProhibicionVisitaRepository.create(dataBitacora);
+      const nuevo = await this.bitacoraProhibicionVisitaRepository.create(data);
       return await this.bitacoraProhibicionVisitaRepository.save(nuevo);
     }catch (error) {
 
@@ -64,7 +45,7 @@ export class BitacoraProhibicionesVisitaService {
             prohibicion_visita_id: id_prohibicion_visitax
           },
           order:{
-            fecha_cambio: "DESC"
+            id_bitacora_prohibicion_visita: "DESC"
           }
         }
       );   

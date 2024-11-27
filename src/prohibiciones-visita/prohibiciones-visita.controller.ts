@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe,
 import { ProhibicionesVisitaService } from './prohibiciones-visita.service';
 import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.dto';
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
+import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
 
 @Controller('prohibiciones-visita')
 export class ProhibicionesVisitaController {
@@ -40,7 +41,18 @@ export class ProhibicionesVisitaController {
   rutasNoDefinidas() {
     throw new NotFoundException('No se encontró la ruta especificada. Verifique si la ruta es correcta');
   }
-  //FIN PARA RUTA NO DEFINIDA...........
+  //FIN PARA RUTA NO DEFINIDA...............................
+
+  //LEVANTAMIENTO MANUAL
+  @Patch('levantar-manual')
+  updateLevantarManual(
+    @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
+    @Body() dataDto: LevantarManualProhibicionesVisitaDto
+  ) {
+
+    return this.prohibicionesVisitaService.levantarManualmente(+id_prohibicion, dataDto);
+  }
+  //FIN LEVANTAMIENTO MANUAL.................................
 
   @Patch(':id')
   update(

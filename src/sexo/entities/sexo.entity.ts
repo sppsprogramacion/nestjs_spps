@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('sexo')
@@ -14,4 +15,6 @@ export class Sexo {
         unique: true
     })
     sexo: string
+
+   
 }

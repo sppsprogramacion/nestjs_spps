@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { BitacoraProhibicionesVisitaService } from './bitacora-prohibiciones-visita.service';
 import { CreateBitacoraProhibicionesVisitaDto } from './dto/create-bitacora-prohibiciones-visita.dto';
 import { UpdateBitacoraProhibicionesVisitaDto } from './dto/update-bitacora-prohibiciones-visita.dto';
@@ -6,26 +6,23 @@ import { UpdateBitacoraProhibicionesVisitaDto } from './dto/update-bitacora-proh
 @Controller('bitacora-prohibiciones-visita')
 export class BitacoraProhibicionesVisitaController {
   constructor(private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService) {}
+  
 
-  @Post()
-  create(@Body() createBitacoraProhibicionesVisitaDto: CreateBitacoraProhibicionesVisitaDto) {
-    //return this.bitacoraProhibicionesVisitaService.create(createBitacoraProhibicionesVisitaDto);
+  //BUSCAR  XID PROHIBICION
+  @Get('buscar-xprohibicion')  
+  async findXCiudadano(
+    @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string    
+  ) {    
+    
+    return this.bitacoraProhibicionesVisitaService.findXProhibicionVisita(+id_prohibicion);
   }
-
-  @Get()
-  findAll() {
-    return this.bitacoraProhibicionesVisitaService.findAll();
-  }
+  //FIN BUSCAR  XID PROHIBICION....................................................
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bitacoraProhibicionesVisitaService.findOne(+id);
   }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBitacoraProhibicionesVisitaDto: UpdateBitacoraProhibicionesVisitaDto) {
-    return this.bitacoraProhibicionesVisitaService.update(+id, updateBitacoraProhibicionesVisitaDto);
-  }
+ 
 
   
 }

@@ -45,32 +45,28 @@ export class CiudadanosService {
   //BUSCAR LISTA POR DNI
   async findListaXDni(dnix: number) {
 
-    return await this.ciudadanoRepository.findAndCount(
-      {
-        order:{
-            apellido: "ASC"
-        },
-        where: {
-          dni: dnix,          
-        }
-      }
-    );
+    return this.ciudadanoRepository
+    .createQueryBuilder('ciudadano')
+    .select(['ciudadano.id_ciudadano', 'ciudadano.apellido', 'ciudadano.nombre', 'ciudadano.dni']) // Campos específicos
+    .leftJoinAndSelect('ciudadano.sexo', 'sexo') // Relación
+    .where('ciudadano.dni = :dni', {dni: dnix})
+    .orderBy('ciudadano.apellido', 'ASC')
+    .getMany();
+
   }
   //FIN BUSCAR LISTA POR DNI....................................
 
   //BUSCAR LISTA POR APELLIDO
   async findListaXApellido(apellidox: string) {
-
-    return await this.ciudadanoRepository.findAndCount(
-      {
-        order:{
-            apellido: "ASC"
-        },
-        where: {
-          apellido: Like(`%${apellidox}%`),          
-        }
-      }
-    );
+    console.log("en apellido");
+    
+    return this.ciudadanoRepository
+    .createQueryBuilder('ciudadano')
+    .select(['ciudadano.id_ciudadano', 'ciudadano.apellido', 'ciudadano.nombre', 'ciudadano.dni']) // Campos específicos
+    .leftJoinAndSelect('ciudadano.sexo', 'sexo') // Relación
+    .where('ciudadano.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
+    .orderBy('ciudadano.apellido', 'ASC')
+    .getMany();
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................
 

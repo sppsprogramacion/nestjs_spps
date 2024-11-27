@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { BitacoraProhibicionVisita } from 'src/bitacora-prohibiciones-visita/entities/bitacora-prohibiciones-visita.entity';
 import { BitacoraProhibicionesVisitaService } from 'src/bitacora-prohibiciones-visita/bitacora-prohibiciones-visita.service';
 import { CreateBitacoraProhibicionesVisitaDto } from 'src/bitacora-prohibiciones-visita/dto/create-bitacora-prohibiciones-visita.dto';
+import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
+import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.dto';
 
 @Injectable()
 export class ProhibicionesVisitaService {
@@ -31,12 +33,22 @@ export class ProhibicionesVisitaService {
       let respuesta = await this.prohibicionVisitaRepository.save(nuevo);
 
       if(respuesta){
-        console.log("antes de bitacora");
-        let dataBitacora: CreateBitacoraProhibicionesVisitaDto;
+        let fecha_actual: any = new Date().toISOString().split('T')[0];
+        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
         
-        
-        console.log("cargando bitacora");
-        await this.bitacoraProhibicionesVisitaService.create(respuesta);
+        dataBitacora.prohibicion_visita_id = respuesta.id_prohibicion_visita;
+        dataBitacora.disposicion = respuesta.disposicion;
+        dataBitacora.detalle = respuesta.detalle;
+        dataBitacora.fecha_inicio = respuesta.fecha_inicio;
+        dataBitacora.fecha_fin = respuesta.fecha_fin;
+        dataBitacora.vigente = respuesta.vigente;
+        dataBitacora.anulado = respuesta.anulado;
+        dataBitacora.motivo = "CREACION PROHIBICION";
+        dataBitacora.detalle_motivo = "CREACION PROHIBICION";
+        dataBitacora.usuario_id = 2;
+        dataBitacora.fecha_cambio = fecha_actual;
+                
+        await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
 
       }
 
@@ -106,12 +118,115 @@ export class ProhibicionesVisitaService {
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateProhibicionesVisitaDto) {
+  //LEVANTAR PROHIBICION MANUAL
+  async levantarManualmente(id: number, data: LevantarManualProhibicionesVisitaDto) {
+    let fecha_actual: any = new Date().toISOString().split('T')[0]
+    let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
+    dataProhibicion.fecha_fin = fecha_actual;
+    dataProhibicion.vigente = false;
 
     try{
-      const respuesta = await this.prohibicionVisitaRepository.update(id, data);
-      if((await respuesta).affected == 0){
-        await this.findOne(id);
+      const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
+      if((await respuesta).affected == 1){
+
+        //guardar bitacora de prhibicion
+        let dataProhibicion = await this.findOne(id);
+        let fecha_actual: any = new Date().toISOString().split('T')[0];
+        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
+        
+        dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+        dataBitacora.disposicion = dataProhibicion.disposicion;
+        dataBitacora.detalle = dataProhibicion.detalle;
+        dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+        dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+        dataBitacora.vigente = dataProhibicion.vigente;
+        dataBitacora.anulado = dataProhibicion.anulado;
+        dataBitacora.motivo = "LEVANTAMIENTO MANUAL";
+        dataBitacora.detalle_motivo = data.detalle_motivo;
+        dataBitacora.usuario_id = 2;
+        dataBitacora.fecha_cambio = fecha_actual;
+                
+        await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
+
+      } 
+
+
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN LEVANTAR PROHIBICION MANUAL
+
+  //LEVANTAR PROHIBICION MANUAL
+  async anular(id: number, data: AnularProhibicionesVisitaDto) {
+    let fecha_actual: any = new Date().toISOString().split('T')[0]
+    let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
+    dataProhibicion.fecha_fin = fecha_actual;
+    dataProhibicion.anulado = true;
+
+    try{
+      const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
+      if((await respuesta).affected == 1){
+
+        //guardar bitacora de prhibicion
+        let dataProhibicion = await this.findOne(id);
+        let fecha_actual: any = new Date().toISOString().split('T')[0];
+        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
+        
+        dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+        dataBitacora.disposicion = dataProhibicion.disposicion;
+        dataBitacora.detalle = dataProhibicion.detalle;
+        dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+        dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+        dataBitacora.vigente = dataProhibicion.vigente;
+        dataBitacora.anulado = dataProhibicion.anulado;
+        dataBitacora.motivo = "ANULAR PROHIBICION";
+        dataBitacora.detalle_motivo = data.detalle_motivo;
+        dataBitacora.usuario_id = 2;
+        dataBitacora.fecha_cambio = fecha_actual;
+                
+        await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
+
+      } 
+
+
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN LEVANTAR PROHIBICION MANUAL
+
+  async update(id: number, data: UpdateProhibicionesVisitaDto) {
+    //separar detalle_motivo 
+    const { detalle_motivo, ...nuevaData } = data;
+    try{
+      const respuesta = await this.prohibicionVisitaRepository.update(id, nuevaData);
+      if((await respuesta).affected == 1){
+
+        //guardar bitacora de prohibicion
+        let dataProhibicion = await this.findOne(id);
+        let fecha_actual: any = new Date().toISOString().split('T')[0];
+        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
+        
+        dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+        dataBitacora.disposicion = dataProhibicion.disposicion;
+        dataBitacora.detalle = dataProhibicion.detalle;
+        dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+        dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+        dataBitacora.vigente = dataProhibicion.vigente;
+        dataBitacora.anulado = dataProhibicion.anulado;
+        dataBitacora.motivo = "MODIFICACION PROHIBICION";
+        dataBitacora.detalle_motivo = detalle_motivo;
+        dataBitacora.usuario_id = 2;
+        dataBitacora.fecha_cambio = fecha_actual;
+                
+        await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
       } 
       return respuesta;
     }
