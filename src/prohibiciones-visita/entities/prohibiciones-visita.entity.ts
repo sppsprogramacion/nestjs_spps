@@ -36,7 +36,7 @@ export class ProhibicionVisita {
         name: 'organismo_id',
         referencedColumnName: 'id_organismo'
     })
-    Organismo: Organismo;
+    organismo: Organismo;
     //FIN ORGANISMO
 
     @Column({

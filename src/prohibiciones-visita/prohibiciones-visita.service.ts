@@ -63,7 +63,7 @@ export class ProhibicionesVisitaService {
     return await this.prohibicionVisitaRepository.find(
       {
           order:{
-              fecha_prohibicion: "DESC"
+              id_prohibicion_visita: "DESC"
           }
       }
     );
@@ -79,7 +79,7 @@ export class ProhibicionesVisitaService {
             ciudadano_id: id_ciudanox
           },
           order:{
-            fecha_prohibicion: "DESC"
+            id_prohibicion_visita: "DESC"
           }
         }
       );   
@@ -99,7 +99,7 @@ export class ProhibicionesVisitaService {
             organismo_id: id_organismox
           },
           order:{
-            fecha_prohibicion: "DESC"
+            id_prohibicion_visita: "DESC"
           }
         }
       );   
