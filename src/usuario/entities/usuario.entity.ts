@@ -2,6 +2,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneT
 //import {hash} from 'bcryptjs';
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Rol } from "src/roles/entities/rol.entity";
+import { Organismo } from "src/organismos/entities/organismo.entity";
 
 @Entity('usuarios')
 export class Usuario {
@@ -86,6 +87,22 @@ export class Usuario {
     })
     rol: Rol;
     //FIN ROL
+
+    //ORGANISMO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_id: number;
+
+    @ManyToOne(type => Organismo, {eager: true} )
+    @JoinColumn({
+        name: 'organismo_id',
+        referencedColumnName: 'id_organismo'
+    })
+    organismo: Organismo;
+    //FIN ORGANISMO
 
     @Column({
         type: 'varchar',
