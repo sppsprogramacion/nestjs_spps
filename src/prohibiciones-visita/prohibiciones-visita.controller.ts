@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
 import { ProhibicionesVisitaService } from './prohibiciones-visita.service';
 import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.dto';
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
@@ -54,7 +54,7 @@ export class ProhibicionesVisitaController {
   }
   //FIN LEVANTAMIENTO MANUAL.................................
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateProhibicionesVisitaDto

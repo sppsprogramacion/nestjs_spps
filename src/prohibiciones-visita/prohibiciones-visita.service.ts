@@ -205,6 +205,7 @@ export class ProhibicionesVisitaService {
   async update(id: number, data: UpdateProhibicionesVisitaDto) {
     //separar detalle_motivo 
     const { detalle_motivo, ...nuevaData } = data;
+    
     try{
       const respuesta = await this.prohibicionVisitaRepository.update(id, nuevaData);
       if((await respuesta).affected == 1){

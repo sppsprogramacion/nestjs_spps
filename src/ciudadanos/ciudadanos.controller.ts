@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe, Query, Put } from '@nestjs/common';
 import { CiudadanosService } from './ciudadanos.service';
 import { CreateCiudadanoDto } from './dto/create-ciudadano.dto';
 import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
@@ -65,7 +65,7 @@ export class CiudadanosController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateCiudadanoDto: UpdateCiudadanoDto) {
     return this.ciudadanosService.update(+id, updateCiudadanoDto);
   }

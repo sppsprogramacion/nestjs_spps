@@ -87,11 +87,34 @@ export class CiudadanosService {
     return respuesta;
   }
 
-  update(id: number, updateCiudadanoDto: UpdateCiudadanoDto) {
-    return `This action updates a #${id} ciudadano`;
+  async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto) {
+    try{
+      const respuesta = await this.ciudadanoRepository.update(id, updateCiudadanoDto);
+      if((await respuesta).affected == 0){
+        await this.findOne(id);
+      } 
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+    
   }
 
   remove(id: number) {
     return `This action removes a #${id} ciudadano`;
   }
+
+  //MANEJO DE ERRORES
+  private handleDBErrors(error: any): never {
+    if(error.code === "ER_DUP_ENTRY"){
+      throw new BadRequestException (error.sqlMessage);
+    }
+    
+    if(error.status == 404) throw new NotFoundException(error.response);
+  
+    throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

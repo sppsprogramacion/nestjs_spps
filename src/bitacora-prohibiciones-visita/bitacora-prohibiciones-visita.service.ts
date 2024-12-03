@@ -4,7 +4,7 @@ import { UpdateBitacoraProhibicionesVisitaDto } from './dto/update-bitacora-proh
 import { InjectRepository } from '@nestjs/typeorm';
 import { BitacoraProhibicionVisita } from './entities/bitacora-prohibiciones-visita.entity';
 import { Repository } from 'typeorm';
-import { CreateProhibicionesVisitaDto } from 'src/prohibiciones-visita/dto/create-prohibiciones-visita.dto';
+
 
 @Injectable()
 export class BitacoraProhibicionesVisitaService {

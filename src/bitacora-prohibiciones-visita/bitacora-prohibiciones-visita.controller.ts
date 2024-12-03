@@ -1,7 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { BitacoraProhibicionesVisitaService } from './bitacora-prohibiciones-visita.service';
-import { CreateBitacoraProhibicionesVisitaDto } from './dto/create-bitacora-prohibiciones-visita.dto';
-import { UpdateBitacoraProhibicionesVisitaDto } from './dto/update-bitacora-prohibiciones-visita.dto';
 
 @Controller('bitacora-prohibiciones-visita')
 export class BitacoraProhibicionesVisitaController {
