@@ -44,7 +44,7 @@ export class ProhibicionesVisitaController {
   //FIN PARA RUTA NO DEFINIDA...............................
 
   //LEVANTAMIENTO MANUAL
-  @Patch('levantar-manual')
+  @Put('levantar-manual')
   updateLevantarManual(
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: LevantarManualProhibicionesVisitaDto

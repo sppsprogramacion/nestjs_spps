@@ -120,9 +120,9 @@ export class ProhibicionesVisitaService {
 
   //LEVANTAR PROHIBICION MANUAL
   async levantarManualmente(id: number, data: LevantarManualProhibicionesVisitaDto) {
-    let fecha_actual: any = new Date().toISOString().split('T')[0]
+    
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
-    dataProhibicion.fecha_fin = fecha_actual;
+    dataProhibicion.fecha_fin = data.fecha_fin;
     dataProhibicion.vigente = false;
 
     try{
