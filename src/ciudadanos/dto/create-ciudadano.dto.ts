@@ -26,7 +26,7 @@ export class CreateCiudadanoDto {
     @IsInt({message: "El estado_civil_id debe ser un número entero"})
     estado_civil_id: number;
     
-    @Length(1,100,{message: "El nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,100,{message: "La nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
     nacionalidad_id: string;
 
     @Length(1,100,{message: "El pais_id debe tener entre $constraint1 y $constraint2 caracteres."})
