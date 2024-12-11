@@ -12,7 +12,25 @@ export class InternosService {
     private readonly internoRepository: Repository<Interno>
   ){}
   
-  async create(createDto: CreateInternoDto) {
+  async create(createDto: CreateInternoDto, usuario_id: number, organismo_id: number) {
+    let num_tramite_nuevo:number = 0;
+    
+    //obtener numero de interno
+    const num_interno_max = await this.internoRepository.createQueryBuilder('internos')
+    .select('COUNT(internos.codigo)','num_max')
+    .where('internos.organismo_id = :organismo_id', {organismo_id: organismo_id})
+    .getRawOne();
+   
+    if(!num_interno_max) {
+      num_interno_max.num_max = 0;
+    }      
+    num_tramite_nuevo = parseInt(num_interno_max.num_max) + 1;
+
+    //cargar datos por defecto
+    createDto.codigo = organismo_id + "-" + num_tramite_nuevo;
+    createDto.organismo_id = organismo_id;
+    createDto.organismo_carga_id = organismo_id;
+
     try {
 
       const nuevo: Interno = await this.internoRepository.create(createDto );
@@ -42,13 +60,13 @@ export class InternosService {
   }
   
   //BUSCAR LISTA POR PRONTUARIO
-  async findListaXProntuario(dnix: number) {
+  async findListaXProntuario(prontuariox: number) {
 
     return this.internoRepository
       .createQueryBuilder('interno')
-      .select(['interno.id_ciudadano', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
+      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
-      .where('interno.dni = :dni', {dni: dnix})
+      .where('interno.prontuario = :prontuario', {prontuario: prontuariox})
       .orderBy('interno.apellido', 'ASC')
       .getMany();
 
@@ -60,7 +78,7 @@ export class InternosService {
     
     return this.internoRepository
       .createQueryBuilder('interno')
-      .select(['interno.id_ciudadano', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
+      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
       .where('interno.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
       .orderBy('interno.apellido', 'ASC')
@@ -77,6 +95,15 @@ export class InternosService {
   }
   //FIN BUSCAR  XPRONTUARIO..................................................................
 
+  //BUSCAR  XCODIGO
+  async findXCodigo(codigox: string) {
+    
+    const respuesta = await this.internoRepository.findOneBy({codigo: codigox});
+    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
+    return respuesta;
+  }
+  //FIN BUSCAR  XCODIGO..................................................................
+
 
   async findOne(id: number) {
     const respuesta = await this.internoRepository.findOneBy({id_interno: id});
@@ -90,6 +117,21 @@ export class InternosService {
       const respuesta = await this.internoRepository.update(id, updateDto);
       if((await respuesta).affected == 0){
         await this.findOne(id);
+      } 
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+    
+  }
+
+  async updateXCodigo(codigox: string, updateDto: UpdateInternoDto) {
+    try{
+      const respuesta = await this.internoRepository.update({codigo:codigox}, updateDto);
+      if((await respuesta).affected == 0){
+        await this.findXCodigo(codigox);
       } 
       return respuesta;
     }

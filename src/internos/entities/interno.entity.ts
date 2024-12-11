@@ -1,5 +1,6 @@
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
 import { Nacionalidad } from "src/nacionalidades/entities/nacionalidad.entity";
+import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -105,6 +106,22 @@ export class Interno {
     nacionalidad: Nacionalidad;
     //FIN NACIONALIDAD
 
+    //ORGANISMO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_id: number;
+
+    @ManyToOne(type => Organismo, {eager: true} )
+    @JoinColumn({
+        name: 'organismo_id',
+        referencedColumnName: 'id_organismo'
+    })
+    organismo: Organismo;
+    //FIN ORGANISMO
+
         
     @Column({
         type: 'varchar',
@@ -134,5 +151,21 @@ export class Interno {
     })
     usuario_alta: Usuario;
     //FIN USUARIO CARGA
+
+    //ORGANISMO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_carga_id: number;
+
+    @ManyToOne(type => Organismo, {eager: true} )
+    @JoinColumn({
+        name: 'organismo_carga_id',
+        referencedColumnName: 'id_organismo'
+    })
+    organismo_carga: Organismo;
+    //FIN ORGANISMO
 
 }

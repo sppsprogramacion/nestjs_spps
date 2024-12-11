@@ -31,10 +31,14 @@ export class CreateInternoDto {
     
     @Length(1,100,{message: "La nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
     nacionalidad_id: string;
+
+    organismo_id: number;
     
     foto: string;     
     
     fecha_carga: Date;
    
     usuario_carga_id: number;
+
+    organismo_carga_id: number;
 }

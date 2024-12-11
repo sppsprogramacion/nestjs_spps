@@ -42,6 +42,7 @@ export class ProhibicionVisita {
     @Column({
         type: 'date',
         nullable: false
+        
     })
     fecha_prohibicion: Date;
 
