@@ -2,7 +2,7 @@ import { IsInt, Length } from "class-validator";
 
 export class CreateVisitasInternoDto {
 
-    id_visita_interno: number;
+    //id_visita_interno: number;
     
     @IsInt({message: "El ciudadano_id debe ser un número entero."})
     ciudadano_id: number;

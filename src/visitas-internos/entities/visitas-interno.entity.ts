@@ -2,9 +2,10 @@ import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { Interno } from "src/internos/entities/interno.entity";
 import { Parentesco } from "src/parentescos/entities/parentesco.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity('visitas-internos')
+@Unique(['ciudadano_id', 'interno_id']) // Clave única compuesta
 export class VisitaInterno {
     
     @PrimaryGeneratedColumn()
@@ -43,11 +44,11 @@ export class VisitaInterno {
 
     //PARENTESCO
     @Column({
-        type: 'int',
+        type: 'varchar',
+        length: 20,
         nullable: false,
-        default: 1
     })
-    parentesco_id: number;
+    parentesco_id: string;
 
     @ManyToOne(type => Parentesco, {eager: true} )
     @JoinColumn({
@@ -68,6 +69,12 @@ export class VisitaInterno {
         default: true
     })
     vigente: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    anulado: boolean;
 
     @Column({
         type: 'date',

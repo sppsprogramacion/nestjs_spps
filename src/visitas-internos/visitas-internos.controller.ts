@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
 import { VisitasInternosService } from './visitas-internos.service';
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
 import { UpdateVisitasInternoDto } from './dto/update-visitas-interno.dto';
@@ -8,27 +8,40 @@ export class VisitasInternosController {
   constructor(private readonly visitasInternosService: VisitasInternosService) {}
 
   @Post()
-  create(@Body() createVisitasInternoDto: CreateVisitasInternoDto) {
-    return this.visitasInternosService.create(createVisitasInternoDto);
-  }
+  create(@Body() data: CreateVisitasInternoDto) {
+    return this.visitasInternosService.create(data);
+  }  
 
-  @Get()
+  @Get('todos')
   findAll() {
     return this.visitasInternosService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {    
+    
     return this.visitasInternosService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVisitasInternoDto: UpdateVisitasInternoDto) {
-    return this.visitasInternosService.update(+id, updateVisitasInternoDto);
+  //PARA RUTA NO DEFINIDA
+  @Get('*')
+  rutasNoDefinidas() {
+    throw new NotFoundException('No se encontró la ruta especificada. Verifique si la ruta es correcta');
+  }
+  //FIN PARA RUTA NO DEFINIDA...........
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataDto: UpdateVisitasInternoDto
+  ) {
+
+    return this.visitasInternosService.update(+id, dataDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: string) {
+    
     return this.visitasInternosService.remove(+id);
   }
 }
