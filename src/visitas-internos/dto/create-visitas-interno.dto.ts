@@ -16,6 +16,8 @@ export class CreateVisitasInternoDto {
     prohibido: boolean;
     
     vigente: boolean;
+
+    anulado: boolean;
     
     fecha_alta: Date;
 

@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { VisitaInterno } from './entities/visitas-interno.entity';
 import { Repository } from 'typeorm';
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
-import { UpdateVisitasInternoDto } from './dto/update-visitas-interno.dto';
+import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
+import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
 
 @Injectable()
 export class VisitasInternosService {
@@ -71,10 +72,33 @@ export class VisitasInternosService {
   }
   //FIN BUSCAR  XVINCULADOS..................................................................
 
-  async update(id: number, data: UpdateVisitasInternoDto) {
+  //CAMBIO DE PARENTESCO
+  async updateCambioParentesco(id: number, data: UpdateCambioParentescoDto) {
+    let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
+    dataVisitaInterno.parentesco_id = data.parentesco_id;
+    
+    try{
+      const respuesta = await this.visitaInternoRepository.update(id, dataVisitaInterno);
+      if((await respuesta).affected == 1){
+        await this.findOne(id);
+      } 
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }
+  //FIN CAMBIO DE PARENTESCO....................................
+
+  //ANULAR DE PARENTESCO
+  async updateAnularParentesco(id: number, data: DetalleCambioVisitasInternoDto) {
+    
+    let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
+    dataVisitaInterno.anulado = true;
 
     try{
-      const respuesta = await this.visitaInternoRepository.update(id, data);
+      const respuesta = await this.visitaInternoRepository.update(id, dataVisitaInterno);
       if((await respuesta).affected == 0){
         await this.findOne(id);
       } 
@@ -85,6 +109,7 @@ export class VisitasInternosService {
       this.handleDBErrors(error); 
     }   
   }
+  //FIN ANULAR DE PARENTESCO....................................
 
   async remove(id: number) {
     const respuesta = await this.visitaInternoRepository.findOneBy({id_visita_interno: id});

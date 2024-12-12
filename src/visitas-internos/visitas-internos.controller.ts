@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put, Query } from '@nestjs/common';
 import { VisitasInternosService } from './visitas-internos.service';
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
-import { UpdateVisitasInternoDto } from './dto/update-visitas-interno.dto';
+import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
+import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
 
 @Controller('visitas-internos')
 export class VisitasInternosController {
@@ -30,15 +31,29 @@ export class VisitasInternosController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: string, 
-    @Body() dataDto: UpdateVisitasInternoDto
+  //CAMBIAR PARENTESCO
+  @Put('cambiar-parentesco')
+  updateCambiarParentesco(
+    @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
+    @Body() dataDto: UpdateCambioParentescoDto
   ) {
 
-    return this.visitasInternosService.update(+id, dataDto);
+    return this.visitasInternosService.updateCambioParentesco(+id_visita_interno, dataDto);
   }
+  //FIN CAMBIAR PARENTESCO.................................
 
+  //ANULAR PARENTESCO
+  @Put('anular-parentesco')
+  updateAnularParentesco(
+    @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
+    @Body() dataDto: DetalleCambioVisitasInternoDto
+  ) {
+
+    return this.visitasInternosService.updateAnularParentesco(+id_visita_interno, dataDto);
+  }
+  //FIN ANULAR PARENTESCO.................................
+
+  
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: string) {
     

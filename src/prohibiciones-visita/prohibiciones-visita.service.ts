@@ -164,9 +164,8 @@ export class ProhibicionesVisitaService {
   async anular(id: number, data: AnularProhibicionesVisitaDto) {
     let fecha_actual: any = new Date().toISOString().split('T')[0]
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
-    dataProhibicion.fecha_fin = fecha_actual;
     dataProhibicion.anulado = true;
-
+  
     try{
       const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
       if((await respuesta).affected == 1){
