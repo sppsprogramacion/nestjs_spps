@@ -149,7 +149,7 @@ export class Interno {
         name: 'usuario_carga_id',
         referencedColumnName: 'id_usuario'
     })
-    usuario_alta: Usuario;
+    usuario_carga: Usuario;
     //FIN USUARIO CARGA
 
     //ORGANISMO

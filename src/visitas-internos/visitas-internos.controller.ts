@@ -18,6 +18,28 @@ export class VisitasInternosController {
     return this.visitasInternosService.findAll();
   }
 
+  //BUSCAR  XID CIUDADANO
+  @Get('buscarlista-xciudadano')  
+  async findXCiudadano(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string
+    
+  ) {    
+    
+    return this.visitasInternosService.findXCiudano(+id_ciudadano);
+  }
+  //FIN BUSCAR  XID CIUDADANO....................................................
+
+  //BUSCAR  XID INTERNO
+  @Get('buscarlista-xinterno')  
+  async findXInterno(
+    @Query('id_interno', ParseIntPipe) id_interno: string
+    
+  ) {    
+    
+    return this.visitasInternosService.findXInterno(+id_interno);
+  }
+  //FIN BUSCAR  XID INTERNO....................................................
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
     

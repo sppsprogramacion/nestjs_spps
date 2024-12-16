@@ -74,7 +74,21 @@ export class InternosService {
   //FIN BUSCAR LISTA POR PRONTUARIO....................................
 
   //BUSCAR LISTA POR APELLIDO
-  async findListaXApellido(apellidox: string) {
+  async findListaXApellido(apellidox: string, id_organismox: number) {
+    
+    return this.internoRepository
+      .createQueryBuilder('interno')
+      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
+      .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
+      .where('interno.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
+      .andWhere('interno.organismo_id = :id_organismo', {id_organismo: id_organismox})
+      .orderBy('interno.apellido', 'ASC')
+      .getMany();
+  }
+  //FIN BUSCAR LISTA POR APELLIDO....................................
+
+  //BUSCAR LISTA POR APELLIDO
+  async findListaXApellidoGeneral(apellidox: string) {
     
     return this.internoRepository
       .createQueryBuilder('interno')
@@ -85,6 +99,8 @@ export class InternosService {
       .getMany();
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................
+
+
 
   //BUSCAR  XPRONTUARIO
   async findXProntuario(prontuariox: number) {

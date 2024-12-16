@@ -72,6 +72,46 @@ export class VisitasInternosService {
   }
   //FIN BUSCAR  XVINCULADOS..................................................................
 
+  //BUSCAR  XCIUDADANO
+  async findXCiudano(id_ciudanox: number) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    
+      const prohibiciiones = await this.visitaInternoRepository.find(
+        {        
+          where: {
+            ciudadano_id: id_ciudanox
+          },
+          order:{
+            id_visita_interno: "DESC"
+          }
+        }
+      );   
+          
+      return prohibiciiones;
+    
+  }
+  //FIN BUSCAR  XCIUDADANO..................................................................
+
+  //BUSCAR  XINTERNO
+  async findXInterno(id_internox: number) {    
+    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
+    
+      const prohibiciiones = await this.visitaInternoRepository.find(
+        {        
+          where: {
+            interno_id: id_internox
+          },
+          order:{
+            id_visita_interno: "DESC"
+          }
+        }
+      );   
+          
+      return prohibiciiones;
+    
+  }
+  //FIN BUSCAR  XINTERNO..................................................................
+
   //CAMBIO DE PARENTESCO
   async updateCambioParentesco(id: number, data: UpdateCambioParentescoDto) {
     let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;

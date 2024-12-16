@@ -61,8 +61,9 @@ export class InternosController {
   async findListaXApellido(
     @Query('apellido') apellido: string, 
   ) {    
-        
-    return this.internosService.findListaXApellido(apellido);
+    
+    let id_organismo = 1;
+    return this.internosService.findListaXApellido(apellido,id_organismo);
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................
 
