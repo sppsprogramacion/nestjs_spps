@@ -50,9 +50,20 @@ export class ProhibicionesVisitaController {
     @Body() dataDto: LevantarManualProhibicionesVisitaDto
   ) {
 
-    return this.prohibicionesVisitaService.levantarManualmente(+id_prohibicion, dataDto);
+    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar");
   }
   //FIN LEVANTAMIENTO MANUAL.................................
+
+  //PROHIBIR MANUAL
+  @Put('prohibir-manual')
+  updateProhibirManual(
+    @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
+    @Body() dataDto: LevantarManualProhibicionesVisitaDto
+  ) {
+
+    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "prohibir");
+  }
+  //FIN PROHIBIR MANUAL.................................
 
   @Put(':id')
   update(

@@ -118,13 +118,23 @@ export class ProhibicionesVisitaService {
   }
   //FIN BUSCAR  XID..................................................................
 
-  //LEVANTAR PROHIBICION MANUAL
-  async levantarManualmente(id: number, data: LevantarManualProhibicionesVisitaDto) {
+  //LEVANTAR/PROHIBIR MANUAL >> accion: prohibir o levantar
+  async levantarYProhibirManualmente(id: number, data: LevantarManualProhibicionesVisitaDto, accion: string) {
     
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
-    dataProhibicion.fecha_fin = data.fecha_fin;
-    dataProhibicion.vigente = false;
+    let motivo: string="";
 
+    dataProhibicion.fecha_fin = data.fecha_fin;
+    if(accion == "levantar"){
+      motivo = "LEVANTAMIENTO MANUAL";
+      dataProhibicion.vigente = false;
+    }
+
+    if(accion == "prohibir"){
+      motivo = "VOLVER A PROHIBIR";
+      dataProhibicion.vigente = true;
+    }
+    
     try{
       const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
       if((await respuesta).affected == 1){
@@ -141,7 +151,7 @@ export class ProhibicionesVisitaService {
         dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
         dataBitacora.vigente = dataProhibicion.vigente;
         dataBitacora.anulado = dataProhibicion.anulado;
-        dataBitacora.motivo = "LEVANTAMIENTO MANUAL";
+        dataBitacora.motivo = motivo;
         dataBitacora.detalle_motivo = data.detalle_motivo;
         dataBitacora.usuario_id = 2;
         dataBitacora.fecha_cambio = fecha_actual;
