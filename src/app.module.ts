@@ -24,6 +24,7 @@ import { BitacoraProhibicionesVisitaModule } from './bitacora-prohibiciones-visi
 import { InternosModule } from './internos/internos.module';
 import { VisitasInternosModule } from './visitas-internos/visitas-internos.module';
 import { ParentescosModule } from './parentescos/parentescos.module';
+import { UsuariosRolModule } from './usuarios-rol/usuarios-rol.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { ParentescosModule } from './parentescos/parentescos.module';
     InternosModule,
     VisitasInternosModule,
     ParentescosModule,
+    UsuariosRolModule,
   ],
   controllers: [AppController],
   providers: [AppService],

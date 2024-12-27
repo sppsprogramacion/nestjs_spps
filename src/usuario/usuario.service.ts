@@ -75,7 +75,11 @@ export class UsuarioService {
 
   //BUSCAR  XDni
   async findXDni(dnix: number) {
-    const respuesta = await this.usuariosRepository.findOneBy({dni: dnix});
+    const respuesta = await this.usuariosRepository.findOneBy(
+      {
+        dni: dnix
+      }
+    );
     if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
     return respuesta;
   }
@@ -83,7 +87,15 @@ export class UsuarioService {
 
   //BUSCAR  XID
   async findOne(id: number) {
-    const respuesta = await this.usuariosRepository.findOneBy({id_usuario: id});
+    const respuesta = await this.usuariosRepository.findOne(
+      {
+        relations: ['roles'], 
+        where: {
+          id_usuario: id,          
+        },
+      }
+    );
+    
     if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
 
     return respuesta;

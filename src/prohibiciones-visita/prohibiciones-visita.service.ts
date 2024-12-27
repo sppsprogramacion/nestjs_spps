@@ -21,8 +21,7 @@ export class ProhibicionesVisitaService {
 
   async create(data: CreateProhibicionesVisitaDto): Promise<ProhibicionVisita> {
     
-    let fecha_actual: any = new Date().toISOString().split('T')[0];        
-       
+    let fecha_actual: any = new Date().toISOString().split('T')[0];               
     
     //cargar datos por defecto
     data.fecha_prohibicion = fecha_actual

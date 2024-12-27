@@ -49,6 +49,12 @@ export class UsuarioController {
   //   return this.ciudadanosService.findOne(id_ciudadano);
   // }
 
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: string) {    
+    
+    return this.usuarioService.findOne(+id);
+  }
+
 
   @Patch('cambiar-password/:id')
   updatePassword(

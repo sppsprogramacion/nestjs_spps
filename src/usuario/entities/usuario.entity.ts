@@ -3,6 +3,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneT
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Rol } from "src/roles/entities/rol.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { UsuarioRol } from "src/usuarios-rol/entities/usuarios-rol.entity";
 
 @Entity('usuarios')
 export class Usuario {
@@ -118,6 +119,11 @@ export class Usuario {
         default: true
     })
     activo: boolean;
+
+    //ROLES
+    @OneToMany(() => UsuarioRol, (usuarioRol) => usuarioRol.usuario)
+    roles : UsuarioRol[];
+    //FIN ROLES
 
 }
 
