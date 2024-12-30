@@ -86,6 +86,24 @@ export class UsuarioService {
   //FIN BUSCAR  XDni..................................................................
 
   //BUSCAR  XID
+  // async findOne(id: number) {
+  //   const respuesta = await this.usuariosRepository.findOne(
+  //     {
+  //       relations: ['roles'], 
+  //       where: {
+  //         id_usuario: id,          
+  //       },
+  //     }
+  //   );
+    
+  //   if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
+
+  //   return respuesta;
+  // }
+  //FIN BUSCAR  XID..................................................................
+
+  
+  //BUSCAR  XID
   async findOne(id: number) {
     const respuesta = await this.usuariosRepository.findOne(
       {
@@ -101,7 +119,6 @@ export class UsuarioService {
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
-
   
   //MODIFICAR CIUDADANO
   async update(idx: number, data: UpdateUsuarioDto) {
