@@ -72,23 +72,6 @@ export class Usuario {
     })
     email: string;
 
-    //ROL
-    @Column({
-        type: 'varchar',
-        length: 100,
-        nullable: false,
-        default: "consulta"
-    })
-    rol_id: string;
-
-    @ManyToOne(type => Rol, {eager: true} )
-    @JoinColumn({
-        name: 'rol_id',
-        referencedColumnName: 'id_rol'
-    })
-    rol: Rol;
-    //FIN ROL
-
     //ORGANISMO
     @Column({
         type: 'int',

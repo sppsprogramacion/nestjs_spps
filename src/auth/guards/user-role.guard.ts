@@ -35,9 +35,13 @@ export class UserRoleGuard implements CanActivate {
       throw new BadRequestException ("Usuario no encontrado");
 
     //validacion si el rol del usuario es parte de los roles establecidos como validos para la ruta
-    if(validRoles.includes( user.rol_id )){
-      return true;
+    for (const rol of user.roles){
+      if(validRoles.includes( rol.rol_id )){
+        return true;
+      }
     }
+    
+    
 
     //cuando el usuario no tiene un rol valido para la ruta
     throw new ForbiddenException(

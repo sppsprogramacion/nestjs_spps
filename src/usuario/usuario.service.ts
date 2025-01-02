@@ -86,24 +86,6 @@ export class UsuarioService {
   //FIN BUSCAR  XDni..................................................................
 
   //BUSCAR  XID
-  // async findOne(id: number) {
-  //   const respuesta = await this.usuariosRepository.findOne(
-  //     {
-  //       relations: ['roles'], 
-  //       where: {
-  //         id_usuario: id,          
-  //       },
-  //     }
-  //   );
-    
-  //   if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
-
-  //   return respuesta;
-  // }
-  //FIN BUSCAR  XID..................................................................
-
-  
-  //BUSCAR  XID
   async findOne(id: number) {
     const respuesta = await this.usuariosRepository.findOne(
       {
@@ -115,9 +97,29 @@ export class UsuarioService {
     );
     
     if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
+    
+    const {roles, ...usuarioData} = respuesta
 
-    return respuesta;
+    return {
+      ...usuarioData,
+      roles: roles.map((rol) => rol.rol_id)
+    }
   }
+  //FIN BUSCAR  XID..................................................................
+
+  
+  //BUSCAR  XID
+  // async findOne(id: number) {
+  //   const usuario = await this.usuariosRepository.createQueryBuilder('usuario')
+  //   .leftJoin('usuarios_rol.rol', 'rol')
+  //   .where('usuario.id_usuario = :id_usuario', { id_usuario: id })
+  //   .select(['usuario'])
+  //   .getOne();
+    
+  //   if (!usuario) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
+
+  //   return usuario;
+  // }
   //FIN BUSCAR  XID..................................................................
   
   //MODIFICAR CIUDADANO
