@@ -12,21 +12,45 @@ export class AuthController {
 
   @Post('login-ciudadano')
   async loginCiudadano(
-    @Body() loginCiudadanoDto: LoginCiudadanoDto    
-
-  ) {         
-    return this.authService.loginCiudadano(loginCiudadanoDto);
-    
-  }
-
-  @Post('login-usuario')
-  async loginUsuario(
     @Body()
     loginUsuarioDto: LoginUsuarioDto
 
   ) {
-    return this.authService.loginUsuario(loginUsuarioDto);
+    return this.authService.loginUsuario(loginUsuarioDto,"ciudadano");
     
   }
+
+  @Post('login-restriccion')
+  async loginRestriccion(
+    @Body()
+    loginUsuarioDto: LoginUsuarioDto
+
+  ) {
+    return this.authService.loginUsuario(loginUsuarioDto,"restriccion");
+    
+  }
+
+  @Post('login-judiciales')
+  async loginJudiciales(
+    @Body()
+    loginUsuarioDto: LoginUsuarioDto
+
+  ) {
+    return this.authService.loginUsuario(loginUsuarioDto,"judiciales");
+    
+  }
+
+  @Post('login-visitas')
+  async loginVisitas(
+    @Body()
+    loginUsuarioDto: LoginUsuarioDto
+
+  ) {
+    return this.authService.loginUsuario(loginUsuarioDto,"visitas");
+    
+  }
+
+
+
   
 }

@@ -36,7 +36,7 @@ export class UserRoleGuard implements CanActivate {
 
     //validacion si el rol del usuario es parte de los roles establecidos como validos para la ruta
     for (const rol of user.roles){
-      if(validRoles.includes( rol.rol_id )){
+      if(validRoles.includes( rol.rol_id )){        
         return true;
       }
     }

@@ -48,7 +48,7 @@ export class AuthService {
   //FIN LOGIN CIUDADANO............................................................
 
   //LOGIN USUARIO
-  async loginUsuario(loginUsuarioDto: LoginUsuarioDto){
+  async loginUsuario(loginUsuarioDto: LoginUsuarioDto, sistema:string){
     const { dni, clave } = loginUsuarioDto;    
     const usuario = await this.usuarioRepository.createQueryBuilder('usuario')
     .where('usuario.dni = :dni', { dni: dni })
@@ -61,10 +61,26 @@ export class AuthService {
     if( !bcrypt.compareSync(clave, usuario.clave) )
       throw new UnauthorizedException ("Los datos de login no son válidos (clave)");
     
-    const usuario2 = await this.usuarioRepository.findOneBy({dni: dni});
+    const usuario2 = await this.usuarioRepository.findOne(
+      {
+        relations: ['roles'],
+        where: {dni: dni}
+      }
+    );
     
+    //control de autorizacion del usuario en el sistema indicado
+    const sistemasRoles = usuario2.roles.map((rolUsuario) => rolUsuario.rol.sistema_id)    
+    if(!sistemasRoles.includes( sistema )){        
+      throw new UnauthorizedException ("No está autorizado en este sistema");
+    }
+
+    //simplificacion de roles del usuario
+    const {roles, ...usuarioData} = usuario2;
+
+
     return {
-      ...usuario2,
+      ...usuarioData,
+      roles: roles.map((rol) => rol.rol_id),
       //token: this.getJwtToken( {dni: usuario2.dni})
       token: this.getJwtToken( {id_usuario: usuario2.id_usuario} )
     };

@@ -8,20 +8,30 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UsuariosRolService {
 
-  constructor(
+  constructor(    
     @InjectRepository(UsuarioRol)
     private readonly usuarioRolRepository: Repository<UsuarioRol>
   ){}
 
+  //NUEVO ROL DEL USUARIO
   async create(data: CreateUsuariosRolDto): Promise<UsuarioRol> {
 
-    try {
-
-      let fecha_actual: any = new Date().toISOString().split('T')[0];               
+    let fecha_actual: any = new Date().toISOString().split('T')[0];               
     
     //cargar datos por defecto
     data.fecha_alta = fecha_actual
-      
+
+    const usuarioRol = await this.usuarioRolRepository.findOneBy(
+      {
+        usuario_id: data.usuario_id,
+        rol_id: data.rol_id,
+        activo: true
+      }
+    );
+
+    if(usuarioRol) throw new NotFoundException("El usuario ya tiene este rol asignado.");
+
+    try {
       const nuevo = await this.usuarioRolRepository.create(data);
       return await this.usuarioRolRepository.save(nuevo);
     }catch (error) {
@@ -29,6 +39,8 @@ export class UsuariosRolService {
       this.handleDBErrors(error);  
     }     
   }
+
+  //FIN NUEVO ROL DEL USUARIO.........................
 
   async findAll() {
     return await this.usuarioRolRepository.find();
