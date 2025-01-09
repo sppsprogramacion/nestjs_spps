@@ -3,6 +3,7 @@ import { ProhibicionesVisitaService } from './prohibiciones-visita.service';
 import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.dto';
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
+import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.dto';
 
 @Controller('prohibiciones-visita')
 export class ProhibicionesVisitaController {
@@ -64,6 +65,17 @@ export class ProhibicionesVisitaController {
     return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "prohibir");
   }
   //FIN PROHIBIR MANUAL.................................
+
+  //ANULAR PROHIBICION
+  @Put('anular')
+  updateAnular(
+    @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
+    @Body() dataDto: AnularProhibicionesVisitaDto
+  ) {
+
+    return this.prohibicionesVisitaService.anularProhibicion(+id_prohibicion, dataDto);
+  }
+  //FIN ANULAR PROHIBICION.................................
 
   @Put(':id')
   update(

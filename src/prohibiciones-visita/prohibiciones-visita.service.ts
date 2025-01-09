@@ -169,14 +169,17 @@ export class ProhibicionesVisitaService {
   }  
   //FIN LEVANTAR PROHIBICION MANUAL
 
-  //LEVANTAR PROHIBICION MANUAL
-  async anular(id: number, data: AnularProhibicionesVisitaDto) {
-    let fecha_actual: any = new Date().toISOString().split('T')[0]
+  //ANULAR PROHIBICION
+  async anularProhibicion(id: number, data: AnularProhibicionesVisitaDto) {
+    
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
     dataProhibicion.anulado = true;
   
     try{
+
+      //actualiza en anulado
       const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
+
       if((await respuesta).affected == 1){
 
         //guardar bitacora de prhibicion
@@ -208,7 +211,7 @@ export class ProhibicionesVisitaService {
       this.handleDBErrors(error); 
     }   
   }  
-  //FIN LEVANTAR PROHIBICION MANUAL
+  //FIN ANULAR PROHIBICION
 
   async update(id: number, data: UpdateProhibicionesVisitaDto) {
     //separar detalle_motivo 
