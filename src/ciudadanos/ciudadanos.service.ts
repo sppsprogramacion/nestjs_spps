@@ -4,13 +4,19 @@ import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ciudadano } from './entities/ciudadano.entity';
 import { Like, Repository } from 'typeorm';
+import { EstablecerVisitaDto } from './dto/establecer-visita.dto';
+import { CreateNovedadesCiudadanoDto } from '../novedades-ciudadano/dto/create-novedades-ciudadano.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
 
 @Injectable()
 export class CiudadanosService {
 
   constructor(
     @InjectRepository(Ciudadano)
-    private readonly ciudadanoRepository: Repository<Ciudadano>
+    private readonly ciudadanoRepository: Repository<Ciudadano>,
+    
+    private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
   
   async create(createCiudadanoDto: CreateCiudadanoDto) {
@@ -101,6 +107,54 @@ export class CiudadanosService {
     }   
     
   }
+
+  //ESTABLECER CIUDADANO COMO VISITA Y LUEGO GUARDAR EN TABLA NOVEDADES
+  //accion puede ser true o false
+  async establecerComoVisita(id_ciudadanox: number, data: EstablecerVisitaDto, accion: boolean, usuariox: Usuario) {
+    
+    let dataCiudadano: CreateCiudadanoDto = new CreateCiudadanoDto;
+    let novedad: string="";
+
+    //dataCiudadano.fecha_ = data.fecha_fin;
+    if(accion){
+      novedad = "ESTABLECER ESTADO COMO VISITA";
+      dataCiudadano.es_visita = accion;
+    }
+
+    if(!accion){
+      novedad = "QUITAR ESTADO COMO VISITA";
+      dataCiudadano.es_visita = accion;
+    }
+    
+    try{
+      const respuesta = await this.ciudadanoRepository.update(id_ciudadanox, dataCiudadano);
+      if((await respuesta).affected == 1){
+
+        //guardar novedad
+        let fecha_actual: any = new Date().toISOString().split('T')[0];
+        let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
+        
+        dataNovedad.ciudadano_id = id_ciudadanox;
+        
+        dataNovedad.novedad = novedad;
+        dataNovedad.novedad_detalle = data.novedad_detalle;
+        dataNovedad.organismo_id = usuariox.organismo_id;
+        dataNovedad.usuario_id = usuariox.id_usuario;
+        dataNovedad.fecha_novedad = fecha_actual;
+                
+        await this.novedadesCiudadanoService.create(dataNovedad);
+
+      } 
+
+
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN ESTABLECER CIUDADANO COMO VISITA Y LUEGO GUARDAR EN TABLA NOVEDADES
 
   remove(id: number) {
     return `This action removes a #${id} ciudadano`;

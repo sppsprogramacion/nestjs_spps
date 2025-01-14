@@ -2,6 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, P
 import { CiudadanosService } from './ciudadanos.service';
 import { CreateCiudadanoDto } from './dto/create-ciudadano.dto';
 import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
+import { EstablecerVisitaDto } from './dto/establecer-visita.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { EstablecerComoVisitaDto } from './dto/establecer-como-visita.dto';
 
 @Controller('ciudadanos')
 export class CiudadanosController {
@@ -53,6 +56,7 @@ export class CiudadanosController {
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................
 
+  
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id_ciudadano: string) {
     return this.ciudadanosService.findOne(+id_ciudadano);
@@ -64,6 +68,36 @@ export class CiudadanosController {
     throw new NotFoundException('No se encontró la ruta especificada. Verifique si la ruta es correcta');
   }
   //FIN PARA RUTA NO DEFINIDA...........
+
+  //ESTABLECER ESTADO COMO VISITA
+  @Put('establecer-visita')
+  updateEstablecerComoVisita(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+    @Body() dataDto: EstablecerVisitaDto
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+    
+    return this.ciudadanosService.establecerComoVisita(+id_ciudadano, dataDto, true, usuariox);
+  }
+  //FIN ESTABLECER ESTADO COMO VISITA.................................  
+
+  //QUITAR ESTADO COMO VISITA
+  @Put('quitar-visita')
+  updateQuitarComoVisita(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
+    @Body() dataDto: EstablecerVisitaDto
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
+    return this.ciudadanosService.establecerComoVisita(+id_ciudadano, dataDto, false, usuariox);
+  }
+  //FIN QUITAR ESTADO COMO VISITA.................................
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateCiudadanoDto: UpdateCiudadanoDto) {

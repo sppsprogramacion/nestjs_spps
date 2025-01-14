@@ -8,7 +8,7 @@ export class BitacoraProhibicionesVisitaController {
 
   //BUSCAR  XID PROHIBICION
   @Get('buscar-xprohibicion')  
-  async findXCiudadano(
+  async findXProhibicion(
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string    
   ) {    
     
@@ -20,7 +20,5 @@ export class BitacoraProhibicionesVisitaController {
   findOne(@Param('id') id: string) {
     return this.bitacoraProhibicionesVisitaService.findOne(+id);
   }
- 
-
   
 }

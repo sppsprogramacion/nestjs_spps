@@ -1,9 +1,7 @@
-import { IsDateString, IsInt, IsNotEmpty, Length, Matches } from "class-validator";
-import { PrimaryGeneratedColumn } from "typeorm";
+import { IsDateString, IsInt, Length } from "class-validator";
 
 
 export class CreateCiudadanoDto {
-
     
     @IsInt({message: "El dni debe ser un número entero."})
     dni: number;

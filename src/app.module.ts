@@ -25,6 +25,7 @@ import { InternosModule } from './internos/internos.module';
 import { VisitasInternosModule } from './visitas-internos/visitas-internos.module';
 import { ParentescosModule } from './parentescos/parentescos.module';
 import { UsuariosRolModule } from './usuarios-rol/usuarios-rol.module';
+import { NovedadesCiudadanoModule } from './novedades-ciudadano/novedades-ciudadano.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { UsuariosRolModule } from './usuarios-rol/usuarios-rol.module';
     VisitasInternosModule,
     ParentescosModule,
     UsuariosRolModule,
+    NovedadesCiudadanoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
