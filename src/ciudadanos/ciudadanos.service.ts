@@ -8,6 +8,7 @@ import { EstablecerVisitaDto } from './dto/establecer-visita.dto';
 import { CreateNovedadesCiudadanoDto } from '../novedades-ciudadano/dto/create-novedades-ciudadano.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
+import { EstablecerDiscapacidadDto } from './dto/establecer-discapacidad.dto';
 
 @Injectable()
 export class CiudadanosService {
@@ -19,7 +20,10 @@ export class CiudadanosService {
     private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
   
-  async create(createCiudadanoDto: CreateCiudadanoDto) {
+  async create(createCiudadanoDto: CreateCiudadanoDto, usuariox: Usuario) {
+    createCiudadanoDto.usuario_id_alta = usuariox.id_usuario;
+    createCiudadanoDto.organismo_alta_id = usuariox.organismo_id;
+
     try {
 
       const nuevo: Ciudadano = await this.ciudadanoRepository.create(createCiudadanoDto );
@@ -93,7 +97,7 @@ export class CiudadanosService {
     return respuesta;
   }
 
-  async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto) {
+  async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto, usuariox: Usuario) {
     try{
       const respuesta = await this.ciudadanoRepository.update(id, updateCiudadanoDto);
       if((await respuesta).affected == 0){
@@ -115,7 +119,6 @@ export class CiudadanosService {
     let dataCiudadano: CreateCiudadanoDto = new CreateCiudadanoDto;
     let novedad: string="";
 
-    //dataCiudadano.fecha_ = data.fecha_fin;
     if(accion){
       novedad = "ESTABLECER ESTADO COMO VISITA";
       dataCiudadano.es_visita = accion;
@@ -129,13 +132,11 @@ export class CiudadanosService {
     try{
       const respuesta = await this.ciudadanoRepository.update(id_ciudadanox, dataCiudadano);
       if((await respuesta).affected == 1){
-
         //guardar novedad
         let fecha_actual: any = new Date().toISOString().split('T')[0];
         let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
         
-        dataNovedad.ciudadano_id = id_ciudadanox;
-        
+        dataNovedad.ciudadano_id = id_ciudadanox;        
         dataNovedad.novedad = novedad;
         dataNovedad.novedad_detalle = data.novedad_detalle;
         dataNovedad.organismo_id = usuariox.organismo_id;
@@ -143,9 +144,50 @@ export class CiudadanosService {
         dataNovedad.fecha_novedad = fecha_actual;
                 
         await this.novedadesCiudadanoService.create(dataNovedad);
-
       } 
 
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN ESTABLECER CIUDADANO COMO VISITA Y LUEGO GUARDAR EN TABLA NOVEDADES
+
+  //ESTABLECER CIUDADANO CON DISCAPACIDAD Y LUEGO GUARDAR EN TABLA NOVEDADES
+  //accion puede ser true o false
+  async establecerConDiscapacidad(id_ciudadanox: number, data: EstablecerDiscapacidadDto, accion: boolean, usuariox: Usuario) {
+    
+    let dataCiudadano: CreateCiudadanoDto = new CreateCiudadanoDto;
+    let novedad: string="";
+
+    if(accion){
+      novedad = "ESTABLECER CON DISCAPACIDAD";
+      dataCiudadano.tiene_discapacidad = accion;
+    }
+
+    if(!accion){
+      novedad = "QUITAR DISCAPACIDAD";
+      dataCiudadano.tiene_discapacidad = accion;
+    }
+    
+    try{
+      const respuesta = await this.ciudadanoRepository.update(id_ciudadanox, dataCiudadano);
+      if((await respuesta).affected == 1){
+        //guardar novedad
+        let fecha_actual: any = new Date().toISOString().split('T')[0];
+        let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
+        
+        dataNovedad.ciudadano_id = id_ciudadanox;        
+        dataNovedad.novedad = novedad;
+        dataNovedad.novedad_detalle = data.novedad_detalle;
+        dataNovedad.organismo_id = usuariox.organismo_id;
+        dataNovedad.usuario_id = usuariox.id_usuario;
+        dataNovedad.fecha_novedad = fecha_actual;
+                
+        await this.novedadesCiudadanoService.create(dataNovedad);
+      } 
 
       return respuesta;
     }
@@ -169,6 +211,6 @@ export class CiudadanosService {
     if(error.status == 404) throw new NotFoundException(error.response);
   
     throw new InternalServerErrorException (error.message);
-    }
-    //FIN MANEJO DE ERRORES........................................
+  }
+  //FIN MANEJO DE ERRORES........................................
 }

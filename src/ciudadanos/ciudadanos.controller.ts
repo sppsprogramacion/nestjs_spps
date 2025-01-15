@@ -4,7 +4,8 @@ import { CreateCiudadanoDto } from './dto/create-ciudadano.dto';
 import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
 import { EstablecerVisitaDto } from './dto/establecer-visita.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
-import { EstablecerComoVisitaDto } from './dto/establecer-como-visita.dto';
+import { UpdateDatosPersonalesCiudadanoDto } from './dto/update-datos-personales-ciudadno.dto';
+import { UpdateDomicilioCiudadanoDto } from './dto/update-domicilio-ciudadano.dto';
 
 @Controller('ciudadanos')
 export class CiudadanosController {
@@ -15,10 +16,15 @@ export class CiudadanosController {
 
     //cargar datos por defecto
     let fecha_actual: any = new Date().toISOString().split('T')[0];    
+    
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+    
     createCiudadanoDto.fecha_alta = fecha_actual;  
     createCiudadanoDto.foto = "foto-" + createCiudadanoDto.dni.toString();
-
-    return this.ciudadanosService.create(createCiudadanoDto);
+    
+    return this.ciudadanosService.create(createCiudadanoDto, usuariox);
   }
 
   @Get('todos')
@@ -99,9 +105,74 @@ export class CiudadanosController {
   }
   //FIN QUITAR ESTADO COMO VISITA.................................
 
+  //ESTABLECER CON DISCAPACIDAD
+  @Put('establecer-discapacidad')
+  updateEstablecerConDiscapacidad(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+    @Body() dataDto: EstablecerVisitaDto
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+    
+    return this.ciudadanosService.establecerConDiscapacidad(+id_ciudadano, dataDto, true, usuariox);
+  }
+  //FIN ESTABLECER CON DISCAPACIDAD.................................  
+
+  //QUITAR DISCAPACIDAD
+  @Put('quitar-discapacidad')
+  updateQuitarDiscapacidad(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
+    @Body() dataDto: EstablecerVisitaDto
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
+    return this.ciudadanosService.establecerConDiscapacidad(+id_ciudadano, dataDto, false, usuariox);
+  }
+  //FIN QUITAR DISCAPACIDAD...........................................
+
+  //MODIFICAR DATOS PERSONALES
+  @Put('update-datos-personales')
+  updateDatosPersonales(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
+    @Body() dataDto: UpdateDatosPersonalesCiudadanoDto
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
+    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox);
+  }
+  //FIN MODIFICAR DATOS PERSONALES...........................................
+
+  //MODIFICAR DOMICILIO
+  @Put('update-domicilio')
+  updateDomicilio(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
+    @Body() dataDto: UpdateDomicilioCiudadanoDto
+  ) {
+  
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+  
+    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox);
+  }
+  //FIN MODIFICAR DOMICILIO...........................................
+
   @Put(':id')
   update(@Param('id') id: string, @Body() updateCiudadanoDto: UpdateCiudadanoDto) {
-    return this.ciudadanosService.update(+id, updateCiudadanoDto);
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
+    return this.ciudadanosService.update(+id, updateCiudadanoDto, usuariox);
   }
 
   @Delete(':id')

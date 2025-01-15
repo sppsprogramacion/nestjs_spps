@@ -58,6 +58,8 @@ export class CreateCiudadanoDto {
     foto: string;     
     
     fecha_alta: Date;
+
+    organismo_alta_id: number;
    
     usuario_id_alta: number;
 
