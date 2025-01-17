@@ -25,4 +25,7 @@ export class UpdateDomicilioCiudadanoDto {
 
     @IsInt({message: "El numero_dom debe ser un número entero"})
     numero_dom: number;
+
+    @Length(1,2000,{message: "El detalle_motivo debe tener entre $constraint1 y $constraint2 caracteres."})
+    detalle_motivo: string;
 }

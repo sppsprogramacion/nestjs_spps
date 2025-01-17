@@ -27,6 +27,7 @@ import { ParentescosModule } from './parentescos/parentescos.module';
 import { UsuariosRolModule } from './usuarios-rol/usuarios-rol.module';
 import { NovedadesCiudadanoModule } from './novedades-ciudadano/novedades-ciudadano.module';
 import { BitacoraCiudadanoModule } from './bitacora-ciudadano/bitacora-ciudadano.module';
+import { DomiciliosCiudadanoModule } from './domicilios-ciudadano/domicilios-ciudadano.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { BitacoraCiudadanoModule } from './bitacora-ciudadano/bitacora-ciudadano
     UsuariosRolModule,
     NovedadesCiudadanoModule,
     BitacoraCiudadanoModule,
+    DomiciliosCiudadanoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

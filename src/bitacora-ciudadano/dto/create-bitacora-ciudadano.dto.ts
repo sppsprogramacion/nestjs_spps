@@ -20,10 +20,14 @@ export class CreateBitacoraCiudadanoDto {
     
     nacionalidad_id: string;
 
-    motivo: string;
+    tiene_discapacidad: boolean;
         
+    es_visita: boolean;    
+    
+    foto: string; 
+
     detalle_motivo: string;
-   
+
     organismo_id: number;
 
     usuario_id: number;

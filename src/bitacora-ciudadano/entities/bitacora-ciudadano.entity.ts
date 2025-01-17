@@ -30,7 +30,6 @@ export class BitacoraCiudadano {
     @Column({
         type: 'int',
         nullable: false,
-        unique: true
     })
     dni: number;
 
@@ -128,19 +127,6 @@ export class BitacoraCiudadano {
         nullable: true
     })
     foto: string; 
-    
-    @Column({
-        type: 'date',
-        nullable: false
-    })
-    fecha_cambio: Date;
-
-    @Column({
-        type: 'varchar',
-        length: 100,
-        nullable: false
-    })
-    motivo: string;
 
     @Column({
         type: 'varchar',
@@ -148,6 +134,12 @@ export class BitacoraCiudadano {
         nullable: false
     })
     detalle_motivo: string;
+    
+    @Column({
+        type: 'date',
+        nullable: false
+    })
+    fecha_cambio: Date;
 
     //ORGANISMO
     @Column({

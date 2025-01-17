@@ -146,7 +146,9 @@ export class CiudadanosController {
     usuariox.id_usuario = 2;
     usuariox.organismo_id = 1;
 
-    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox);
+    //datos_personales: para que solo se modifiquen los datos_personales e identificar
+    //quq se guarde en tabla bitacora_ciudadano
+    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox, "datos_personales");
   }
   //FIN MODIFICAR DATOS PERSONALES...........................................
 
@@ -161,7 +163,9 @@ export class CiudadanosController {
     usuariox.id_usuario = 2;
     usuariox.organismo_id = 1;
   
-    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox);
+    //domicilio: para que solo se modifiquen los datos de domicilio e identificar
+    //que se guarde en tabla domicilios_ciudadano
+    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox, "domicilio");
   }
   //FIN MODIFICAR DOMICILIO...........................................
 
@@ -172,7 +176,7 @@ export class CiudadanosController {
     usuariox.id_usuario = 2;
     usuariox.organismo_id = 1;
 
-    return this.ciudadanosService.update(+id, updateCiudadanoDto, usuariox);
+    return this.ciudadanosService.update(+id, updateCiudadanoDto, usuariox, "todo");
   }
 
   @Delete(':id')

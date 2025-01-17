@@ -9,6 +9,10 @@ import { CreateNovedadesCiudadanoDto } from '../novedades-ciudadano/dto/create-n
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
 import { EstablecerDiscapacidadDto } from './dto/establecer-discapacidad.dto';
+import { CreateBitacoraCiudadanoDto } from 'src/bitacora-ciudadano/dto/create-bitacora-ciudadano.dto';
+import { BitacoraCiudadanoService } from '../bitacora-ciudadano/bitacora-ciudadano.service';
+import { CreateDomiciliosCiudadanoDto } from 'src/domicilios-ciudadano/dto/create-domicilios-ciudadano.dto';
+import { DomiciliosCiudadanoService } from '../domicilios-ciudadano/domicilios-ciudadano.service';
 
 @Injectable()
 export class CiudadanosService {
@@ -16,7 +20,8 @@ export class CiudadanosService {
   constructor(
     @InjectRepository(Ciudadano)
     private readonly ciudadanoRepository: Repository<Ciudadano>,
-    
+    private readonly bitacoraCiudadanoService: BitacoraCiudadanoService,
+    private readonly domiciliosCiudadanoService: DomiciliosCiudadanoService,
     private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
   
@@ -97,12 +102,63 @@ export class CiudadanosService {
     return respuesta;
   }
 
-  async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto, usuariox: Usuario) {
+  async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto, usuariox: Usuario, tipo_modificacion: string) {
     try{
-      const respuesta = await this.ciudadanoRepository.update(id, updateCiudadanoDto);
-      if((await respuesta).affected == 0){
-        await this.findOne(id);
+
+      //preparar dto de bitacora o domicilio
+      let dataCiudadano = await this.findOne(id);
+      let fecha_actual: any = new Date().toISOString().split('T')[0];
+      let dataBitacora: CreateBitacoraCiudadanoDto = new CreateBitacoraCiudadanoDto;
+      let dataDomicilio: CreateDomiciliosCiudadanoDto = new CreateDomiciliosCiudadanoDto;
+      
+      const{detalle_motivo, ...nuevaDataUpdate} = updateCiudadanoDto;
+      //guardar update
+      const respuesta = await this.ciudadanoRepository.update(id, nuevaDataUpdate);
+
+      if((await respuesta).affected == 1){
+        if (tipo_modificacion == "datos_personales"){
+          dataBitacora.ciudadano_id = dataCiudadano.id_ciudadano;
+          dataBitacora.apellido = dataCiudadano.apellido;
+          dataBitacora.nombre = dataCiudadano.nombre;
+          dataBitacora.dni = dataCiudadano.dni;
+          dataBitacora.sexo_id = dataCiudadano.sexo_id;
+          dataBitacora.estado_civil_id = dataCiudadano.estado_civil_id;
+          dataBitacora.fecha_nac = dataCiudadano.fecha_nac;
+          dataBitacora.nacionalidad_id = dataCiudadano.nacionalidad_id;
+          dataBitacora.telefono = dataCiudadano.telefono;
+          dataBitacora.es_visita = dataCiudadano.es_visita;
+          dataBitacora.tiene_discapacidad = dataCiudadano.tiene_discapacidad;
+          dataBitacora.foto = dataCiudadano.foto;
+          dataBitacora.detalle_motivo = detalle_motivo;
+          dataBitacora.fecha_cambio = fecha_actual;
+          dataBitacora.organismo_id = usuariox.organismo_id;
+          dataBitacora.usuario_id = usuariox.id_usuario;
+  
+          await this.bitacoraCiudadanoService.create(dataBitacora);
+        }
+
+        if (tipo_modificacion == "domicilio"){
+          dataDomicilio.ciudadano_id = dataCiudadano.id_ciudadano;
+          dataDomicilio.pais_id = dataCiudadano.pais_id;
+          dataDomicilio.provincia_id = dataCiudadano.provincia_id;
+          dataDomicilio.departamento_id = dataCiudadano.departamento_id;
+          dataDomicilio.municipio_id = dataCiudadano.municipio_id;
+          dataDomicilio.ciudad = dataCiudadano.ciudad;
+          dataDomicilio.barrio = dataCiudadano.barrio;
+          dataDomicilio.direccion = dataCiudadano.direccion;
+          dataDomicilio.numero_dom = dataCiudadano.numero_dom;          
+          dataDomicilio.detalle_motivo = detalle_motivo;
+          dataDomicilio.fecha_cambio = fecha_actual;
+          dataDomicilio.organismo_id = usuariox.organismo_id;
+          dataDomicilio.usuario_id = usuariox.id_usuario;
+
+          await this.domiciliosCiudadanoService.create(dataDomicilio);
+        }
       } 
+      else{
+        
+        await this.findOne(id);
+      }
       return respuesta;
     }
     catch(error){

@@ -182,7 +182,7 @@ export class ProhibicionesVisitaService {
 
       if((await respuesta).affected == 1){
 
-        //guardar bitacora de prhibicion
+        //guardar bitacora de prhibicion 
         let dataProhibicion = await this.findOne(id);
         let fecha_actual: any = new Date().toISOString().split('T')[0];
         let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
@@ -200,9 +200,7 @@ export class ProhibicionesVisitaService {
         dataBitacora.fecha_cambio = fecha_actual;
                 
         await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
-
       } 
-
 
       return respuesta;
     }

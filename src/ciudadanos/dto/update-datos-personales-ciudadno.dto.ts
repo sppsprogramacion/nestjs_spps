@@ -27,4 +27,7 @@ export class UpdateDatosPersonalesCiudadanoDto {
     @Length(1,100,{message: "La nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
     nacionalidad_id: string;
 
+    @Length(1,2000,{message: "El detalle_motivo debe tener entre $constraint1 y $constraint2 caracteres."})
+    detalle_motivo: string;
+
 }

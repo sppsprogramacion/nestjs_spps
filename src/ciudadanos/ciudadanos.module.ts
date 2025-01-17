@@ -5,15 +5,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ciudadano } from './entities/ciudadano.entity';
 import { NovedadCiudadano } from 'src/novedades-ciudadano/entities/novedades-ciudadano.entity';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
+import { DomicilioCiudadano } from 'src/domicilios-ciudadano/entities/domicilios-ciudadano.entity';
+import { BitacoraCiudadano } from 'src/bitacora-ciudadano/entities/bitacora-ciudadano.entity';
+import { BitacoraCiudadanoService } from 'src/bitacora-ciudadano/bitacora-ciudadano.service';
+import { DomiciliosCiudadanoService } from 'src/domicilios-ciudadano/domicilios-ciudadano.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Ciudadano,
+      BitacoraCiudadano,
+      DomicilioCiudadano,
       NovedadCiudadano
     ])
   ],
   controllers: [CiudadanosController],
-  providers: [CiudadanosService, NovedadesCiudadanoService]
+  providers: [CiudadanosService, BitacoraCiudadanoService, DomiciliosCiudadanoService, NovedadesCiudadanoService]
 })
 export class CiudadanosModule {}

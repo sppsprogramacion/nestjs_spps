@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Query, ParseIntPipe } from '@nestjs/common';
-import { BitacoraCiudadanoService } from './bitacora-ciudadano.service';
+import { DomiciliosCiudadanoService } from './domicilios-ciudadano.service';
 
-@Controller('bitacora-ciudadano')
-export class BitacoraCiudadanoController {
-  constructor(private readonly bitacoraCiudadanoService: BitacoraCiudadanoService) {}
+@Controller('domicilios-ciudadano')
+export class DomiciliosCiudadanoController {
+  constructor(private readonly domiciliosCiudadanoService: DomiciliosCiudadanoService) {}
 
   //BUSCAR  XID CIUDADANO
   @Get('buscar-xciudadano')  
@@ -11,12 +11,12 @@ export class BitacoraCiudadanoController {
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string    
   ) {    
     
-    return this.bitacoraCiudadanoService.findXCiudadano(+id_ciudadano);
+    return this.domiciliosCiudadanoService.findXCiudadano(+id_ciudadano);
   }
   //FIN BUSCAR  XID CIUDADANO....................................................
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.bitacoraCiudadanoService.findOne(+id);
+    return this.domiciliosCiudadanoService.findOne(+id);
   }
 }
