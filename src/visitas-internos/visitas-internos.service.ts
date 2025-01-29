@@ -135,6 +135,7 @@ export class VisitasInternosService {
   async updateAnularParentesco(id: number, data: DetalleCambioVisitasInternoDto) {
     
     let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
+    dataVisitaInterno.vigente = false;
     dataVisitaInterno.anulado = true;
 
     try{
