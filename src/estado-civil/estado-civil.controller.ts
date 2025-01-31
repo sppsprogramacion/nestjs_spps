@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
 import { EstadoCivilService } from './estado-civil.service';
 import { CreateEstadoCivilDto } from './dto/create-estado-civil.dto';
 import { UpdateEstadoCivilDto } from './dto/update-estado-civil.dto';
@@ -30,7 +30,7 @@ export class EstadoCivilController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateEstadoCivilDto

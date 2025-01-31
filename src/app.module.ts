@@ -28,6 +28,11 @@ import { UsuariosRolModule } from './usuarios-rol/usuarios-rol.module';
 import { NovedadesCiudadanoModule } from './novedades-ciudadano/novedades-ciudadano.module';
 import { BitacoraCiudadanoModule } from './bitacora-ciudadano/bitacora-ciudadano.module';
 import { DomiciliosCiudadanoModule } from './domicilios-ciudadano/domicilios-ciudadano.module';
+import { TiposAtencionModule } from './tipos_atencion/tipos_atencion.module';
+import { TiposAccesoModule } from './tipos_acceso/tipos_acceso.module';
+import { OrganismosDestinoModule } from './organismos_destino/organismos_destino.module';
+import { SectoresDestinoModule } from './sectores_destino/sectores_destino.module';
+import { MotivosAtencionModule } from './motivos_atencion/motivos_atencion.module';
 
 @Module({
   imports: [
@@ -63,6 +68,11 @@ import { DomiciliosCiudadanoModule } from './domicilios-ciudadano/domicilios-ciu
     NovedadesCiudadanoModule,
     BitacoraCiudadanoModule,
     DomiciliosCiudadanoModule,
+    TiposAtencionModule,
+    TiposAccesoModule,
+    OrganismosDestinoModule,
+    SectoresDestinoModule,
+    MotivosAtencionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

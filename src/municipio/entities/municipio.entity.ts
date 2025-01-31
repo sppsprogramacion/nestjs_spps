@@ -29,8 +29,5 @@ export class Municipio {
     })
     departamento: Departamento;
     //FIN DEPARTAMENTO
-
-
-
     
 }
