@@ -33,6 +33,7 @@ import { TiposAccesoModule } from './tipos_acceso/tipos_acceso.module';
 import { OrganismosDestinoModule } from './organismos_destino/organismos_destino.module';
 import { SectoresDestinoModule } from './sectores_destino/sectores_destino.module';
 import { MotivosAtencionModule } from './motivos_atencion/motivos_atencion.module';
+import { RegistroDiarioModule } from './registro-diario/registro-diario.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { MotivosAtencionModule } from './motivos_atencion/motivos_atencion.modul
     OrganismosDestinoModule,
     SectoresDestinoModule,
     MotivosAtencionModule,
+    RegistroDiarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
