@@ -59,21 +59,6 @@ export class RegistroDiario {
     tipo_acceso: TipoAcceso;
     //FIN TIPO ACCESO
 
-    //ORGANISMO DESTINO
-    @Column({
-        type: 'int',
-        nullable: false
-    })
-    organismo_destino_id: number;
-    
-    @ManyToOne(type => OrganismoDestino, {eager: true} )
-    @JoinColumn({
-        name: 'organismo_destino_id',
-        referencedColumnName: 'id_organismo_destino'
-    })
-    organismo_destino: OrganismoDestino;
-    //FIN ORGANISMO DESTINO
-
     //SECTOR DESTINO
     @Column({
         type: 'int',
