@@ -6,6 +6,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { DateValidationPipe } from 'src/pipes/date-validation.pipe';
 import { TimeValidationPipe } from 'src/pipes/time-validation.pipe';
 import { UpdateAnularDto } from './dto/update-anular.dto';
+import { UpdateEgresoDto } from './dto/update-egreso.dto';
 @Controller('registro-diario')
 export class RegistroDiarioController {
   constructor(private readonly registroDiarioService: RegistroDiarioService) {}
@@ -78,8 +79,26 @@ export class RegistroDiarioController {
     throw new NotFoundException('No se encontró la ruta especificada. Verifique si la ruta es correcta');
   }
   //FIN PARA RUTA NO DEFINIDA...........
+ 
 
-  //ANULAR PROHIBICION
+  //EGRESO REGISTRO
+  @Put('egreso')
+  updateEgreso(
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+    @Body() dataDto: UpdateEgresoDto
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.apellido = "DIAZ";
+    usuariox.nombre = "PEDRO";
+    usuariox.organismo_id = 1;
+
+    return this.registroDiarioService.registrarEgreso(+id_registro, dataDto, usuariox);
+  }
+  //FIN EGRESO REGISTRO.................................
+
+  //ANULAR REGISTRO
   @Put('anular')
   updateAnular(
     @Query('id_registro', ParseIntPipe) id_registro: string ,
@@ -88,18 +107,20 @@ export class RegistroDiarioController {
 
     let usuariox: Usuario= new Usuario;
     usuariox.id_usuario = 2;
+    usuariox.apellido = "DIAZ";
+    usuariox.nombre = "PEDRO";
     usuariox.organismo_id = 1;
 
     return this.registroDiarioService.anularRegistro(+id_registro, dataDto, usuariox);
   }
-  //FIN ANULAR PROHIBICION.................................
+  //FIN ANULAR REGISTRO.................................
 
-  @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: string, 
-    @Body() dataDto: UpdateRegistroDiarioDto
-  ) {
+  // @Put(':id')
+  // update(
+  //   @Param('id', ParseIntPipe) id: string, 
+  //   @Body() dataDto: UpdateRegistroDiarioDto
+  // ) {
 
-    return this.registroDiarioService.update(+id, dataDto);
-  }
+  //   return this.registroDiarioService.update(+id, dataDto);
+  // }
 }

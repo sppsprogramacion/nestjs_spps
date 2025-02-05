@@ -7,6 +7,7 @@ import { Between, IsNull, Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Console } from 'console';
 import { UpdateAnularDto } from './dto/update-anular.dto';
+import { UpdateEgresoDto } from './dto/update-egreso.dto';
 
 @Injectable()
 export class RegistroDiarioService {
@@ -53,7 +54,8 @@ export class RegistroDiarioService {
       const prohibiciiones = await this.registroDiarioRepository.find(
         {        
           where: {
-            ciudadano_id: id_ciudadanox
+            ciudadano_id: id_ciudadanox,
+            anulado: false
           },
           order:{
             id_resgistro_diario: "DESC"
@@ -77,7 +79,8 @@ export class RegistroDiarioService {
         where: {
           fecha_ingreso: fecha_actual,
           hora_egreso: IsNull(),
-          organismo_id: usuario.organismo_id
+          organismo_id: usuario.organismo_id,
+          anulado: false
         },
         order:{
           id_resgistro_diario: "DESC"
@@ -93,16 +96,14 @@ export class RegistroDiarioService {
   async findXFechaHoraIngresoEgreso(fecha_ingresox: string, hora_iniciox: string, hora_finx: string, usuario: Usuario) {    
     
     const f_ingreso: any = new Date(fecha_ingresox).toISOString().split('T')[0];
-    console.log("fecha ", fecha_ingresox);
-    console.log("horai ", hora_iniciox);
-    console.log("horaf ", hora_finx);
 
     const registros = await this.registroDiarioRepository.find(
       {        
         where: {
           fecha_ingreso: f_ingreso,
           hora_ingreso: Between(hora_iniciox, hora_finx),
-          organismo_id: usuario.organismo_id
+          organismo_id: usuario.organismo_id,
+          anulado: false
         },
         order:{
           id_resgistro_diario: "DESC"
@@ -125,19 +126,28 @@ export class RegistroDiarioService {
   //FIN BUSCAR  XID..................................................................
 
   //ANULAR
-  //accion puede ser true o false
   async anularRegistro(id_registro: number, data: UpdateAnularDto, usuariox: Usuario) {
+    //cargar datos por defecto
+    let fecha_actual: any = new Date().toISOString().split('T')[0];    
+    let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS 
     
-    
-    let detalle: string= data.detalle_anulado + " - (Usuario: " + usuariox. apellido + " " + usuariox.nombre + ")";
+    let detalle: string= data.detalle_anulado + " - (Usuario: " + usuariox. apellido + " " + usuariox.nombre + " - " + fecha_actual + " " + hora_actual + ")";
     data.anulado = true;
     data.detalle_anulado = detalle;
-            
+    
+    //controlar si el resgistro ya esta anulado
+    const registro = await this.registroDiarioRepository.findOneBy({id_resgistro_diario: id_registro});
+    if(registro){
+      if(registro.anulado) throw new NotFoundException("Este registro ya se encuentra anulado");
+    }
+    else{
+      throw new NotFoundException("El elemento solicitado no existe.");
+    }
+
+    //guardar
     try{
       const respuesta = await this.registroDiarioRepository.update(id_registro, data);
-      if((await respuesta).affected == 0){
-        await this.findOne(id_registro);
-      } 
+      
       return respuesta;
     }
     catch(error){
@@ -146,6 +156,38 @@ export class RegistroDiarioService {
     }   
   }  
   //FIN ANULAR
+
+  //REGISTRAR EGRESO
+  async registrarEgreso(id_registro: number, data: UpdateEgresoDto, usuariox: Usuario) {
+    //cargar datos por defecto
+    let fecha_actual: any = new Date().toISOString().split('T')[0];    
+    let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS 
+         
+  
+    //controlar si el resgistro ya tiene egreso o esta anulado
+    const registro = await this.registroDiarioRepository.findOneBy({id_resgistro_diario: id_registro});
+    if(registro){
+      if(registro.anulado) throw new NotFoundException("Este registro se encuentra anulado");
+      if(registro.fecha_ingreso != fecha_actual) throw new NotFoundException("El registro al que desea dar egreso no es de la fecha de hoy");
+      if(registro.hora_egreso) throw new NotFoundException("Este registro ya tiene hora de egreso");
+      if(registro.hora_ingreso > data.hora_egreso) throw new NotFoundException("La hora de egreso no puede ser menor que la hora de ingreso");
+    }
+    else{
+      throw new NotFoundException("El elemento solicitado no existe.");
+    }
+
+    //guardar
+    try{
+      const respuesta = await this.registroDiarioRepository.update(id_registro, data);
+      
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN REGISTRAR EGRESO
 
   async update(id: number, data: UpdateRegistroDiarioDto) {
 

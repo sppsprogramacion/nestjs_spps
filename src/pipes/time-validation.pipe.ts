@@ -7,7 +7,7 @@ export class TimeValidationPipe implements PipeTransform {
       throw new BadRequestException('El valor de la hora debe ser un string.');
     }
 
-    // Expresión regular para validar el formato HH:mm (24h)
+    // Expresión regular para validar el formato HH:mm:ss (24h)
     const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
     if (!timeRegex.test(value)) {

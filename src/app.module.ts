@@ -34,6 +34,8 @@ import { OrganismosDestinoModule } from './organismos_destino/organismos_destino
 import { SectoresDestinoModule } from './sectores_destino/sectores_destino.module';
 import { MotivosAtencionModule } from './motivos_atencion/motivos_atencion.module';
 import { RegistroDiarioModule } from './registro-diario/registro-diario.module';
+import { CategoriasCiudadanoModule } from './categorias-ciudadano/categorias-ciudadano.module';
+import { CiudadanosCategoriasModule } from './ciudadanos-categorias/ciudadanos-categorias.module';
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { RegistroDiarioModule } from './registro-diario/registro-diario.module';
     SectoresDestinoModule,
     MotivosAtencionModule,
     RegistroDiarioModule,
+    CategoriasCiudadanoModule,
+    CiudadanosCategoriasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
