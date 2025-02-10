@@ -36,6 +36,8 @@ import { MotivosAtencionModule } from './motivos_atencion/motivos_atencion.modul
 import { RegistroDiarioModule } from './registro-diario/registro-diario.module';
 import { CategoriasCiudadanoModule } from './categorias-ciudadano/categorias-ciudadano.module';
 import { CiudadanosCategoriasModule } from './ciudadanos-categorias/ciudadanos-categorias.module';
+import { AbogadosInternoModule } from './abogados-interno/abogados-interno.module';
+import { TiposDefensorModule } from './tipos-defensor/tipos-defensor.module';
 
 @Module({
   imports: [
@@ -79,6 +81,8 @@ import { CiudadanosCategoriasModule } from './ciudadanos-categorias/ciudadanos-c
     RegistroDiarioModule,
     CategoriasCiudadanoModule,
     CiudadanosCategoriasModule,
+    AbogadosInternoModule,
+    TiposDefensorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
