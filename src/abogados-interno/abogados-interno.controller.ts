@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, NotFoundException, Put } from '@nestjs/common';
 import { AbogadosInternoService } from './abogados-interno.service';
 import { CreateAbogadosInternoDto } from './dto/create-abogados-interno.dto';
-import { UpdateAbogadosInternoDto } from './dto/update-abogados-interno.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UpdateQuitarVigenteDto } from './dto/update-quitar-vigente.dto';
 
 @Controller('abogados-interno')
 export class AbogadosInternoController {
@@ -29,6 +29,16 @@ export class AbogadosInternoController {
   }
   //FIN BUSCAR  LISTA XID CIUDADANO....................................................
 
+  //BUSCAR LISTA XID INTERNO
+  @Get('lista-xinterno')  
+  async findXInterno(
+    @Query('id_interno', ParseIntPipe) interno: string    
+  ) {    
+    
+    return this.abogadosInternoService.findXInterno(+interno);
+  }
+  //FIN BUSCAR  LISTA XID INTERNO....................................................
+
   //BUSCAR LISTA VIGENTES XID CIUDADANO
   @Get('lista-vigentes-xciudadano')  
   async findVigentesXCiudadano(
@@ -38,6 +48,16 @@ export class AbogadosInternoController {
     return this.abogadosInternoService.findVigentesXCiudadano(+id_ciudadano);
   }
   //FIN BUSCAR  LISTA VIGENTES XID CIUDADANO....................................................
+
+  //BUSCAR LISTA VIGENTES XID INTERNO
+  @Get('lista-vigentes-xinterno')  
+  async findVigentesXInterno(
+    @Query('id_interno', ParseIntPipe) id_interno: string    
+  ) {    
+    
+    return this.abogadosInternoService.findVigentesXInterno(+id_interno);
+  }
+  //FIN BUSCAR  LISTA VIGENTES XID INTERNO....................................................
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
@@ -56,7 +76,7 @@ export class AbogadosInternoController {
   @Put('quitar-vigente')
   updateQuirarVigente(
     @Query('id_abogado_interno', ParseIntPipe) id_abogado_interno: string ,
-    @Body() dataDto: UpdateAbogadosInternoDto
+    @Body() dataDto: UpdateQuitarVigenteDto
   ) {
 
     let usuariox: Usuario= new Usuario;

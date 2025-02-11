@@ -76,7 +76,7 @@ export class AbogadoInterno {
         length: 2000,
         nullable: true
     })
-    detalle_quitar_categoria: string;
+    detalle_quitar_vigente: string;
 
     //ORGANISMO
     @Column({

@@ -66,7 +66,7 @@ export class AbogadosInternoService {
   //BUSCAR LISTA XCIUDADANO
   async findXCiudadano(id_ciudadanox: number) {    
     
-      const prohibiciiones = await this.abogadoInternoRepository.find(
+      const respuesta = await this.abogadoInternoRepository.find(
         {        
           where: {
             ciudadano_id: id_ciudadanox
@@ -77,15 +77,34 @@ export class AbogadosInternoService {
         }
       );   
           
-      return prohibiciiones;
+      return respuesta;
     
   }
   //FIN BUSCAR LISTA XCIUDADANO..................................................................
 
+  //BUSCAR LISTA XINTERNO
+  async findXInterno(id_internox: number) {    
+    
+    const respuesta = await this.abogadoInternoRepository.find(
+      {        
+        where: {
+          interno_id: id_internox
+        },
+        order:{
+          id_abogado_interno: "DESC"
+        }
+      }
+    );   
+        
+    return respuesta;
+  
+  }
+  //FIN BUSCAR LISTA XINTERNO..................................................................
+
   //BUSCAR LISTA VIGENTES XCIUDADANO
   async findVigentesXCiudadano(id_ciudadanox: number) {    
     
-    const prohibiciiones = await this.abogadoInternoRepository.find(
+    const respuesta = await this.abogadoInternoRepository.find(
       {        
         where: {
           ciudadano_id: id_ciudadanox,
@@ -97,10 +116,31 @@ export class AbogadosInternoService {
       }
     );   
         
-    return prohibiciiones;
+    return respuesta;
   
   }
   //FIN BUSCAR LISTA VIGENTES XCIUDADANO..................................................................
+  
+  //BUSCAR LISTA VIGENTES XINTERNO
+  async findVigentesXInterno(id_interno: number) {    
+    
+    const respuesta = await this.abogadoInternoRepository.find(
+      { 
+        
+        where: {
+          interno_id: id_interno,
+          vigente: true
+        },
+        order:{
+          id_abogado_interno: "DESC"
+        }
+      }
+    );   
+        
+    return respuesta;  
+  }
+  //FIN BUSCAR LISTA VIGENTES XINTERNO..................................................................
+
 
 
   //QUITAR VIGENTE
