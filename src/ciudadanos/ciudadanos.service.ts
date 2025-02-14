@@ -13,6 +13,7 @@ import { CreateBitacoraCiudadanoDto } from 'src/bitacora-ciudadano/dto/create-bi
 import { BitacoraCiudadanoService } from '../bitacora-ciudadano/bitacora-ciudadano.service';
 import { CreateDomiciliosCiudadanoDto } from 'src/domicilios-ciudadano/dto/create-domicilios-ciudadano.dto';
 import { DomiciliosCiudadanoService } from '../domicilios-ciudadano/domicilios-ciudadano.service';
+import { DriveImagenesService } from '../drive-imagenes/drive-imagenes.service';
 
 @Injectable()
 export class CiudadanosService {
@@ -22,6 +23,7 @@ export class CiudadanosService {
     private readonly ciudadanoRepository: Repository<Ciudadano>,
     private readonly bitacoraCiudadanoService: BitacoraCiudadanoService,
     private readonly domiciliosCiudadanoService: DomiciliosCiudadanoService,
+    private readonly driveImagenesService: DriveImagenesService,
     private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
   
@@ -95,12 +97,20 @@ export class CiudadanosService {
   //FIN BUSCAR  XDni..................................................................
 
 
+  //BUSCAR POR ID
   async findOne(id: number) {
     const respuesta = await this.ciudadanoRepository.findOneBy({id_ciudadano: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.", "verificque el id del ciudadano");
+    
+    let imgUrl: string = "";
+    
+    
+
+    respuesta.foto = imgUrl;
 
     return respuesta;
   }
+  //FIN BUSCAR POR ID......................
 
   async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto, usuariox: Usuario, tipo_modificacion: string) {
     try{

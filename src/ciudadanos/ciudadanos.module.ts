@@ -9,6 +9,7 @@ import { DomicilioCiudadano } from 'src/domicilios-ciudadano/entities/domicilios
 import { BitacoraCiudadano } from 'src/bitacora-ciudadano/entities/bitacora-ciudadano.entity';
 import { BitacoraCiudadanoService } from 'src/bitacora-ciudadano/bitacora-ciudadano.service';
 import { DomiciliosCiudadanoService } from 'src/domicilios-ciudadano/domicilios-ciudadano.service';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { DomiciliosCiudadanoService } from 'src/domicilios-ciudadano/domicilios-
     ])
   ],
   controllers: [CiudadanosController],
-  providers: [CiudadanosService, BitacoraCiudadanoService, DomiciliosCiudadanoService, NovedadesCiudadanoService]
+  providers: [CiudadanosService, BitacoraCiudadanoService, DomiciliosCiudadanoService, DriveImagenesService, NovedadesCiudadanoService]
 })
 export class CiudadanosModule {}
