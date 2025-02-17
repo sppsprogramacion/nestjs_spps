@@ -4,6 +4,7 @@ import { UpdateOrganismosDestinoDto } from './dto/update-organismos_destino.dto'
 import { OrganismoDestino } from './entities/organismos_destino.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class OrganismosDestinoService {
@@ -34,11 +35,31 @@ export class OrganismosDestinoService {
     );
   }
 
+  //BUSCAR  XORGANISMO DEL USUARIO
+  async findXUsuario(usuario: Usuario) { 
+
+    
+    const organismos = await this.organismoDestinoRepository.find(
+      {        
+        where: {
+          organismo_depende: usuario.organismo_id
+        },
+        order:{
+          organismo_destino: "ASC"
+        }
+      }
+    );   
+        
+    return organismos;
+    
+  }
+  //FIN BUSCAR  XORGANISMO DEL USUARIO..................................................................
+
   //BUSCAR  XID
   async findOne(id: number) {
 
     const respuesta = await this.organismoDestinoRepository.findOneBy({id_organismo_destino: id});
-    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El organismo solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................

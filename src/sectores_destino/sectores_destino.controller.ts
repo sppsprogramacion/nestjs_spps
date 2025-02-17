@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put, Query } from '@nestjs/common';
 import { SectoresDestinoService } from './sectores_destino.service';
 import { CreateSectoresDestinoDto } from './dto/create-sectores_destino.dto';
 import { UpdateSectoresDestinoDto } from './dto/update-sectores_destino.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('sectores-destino')
 export class SectoresDestinoController {
@@ -16,6 +17,20 @@ export class SectoresDestinoController {
   findAll() {
     return this.sectoresDestinoService.findAll();
   }
+
+  //BUSCAR  XORGANISMO DESTINO
+  @Get('lista-xorganismo')  
+  async findXUsuario(
+    @Query('id_organismo') id_organismo: string
+  ) {    
+    
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+    
+    return this.sectoresDestinoService.findXOrganismo(+id_organismo,usuariox);
+  }
+  //FIN BUSCAR  XORGANISMO DESTINO...................................................
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    

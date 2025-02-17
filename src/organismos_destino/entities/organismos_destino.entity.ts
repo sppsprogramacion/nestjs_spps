@@ -19,5 +19,11 @@ export class OrganismoDestino {
         nullable: false
     })
     organismo_depende: number;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    es_unidad_carcelaria: boolean;
     
 }

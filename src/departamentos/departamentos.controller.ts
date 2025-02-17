@@ -20,8 +20,7 @@ export class DepartamentosController {
   //BUSCAR  XID PROVINCIA
   @Get('buscar-xprovincia')  
   async findXPais(
-    @Query('id_provincia') id_provincia: string
-    
+    @Query('id_provincia') id_provincia: string    
   ) {    
     
     return this.departamentosService.findXProvincia(id_provincia);
