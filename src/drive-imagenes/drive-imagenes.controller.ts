@@ -64,7 +64,7 @@ export class DriveImagenesController {
       throw new BadRequestException('Debe proporcionar un nombre de archi');
     }
 
-    // const file = await this.driveImagenesService.getFileByName(fileName, "interno");
+    const file = await this.driveImagenesService.getFileByName(fileName, "interno");
     // return {
     //   fileId: file.id,
     //   name: file.name,
@@ -72,8 +72,10 @@ export class DriveImagenesController {
     //   downloadLink: file.webContentLink, // ⬇️ Link para descargar
     // };
 
-    const url = await this.driveImagenesService.getFileByName(fileName, "ciudadano");
-    return { downloadUrl: url };
+    //const url = await this.driveImagenesService.getFileByName(fileName, "interno");
+    //return { downloadUrl: url };
+
+    return {downloadLink: file.webContentLink} // ⬇️ Link para descargar
 
   }
   //FIN BUSCAR IMAGEN DE INTERNO......................................

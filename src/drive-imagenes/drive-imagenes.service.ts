@@ -93,9 +93,9 @@ export class DriveImagenesService {
     }
 
     const fileId = response.data.files[0].id;
-    return `https://drive.google.com/uc?id=${fileId}&export=download`;
+    //return `https://drive.google.com/uc?id=${fileId}&export=download`;
     
-    //return response.data.files[0]; // 📂 Devuelve el primer archivo encontrado
+    return response.data.files[0]; // 📂 Devuelve el primer archivo encontrado
   }
   //fin BUSCAR IMAGEN.....................
 

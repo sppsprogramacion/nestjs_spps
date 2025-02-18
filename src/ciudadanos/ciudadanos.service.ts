@@ -103,8 +103,11 @@ export class CiudadanosService {
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.", "verificque el id del ciudadano");
     
     let imgUrl: string = "";
-    
-    
+    //let foto_nombre = respuesta.foto;
+    let foto_nombre = "1.jpg"
+
+    const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
+    imgUrl = await file.webContentLink;
 
     respuesta.foto = imgUrl;
 
