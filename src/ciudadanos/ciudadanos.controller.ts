@@ -22,7 +22,7 @@ export class CiudadanosController {
     usuariox.organismo_id = 1;
     
     createCiudadanoDto.fecha_alta = fecha_actual;  
-    createCiudadanoDto.foto = "foto-" + createCiudadanoDto.dni.toString();
+    createCiudadanoDto.foto = "foto-ciudadano-0.jpg";
     
     return this.ciudadanosService.create(createCiudadanoDto, usuariox);
   }
