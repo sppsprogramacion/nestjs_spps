@@ -99,16 +99,17 @@ export class CiudadanosService {
 
   //BUSCAR POR ID
   async findOne(id: number) {
+    //busqueda del ciduadano
     const respuesta = await this.ciudadanoRepository.findOneBy({id_ciudadano: id});
-    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.", "verificque el id del ciudadano");
+    if (!respuesta) throw new NotFoundException("El ciudadano solicitado no existe.", "verificque el id del ciudadano");
     
     let imgUrl: string = "";
-    //let foto_nombre = respuesta.foto;
-    let foto_nombre = "1.jpg"
-
+    let foto_nombre = respuesta.foto;
+    //let foto_nombre = "1.jpg"
+    
+    //obtener url de la imagen en drive y agregado en la respuesta
     const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
     imgUrl = await file.webContentLink;
-
     respuesta.foto = imgUrl;
 
     return respuesta;
