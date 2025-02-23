@@ -4,6 +4,7 @@ import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
 import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('prohibiciones-visita')
 export class ProhibicionesVisitaController {
@@ -50,8 +51,11 @@ export class ProhibicionesVisitaController {
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: LevantarManualProhibicionesVisitaDto
   ) {
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
 
-    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar");
+    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar", usuariox);
   }
   //FIN LEVANTAMIENTO MANUAL.................................
 
@@ -61,8 +65,11 @@ export class ProhibicionesVisitaController {
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: LevantarManualProhibicionesVisitaDto
   ) {
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
 
-    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "prohibir");
+    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "prohibir", usuariox);
   }
   //FIN PROHIBIR MANUAL.................................
 
@@ -72,8 +79,11 @@ export class ProhibicionesVisitaController {
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: AnularProhibicionesVisitaDto
   ) {
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
 
-    return this.prohibicionesVisitaService.anularProhibicion(+id_prohibicion, dataDto);
+    return this.prohibicionesVisitaService.anularProhibicion(+id_prohibicion, dataDto, usuariox);
   }
   //FIN ANULAR PROHIBICION.................................
 
@@ -82,8 +92,11 @@ export class ProhibicionesVisitaController {
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateProhibicionesVisitaDto
   ) {
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
 
-    return this.prohibicionesVisitaService.update(+id, dataDto);
+    return this.prohibicionesVisitaService.update(+id, dataDto, usuariox);
   }
 
 

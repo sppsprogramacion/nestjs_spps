@@ -75,8 +75,7 @@ export class CiudadanosService {
 
   //BUSCAR LISTA POR APELLIDO
   async findListaXApellido(apellidox: string) {
-    console.log("en apellido");
-    
+        
     return this.ciudadanoRepository
     .createQueryBuilder('ciudadano')
     .select(['ciudadano.id_ciudadano', 'ciudadano.apellido', 'ciudadano.nombre', 'ciudadano.dni']) // Campos específicos

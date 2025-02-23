@@ -9,6 +9,7 @@ import { BitacoraProhibicionesVisitaService } from 'src/bitacora-prohibiciones-v
 import { CreateBitacoraProhibicionesVisitaDto } from 'src/bitacora-prohibiciones-visita/dto/create-bitacora-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
 import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class ProhibicionesVisitaService {
@@ -75,7 +76,8 @@ export class ProhibicionesVisitaService {
       const prohibiciiones = await this.prohibicionVisitaRepository.find(
         {        
           where: {
-            ciudadano_id: id_ciudanox
+            ciudadano_id: id_ciudanox,
+            anulado: false
           },
           order:{
             id_prohibicion_visita: "DESC"
@@ -118,54 +120,65 @@ export class ProhibicionesVisitaService {
   //FIN BUSCAR  XID..................................................................
 
   //LEVANTAR/PROHIBIR MANUAL >> accion: prohibir o levantar
-  async levantarYProhibirManualmente(id: number, data: LevantarManualProhibicionesVisitaDto, accion: string) {
+  async levantarYProhibirManualmente(id: number, data: LevantarManualProhibicionesVisitaDto, accion: string, usuario: Usuario) {
     
-    let dataProhibicionActual: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
+    let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
+    let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
     let motivo: string="";
-
+    
     try{
       //buscar prohibicion antes de modificar los datos  
-      dataProhibicionActual = await this.findOne(id);
+      dataProhibicion = await this.findOne(id);
+      
+      //verificar si el organismo de la prohibicion corresponde al organismo del usuario
+      if(dataProhibicion.organismo_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar esta prohibición. No coincide el organismo al que pertece el usuario con el organismo que creo esta prohibición.");
+
+      //prepara los primeros datos para la bitacora de la prohibicion
+      let fecha_actual: any = new Date().toISOString().split('T')[0];      
+      dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+      dataBitacora.disposicion = dataProhibicion.disposicion;
+      dataBitacora.detalle = dataProhibicion.detalle;
+      dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+      dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+      dataBitacora.vigente = dataProhibicion.vigente;
+      dataBitacora.anulado = dataProhibicion.anulado;      
+      dataBitacora.usuario_id = usuario.id_usuario;
+      dataBitacora.fecha_cambio = fecha_actual;
       
       //identificar si se levanta o vuelve a prohibir y verificar si corresponde hacerlo  
       if(accion == "levantar"){
-        if(!dataProhibicionActual.vigente){
+        if(!dataProhibicion.vigente){
           throw new NotFoundException("No se puede levantar ésta prohibicion. Ya se encontraba levantada.");
         }
 
         motivo = "LEVANTAMIENTO MANUAL";
-        dataProhibicionActual.vigente = false;
+        //carga de datos a modificar
+        dataProhibicion.vigente = false;
+        dataProhibicion.fecha_fin = data.fecha_fin;
       }
   
       if(accion == "prohibir"){
-        if(dataProhibicionActual.vigente){
+        if(dataProhibicion.vigente){
           throw new NotFoundException("No se puede realizar la prohibición. Ya se encontraba prohibida.");
         }
 
         motivo = "VOLVER A PROHIBIR";
-        dataProhibicionActual.vigente = true;
+        //carga de datos a modificar
+        dataProhibicion.vigente = true;
+        dataProhibicion.fecha_fin = data.fecha_fin;
       }
 
-      //guardar el levantamineto o prohibicion
-      const respuestaProhibicion = await this.prohibicionVisitaRepository.update(id, dataProhibicionActual);
-      
       //guardadr modificacion registro
+      //guardar el levantamineto o prohibicion
+      const respuestaProhibicion = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
+      
+      
+      //guardar bitacora de prhibicion
       if((await respuestaProhibicion.affected == 1)){
-        //guardar bitacora de prhibicion
-        let fecha_actual: any = new Date().toISOString().split('T')[0];
-        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
-        
-        dataBitacora.prohibicion_visita_id = dataProhibicionActual.id_prohibicion_visita;
-        dataBitacora.disposicion = dataProhibicionActual.disposicion;
-        dataBitacora.detalle = dataProhibicionActual.detalle;
-        dataBitacora.fecha_inicio = dataProhibicionActual.fecha_inicio;
-        dataBitacora.fecha_fin = dataProhibicionActual.fecha_fin;
-        dataBitacora.vigente = dataProhibicionActual.vigente;
-        dataBitacora.anulado = dataProhibicionActual.anulado;
+        //completar datos para la bitacora
         dataBitacora.motivo = motivo;
         dataBitacora.detalle_motivo = data.detalle_motivo;
-        dataBitacora.usuario_id = 2;
-        dataBitacora.fecha_cambio = fecha_actual;
                 
         await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
       }
@@ -181,36 +194,49 @@ export class ProhibicionesVisitaService {
   //FIN LEVANTAR PROHIBICION MANUAL
 
   //ANULAR PROHIBICION
-  async anularProhibicion(id: number, data: AnularProhibicionesVisitaDto) {
+  async anularProhibicion(id: number, data: AnularProhibicionesVisitaDto, usuario: Usuario) {
     
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
-    dataProhibicion.anulado = true;
+    let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
     
     try{
       //buscar prohibicion antes de modificar los datos 
       dataProhibicion = await this.findOne(id);
 
-      //actualiza en anulado
-      const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
+      //verificar si el organismo de la prohibicion corresponde al organismo del usuario
+      if(dataProhibicion.organismo_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar esta prohibición. No coincide el organismo al que pertece el usuario con el organismo que creo esta prohibición.");
+    
+      //verificar si la prohibicion esta vigente, solo se anulan prohibiciones vigentes
+      if(dataProhibicion.anulado) 
+        throw new NotFoundException("No se puede anular. La prohibicion ya se encontraba anulada.");
 
+      //verificar si la prohibicion esta vigente, solo se anulan prohibiciones vigentes
+      if(!dataProhibicion.vigente) 
+        throw new NotFoundException("No se puede anular una prohibicion que no este vigente");
+    
+
+      //preparar datos para la bitacora
+      let fecha_actual: any = new Date().toISOString().split('T')[0];        
+      dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+      dataBitacora.disposicion = dataProhibicion.disposicion;
+      dataBitacora.detalle = dataProhibicion.detalle;
+      dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+      dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+      dataBitacora.vigente = dataProhibicion.vigente;
+      dataBitacora.anulado = dataProhibicion.anulado;
+      dataBitacora.motivo = "ANULAR PROHIBICION";
+      dataBitacora.detalle_motivo = data.detalle_motivo;
+      dataBitacora.usuario_id = usuario.id_usuario;
+      dataBitacora.fecha_cambio = fecha_actual;
+
+      //actualiza la prohibicion en anulado
+      dataProhibicion.anulado = true;
+      const respuesta = await this.prohibicionVisitaRepository.update(id, dataProhibicion);
+      
+      //guardar bitacora de prhibicion
       if((await respuesta).affected == 1){
 
-        //guardar bitacora de prhibicion         
-        let fecha_actual: any = new Date().toISOString().split('T')[0];
-        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
-        
-        dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
-        dataBitacora.disposicion = dataProhibicion.disposicion;
-        dataBitacora.detalle = dataProhibicion.detalle;
-        dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
-        dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
-        dataBitacora.vigente = dataProhibicion.vigente;
-        dataBitacora.anulado = dataProhibicion.anulado;
-        dataBitacora.motivo = "ANULAR PROHIBICION";
-        dataBitacora.detalle_motivo = data.detalle_motivo;
-        dataBitacora.usuario_id = 2;
-        dataBitacora.fecha_cambio = fecha_actual;
-                
         await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
       } 
 
@@ -223,30 +249,48 @@ export class ProhibicionesVisitaService {
   }  
   //FIN ANULAR PROHIBICION
 
-  async update(id: number, data: UpdateProhibicionesVisitaDto) {
+  async update(id: number, data: UpdateProhibicionesVisitaDto, usuario:Usuario) {
+    let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
+        
     //separar detalle_motivo 
     const { detalle_motivo, ...nuevaData } = data;
     
     try{
-      const respuesta = await this.prohibicionVisitaRepository.update(id, nuevaData);
-      if((await respuesta).affected == 1){
+      //buscar prohibicion antes de modificar
+      let dataProhibicion = await this.findOne(id);
+      
+      //verificar si el organismo de la prohibicion corresponde al organismo del usuario
+      if(dataProhibicion.organismo_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar esta prohibición. No coincide el organismo al que pertece el usuario con el organismo que creo esta prohibición.");
+      
+      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      if(dataProhibicion.anulado) 
+        throw new NotFoundException("No se puede modificar una prohibicion anulada.");
 
-        //guardar bitacora de prohibicion
-        let dataProhibicion = await this.findOne(id);
-        let fecha_actual: any = new Date().toISOString().split('T')[0];
-        let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
-        
-        dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
-        dataBitacora.disposicion = dataProhibicion.disposicion;
-        dataBitacora.detalle = dataProhibicion.detalle;
-        dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
-        dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
-        dataBitacora.vigente = dataProhibicion.vigente;
-        dataBitacora.anulado = dataProhibicion.anulado;
-        dataBitacora.motivo = "MODIFICACION PROHIBICION";
-        dataBitacora.detalle_motivo = detalle_motivo;
-        dataBitacora.usuario_id = 2;
-        dataBitacora.fecha_cambio = fecha_actual;
+      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      if(!dataProhibicion.vigente) 
+        throw new NotFoundException("No se puede modificar una prohibicion que no este vigente");
+    
+
+      //preparar datos para la bitacora      
+      let fecha_actual: any = new Date().toISOString().split('T')[0];        
+      dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+      dataBitacora.disposicion = dataProhibicion.disposicion;
+      dataBitacora.detalle = dataProhibicion.detalle;
+      dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+      dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+      dataBitacora.vigente = dataProhibicion.vigente;
+      dataBitacora.anulado = dataProhibicion.anulado;
+      dataBitacora.motivo = "MODIFICACION PROHIBICION";
+      dataBitacora.detalle_motivo = detalle_motivo;
+      dataBitacora.usuario_id = usuario.id_usuario;
+      dataBitacora.fecha_cambio = fecha_actual;
+
+      //actualiza la prohibicion
+      const respuesta = await this.prohibicionVisitaRepository.update(id, nuevaData);
+
+      //guardar bitacora de prohibicion
+      if((await respuesta).affected == 1){
                 
         await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
       } 
