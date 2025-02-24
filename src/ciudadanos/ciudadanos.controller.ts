@@ -1,15 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, ParseIntPipe, Query, Put, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { CiudadanosService } from './ciudadanos.service';
 import { CreateCiudadanoDto } from './dto/create-ciudadano.dto';
-import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
 import { EstablecerVisitaDto } from './dto/establecer-visita.dto';
-import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UpdateCiudadanoDto } from './dto/update-ciudadano.dto';
 import { UpdateDatosPersonalesCiudadanoDto } from './dto/update-datos-personales-ciudadno.dto';
 import { UpdateDomicilioCiudadanoDto } from './dto/update-domicilio-ciudadano.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Controller('ciudadanos')
 export class CiudadanosController {
-  constructor(private readonly ciudadanosService: CiudadanosService) {}
+  constructor(
+    private readonly ciudadanosService: CiudadanosService,
+    private readonly driveImagenesService: DriveImagenesService
+  ) {}
+
+  @Post('upload-img-ciudadano')
+  @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No se recibió ningún archivo');
+    }
+
+    const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano");
+    return {
+      message: 'Archivo subido con éxito',
+      fileId: uploadedFile.id,
+      link: uploadedFile.webViewLink,
+    };
+  }
 
   @Post()
   create(@Body() createCiudadanoDto: CreateCiudadanoDto) {
