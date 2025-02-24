@@ -3,6 +3,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { google } from 'googleapis';
 import * as fs from 'fs';
 import { Readable } from 'stream';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DriveImagen } from './entities/drive-imagene.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DriveImagenesService {
@@ -15,6 +18,7 @@ export class DriveImagenesService {
 
 
   constructor() {
+    
     const auth = new google.auth.GoogleAuth({
       keyFile: 'src/config/google-service-account.json', // Ruta del JSON
       scopes: ['https://www.googleapis.com/auth/drive.file'],
@@ -76,15 +80,18 @@ export class DriveImagenesService {
   async getFileByName(fileName: string, carpeta: string) {
 
     let folderId: string;
+    let imagenDefecto: string;
 
     if(carpeta == "ciudadano"){
       
       folderId= this.ciudadanoFolderId;
+      imagenDefecto = "foto-ciudadano-0.jpg";
     }
 
     if(carpeta == "interno"){
       
       folderId= this.internoFolderId;
+      imagenDefecto = "foto-interno-0.jpg";
     }
 
     const response = await this.driveClient.files.list({
@@ -93,6 +100,7 @@ export class DriveImagenesService {
     });
   
     if (response.data.files.length === 0) {
+      return null;
       throw new NotFoundException('Archivo no encontrado');
     }
 
@@ -102,6 +110,7 @@ export class DriveImagenesService {
     return response.data.files[0]; // 📂 Devuelve el primer archivo encontrado
   }
   //fin BUSCAR IMAGEN.....................
+  
 
   //HACER PUBLICO UN ARCHIVO
   // 📌 Método para hacer público un archivo específico en Google Drive

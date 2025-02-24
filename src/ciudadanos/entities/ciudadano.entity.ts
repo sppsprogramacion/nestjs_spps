@@ -212,6 +212,14 @@ export class Ciudadano {
         nullable: true
     })
     foto: string; 
+
+    @Column({
+        type: 'varchar',
+        length: 500,
+        default: 'https://drive.google.com/uc?id=1Fe8GN5PrwVvU1EBW_2lGo2OusPp8d3Ej&export=download',
+        nullable: true
+    })
+    foto_defecto: string; 
     
     @Column({
         type: 'date',

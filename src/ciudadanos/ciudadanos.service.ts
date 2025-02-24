@@ -108,8 +108,13 @@ export class CiudadanosService {
     
     //obtener url de la imagen en drive y agregado en la respuesta
     const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
-    imgUrl = await file.webContentLink;
-    respuesta.foto = imgUrl;
+    if(!file){
+      respuesta.foto = respuesta.foto_defecto;
+    }
+    else{
+      imgUrl = await file.webContentLink;
+      respuesta.foto = imgUrl;
+    }
 
     return respuesta;
   }

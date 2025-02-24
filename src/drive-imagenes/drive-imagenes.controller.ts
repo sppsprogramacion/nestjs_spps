@@ -13,7 +13,7 @@ export class DriveImagenesController {
   //   if (!file) {
   //     throw new BadRequestException('No se recibió ningún archivo');
   //   }
-
+    
   //   const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano");
   //   return {
   //     message: 'Archivo subido con éxito',
