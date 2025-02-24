@@ -65,7 +65,7 @@ export class SectoresDestinoService {
       );  
     }
     
-    //cuando el organismo es una unidad carcelaria o alcaidia
+    //cuando el organismo no es una unidad carcelaria o alcaidia
     if(!organismoDestino.es_unidad_carcelaria){
       //cuando el organismo NO ES una unidad carcelaria o alcaidia
       sectores = await this.sectoresDestinoRepository.find(

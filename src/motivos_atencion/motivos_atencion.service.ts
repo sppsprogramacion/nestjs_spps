@@ -4,13 +4,17 @@ import { UpdateMotivosAtencionDto } from './dto/update-motivos_atencion.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MotivoAtencion } from './entities/motivos_atencion.entity';
 import { Repository } from 'typeorm';
+import { OrganismosDestinoService } from 'src/organismos_destino/organismos_destino.service';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class MotivosAtencionService {
   
   constructor(
     @InjectRepository(MotivoAtencion)
-    private readonly motivoAtencionRepository: Repository<MotivoAtencion>
+    private readonly motivoAtencionRepository: Repository<MotivoAtencion>,
+    
+    private readonly organismosDestinoService: OrganismosDestinoService
   ){}
 
   async create(data: CreateMotivosAtencionDto): Promise<MotivoAtencion> {
@@ -34,6 +38,52 @@ export class MotivosAtencionService {
       }
     );
   }
+
+  //BUSCAR  XORGANISMO DESTINO
+    async findXOrganismo(id_organismox: number, usuario: Usuario) { 
+      
+      let organismoDestino = await this.organismosDestinoService.findOne(id_organismox);    
+  
+      if (!organismoDestino) throw new NotFoundException("El organismo no existe.");
+  
+      if(organismoDestino.organismo_depende != usuario.organismo_id) throw new NotFoundException("El organismo no es accesible por este usuario");
+  
+      let motivos: any;   
+  
+      //cuando el organismo es una unidad carcelaria o alcaidia
+      if(organismoDestino.es_unidad_carcelaria){     
+        motivos = await this.motivoAtencionRepository.find(
+          {          
+            where: [
+              { organismo_destino_id: id_organismox },
+              { organismo_destino_id: 22 }
+            ],
+            order:{
+              motivo_atencion: "ASC"
+            }
+          }
+        );  
+      }
+      
+      //cuando el organismo no es una unidad carcelaria o alcaidia
+      if(!organismoDestino.es_unidad_carcelaria){
+        //cuando el organismo NO ES una unidad carcelaria o alcaidia
+        motivos = await this.motivoAtencionRepository.find(
+          {          
+            where: {
+              organismo_destino_id: id_organismox
+            },
+            order:{
+              motivo_atencion: "ASC"
+            }
+          }
+        ); 
+      }
+          
+      return motivos;
+      
+    }
+    //FIN BUSCAR  XORGANISMO DESTINO..................................................................
 
   //BUSCAR  XID
   async findOne(id: number) {
