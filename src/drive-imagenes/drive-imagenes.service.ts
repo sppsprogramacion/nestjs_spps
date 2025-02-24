@@ -24,7 +24,7 @@ export class DriveImagenesService {
   }
 
   //SUBIR IMAGEN
-  async uploadFile(file: Express.Multer.File, carpeta: string) {
+  async uploadFile(file: Express.Multer.File, carpeta: string, id: number) {
 
     if (!file) {
       throw new BadRequestException('No se recibió ningún archivo');
@@ -32,12 +32,15 @@ export class DriveImagenesService {
 
     //establecer carpeta de google drive
     let folderId: string;
+    let nombreImagen: string;
 
     if(carpeta == "ciudadano"){      
       folderId= this.ciudadanoFolderId;
+      nombreImagen = "foto-ciudadano-" + id + ".jpg";
     }
     if(carpeta == "interno"){      
       folderId= this.internoFolderId;
+      nombreImagen = "foto-interno-" + id + ".jpg";
     }
 
     // Convertir buffer a Stream
@@ -46,7 +49,8 @@ export class DriveImagenesService {
     bufferStream.push(null); // Indica el final del stream
 
     const fileMetadata = {
-      name: file.originalname,
+      //name: file.originalname,
+      name: nombreImagen,
       parents: [folderId], // Reemplaza con el ID de tu carpeta en Google Drive
     };
 

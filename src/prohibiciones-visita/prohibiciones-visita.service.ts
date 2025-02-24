@@ -4,7 +4,6 @@ import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProhibicionVisita } from './entities/prohibiciones-visita.entity';
 import { Repository } from 'typeorm';
-import { BitacoraProhibicionVisita } from 'src/bitacora-prohibiciones-visita/entities/bitacora-prohibiciones-visita.entity';
 import { BitacoraProhibicionesVisitaService } from 'src/bitacora-prohibiciones-visita/bitacora-prohibiciones-visita.service';
 import { CreateBitacoraProhibicionesVisitaDto } from 'src/bitacora-prohibiciones-visita/dto/create-bitacora-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
@@ -31,29 +30,10 @@ export class ProhibicionesVisitaService {
       
       const nuevo = await this.prohibicionVisitaRepository.create(data);
       let respuesta = await this.prohibicionVisitaRepository.save(nuevo);
-
-      // if(respuesta){
-      //   let fecha_actual: any = new Date().toISOString().split('T')[0];
-      //   let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
-        
-      //   dataBitacora.prohibicion_visita_id = respuesta.id_prohibicion_visita;
-      //   dataBitacora.disposicion = respuesta.disposicion;
-      //   dataBitacora.detalle = respuesta.detalle;
-      //   dataBitacora.fecha_inicio = respuesta.fecha_inicio;
-      //   dataBitacora.fecha_fin = respuesta.fecha_fin;
-      //   dataBitacora.vigente = respuesta.vigente;
-      //   dataBitacora.anulado = respuesta.anulado;
-      //   dataBitacora.motivo = "CREACION PROHIBICION";
-      //   dataBitacora.detalle_motivo = "CREACION PROHIBICION";
-      //   dataBitacora.usuario_id = 2;
-      //   dataBitacora.fecha_cambio = fecha_actual;
-                
-      //   await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
-
-      // }
-
+      
       return respuesta;
     }catch (error) {
+      .3
 
       this.handleDBErrors(error);  
     }     
@@ -70,9 +50,7 @@ export class ProhibicionesVisitaService {
   }
 
   //BUSCAR  XCIUDADANO
-  async findXCiudano(id_ciudanox: number) {    
-    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
-    
+  async findXCiudano(id_ciudanox: number) { 
       const prohibiciiones = await this.prohibicionVisitaRepository.find(
         {        
           where: {

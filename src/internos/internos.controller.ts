@@ -1,11 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, NotFoundException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, NotFoundException, Put, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { InternosService } from './internos.service';
 import { CreateInternoDto } from './dto/create-interno.dto';
 import { UpdateInternoDto } from './dto/update-interno.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Controller('internos')
 export class InternosController {
-  constructor(private readonly internosService: InternosService) {}
+  constructor(
+    private readonly internosService: InternosService,
+    private readonly driveImagenesService: DriveImagenesService
+  ) {}
+
+  @Post('upload-img-interno')
+  @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+  async uploadFileInterno(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('id_interno', ParseIntPipe) id_interno: string
+  ) {
+    if (!file) {
+      throw new BadRequestException('No se recibió ningún archivo');
+    }
+
+    const uploadedFile = await this.driveImagenesService.uploadFile(file, "interno", +id_interno);
+    return {
+      message: 'Archivo subido con éxito',
+      fileId: uploadedFile.id,
+      link: uploadedFile.webViewLink,
+    };
+  }
 
   @Post()
   create(@Body() createDto: CreateInternoDto) {

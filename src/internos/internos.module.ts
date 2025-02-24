@@ -3,6 +3,7 @@ import { InternosService } from './internos.service';
 import { InternosController } from './internos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Interno } from './entities/interno.entity';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { Interno } from './entities/interno.entity';
     ])
   ],
   controllers: [InternosController],
-  providers: [InternosService]
+  providers: [InternosService, DriveImagenesService]
 })
 export class InternosModule {}

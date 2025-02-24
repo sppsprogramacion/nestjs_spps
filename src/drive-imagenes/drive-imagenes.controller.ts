@@ -7,35 +7,35 @@ export class DriveImagenesController {
   constructor(private readonly driveImagenesService: DriveImagenesService) {}
 
 
-  @Post('upload-img-ciudadano')
-  @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('No se recibió ningún archivo');
-    }
+  // @Post('upload-img-ciudadano')
+  // @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+  // async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  //   if (!file) {
+  //     throw new BadRequestException('No se recibió ningún archivo');
+  //   }
 
-    const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano");
-    return {
-      message: 'Archivo subido con éxito',
-      fileId: uploadedFile.id,
-      link: uploadedFile.webViewLink,
-    };
-  }
+  //   const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano");
+  //   return {
+  //     message: 'Archivo subido con éxito',
+  //     fileId: uploadedFile.id,
+  //     link: uploadedFile.webViewLink,
+  //   };
+  // }
 
-  @Post('upload-img-interno')
-  @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
-  async uploadFileInterno(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('No se recibió ningún archivo');
-    }
+  // @Post('upload-img-interno')
+  // @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+  // async uploadFileInterno(@UploadedFile() file: Express.Multer.File) {
+  //   if (!file) {
+  //     throw new BadRequestException('No se recibió ningún archivo');
+  //   }
 
-    const uploadedFile = await this.driveImagenesService.uploadFile(file, "interno");
-    return {
-      message: 'Archivo subido con éxito',
-      fileId: uploadedFile.id,
-      link: uploadedFile.webViewLink,
-    };
-  }
+  //   const uploadedFile = await this.driveImagenesService.uploadFile(file, "interno");
+  //   return {
+  //     message: 'Archivo subido con éxito',
+  //     fileId: uploadedFile.id,
+  //     link: uploadedFile.webViewLink,
+  //   };
+  // }
 
   //BUSCAR IMAGEN DE CIUDADANO
   @Get('buscar-img-ciudadano')

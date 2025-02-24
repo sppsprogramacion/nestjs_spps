@@ -9,6 +9,7 @@ import { UpdateDatosPersonalesCiudadanoDto } from './dto/update-datos-personales
 import { UpdateDomicilioCiudadanoDto } from './dto/update-domicilio-ciudadano.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { Ciudadano } from './entities/ciudadano.entity';
 
 @Controller('ciudadanos')
 export class CiudadanosController {
@@ -19,12 +20,34 @@ export class CiudadanosController {
 
   @Post('upload-img-ciudadano')
   @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+  ) {
+
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
     if (!file) {
       throw new BadRequestException('No se recibió ningún archivo');
     }
 
-    const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano");
+    let ciudadanoImagen: UpdateCiudadanoDto= new UpdateCiudadanoDto;
+    let ciudadano = await this.findOne(id_ciudadano);
+
+    //guardar imagen
+    const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano", +id_ciudadano);
+    
+    //modificar nombre de la imagen en el ciudadano
+    if(uploadedFile){
+      
+      ciudadanoImagen.foto = "foto-ciudadano-" + id_ciudadano + ".jpg";
+      ciudadanoImagen.detalle_motivo = "Carga de imagen del ciudadano";
+      await this.ciudadanosService.update(+id_ciudadano,ciudadanoImagen,usuariox, "datos_personales");
+    }
+    
+
     return {
       message: 'Archivo subido con éxito',
       fileId: uploadedFile.id,
