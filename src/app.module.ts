@@ -39,6 +39,7 @@ import { CiudadanosCategoriasModule } from './ciudadanos-categorias/ciudadanos-c
 import { AbogadosInternoModule } from './abogados-interno/abogados-interno.module';
 import { TiposDefensorModule } from './tipos-defensor/tipos-defensor.module';
 import { DriveImagenesModule } from './drive-imagenes/drive-imagenes.module';
+import { MenoresACargoModule } from './menores_a_cargo/menores_a_cargo.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { DriveImagenesModule } from './drive-imagenes/drive-imagenes.module';
     AbogadosInternoModule,
     TiposDefensorModule,
     DriveImagenesModule,
+    MenoresACargoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

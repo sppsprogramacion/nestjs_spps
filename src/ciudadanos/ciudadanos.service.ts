@@ -14,6 +14,8 @@ import { BitacoraCiudadanoService } from '../bitacora-ciudadano/bitacora-ciudada
 import { CreateDomiciliosCiudadanoDto } from 'src/domicilios-ciudadano/dto/create-domicilios-ciudadano.dto';
 import { DomiciliosCiudadanoService } from '../domicilios-ciudadano/domicilios-ciudadano.service';
 import { DriveImagenesService } from '../drive-imagenes/drive-imagenes.service';
+import { CiudadanoRespnseDto } from './dto/ciudadano-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CiudadanosService {
@@ -119,6 +121,33 @@ export class CiudadanosService {
     return respuesta;
   }
   //FIN BUSCAR POR ID......................
+
+  //BUSCAR POR ID RESPONSE
+  async findOneCiudadanoResponse(id: number) {
+    //busqueda del ciduadano
+    const respuesta = await this.ciudadanoRepository.findOneBy({id_ciudadano: id});
+    if (!respuesta) throw new NotFoundException("El ciudadano solicitado no existe.", "verificque el id del ciudadano");
+    
+    let imgUrl: string = "";
+    let foto_nombre = respuesta.foto;
+    //let foto_nombre = "1.jpg"
+    
+    //obtener url de la imagen en drive y agregado en la respuesta
+    const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
+    if(!file){
+      respuesta.foto = respuesta.foto_defecto;
+    }
+    else{
+      imgUrl = await file.webContentLink;
+      respuesta.foto = imgUrl;
+    }
+    
+    let personaResponse = plainToInstance(CiudadanoRespnseDto, respuesta, { excludeExtraneousValues: true });
+    
+    
+    return respuesta;
+  }
+  //FIN BUSCAR POR ID RESPONSE......................
 
   async update(id: number, updateCiudadanoDto: UpdateCiudadanoDto, usuariox: Usuario, tipo_modificacion: string) {
     try{
