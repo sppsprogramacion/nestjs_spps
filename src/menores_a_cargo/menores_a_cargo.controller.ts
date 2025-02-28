@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { MenoresACargoService } from './menores_a_cargo.service';
 import { CreateMenoresACargoDto } from './dto/create-menores_a_cargo.dto';
 import { UpdateMenoresACargoDto } from './dto/update-menores_a_cargo.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('menores-a-cargo')
 export class MenoresACargoController {
@@ -9,7 +10,11 @@ export class MenoresACargoController {
 
   @Post()
   create(@Body() createMenoresACargoDto: CreateMenoresACargoDto) {
-    return this.menoresACargoService.create(createMenoresACargoDto);
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+    
+    return this.menoresACargoService.create(createMenoresACargoDto, usuariox);
   }
 
   @Get()
@@ -22,13 +27,13 @@ export class MenoresACargoController {
     return this.menoresACargoService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMenoresACargoDto: UpdateMenoresACargoDto) {
-    return this.menoresACargoService.update(+id, updateMenoresACargoDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateMenoresACargoDto: UpdateMenoresACargoDto) {
+  //   return this.menoresACargoService.update(+id, updateMenoresACargoDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.menoresACargoService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.menoresACargoService.remove(+id);
+  // }
 }

@@ -142,6 +142,7 @@ export class CiudadanosService {
       respuesta.foto = imgUrl;
     }
     
+    //pasar de ciudadano a un nuevo tipo
     let personaResponse = plainToInstance(CiudadanoRespnseDto, respuesta, { excludeExtraneousValues: true });
     
     

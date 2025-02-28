@@ -10,9 +10,9 @@ import { OrganismoDestino } from 'src/organismos_destino/entities/organismos_des
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([
-      OrganismoDestino,
-      SectorDestino
+    TypeOrmModule.forFeature([        
+      SectorDestino,
+      OrganismoDestino
     ])
   ],
   controllers: [SectoresDestinoController],

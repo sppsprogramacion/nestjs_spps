@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 import { Departamento } from "src/departamentos/entities/departamento.entity";
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
 import { Municipio } from "src/municipio/entities/municipio.entity";
@@ -82,3 +84,7 @@ export class CiudadanoRespnseDto {
     categoria: string;
     
 }
+
+function calcularEdad(fechaNacimiento: Date): number {
+    return moment().diff(moment(fechaNacimiento), 'years');
+  }

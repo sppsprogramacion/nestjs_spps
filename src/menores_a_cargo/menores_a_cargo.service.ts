@@ -6,13 +6,17 @@ import { MenorACargo } from './entities/menores_a_cargo.entity';
 import { Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateAnularMenorCargoDto } from './dto/update-anular-menor-cargo.dto';
+import { Ciudadano } from 'src/ciudadanos/entities/ciudadano.entity';
+import moment from 'moment';
 
 @Injectable()
 export class MenoresACargoService {
   
   constructor(
     @InjectRepository(MenorACargo)
-    private readonly menorACargoRepository: Repository<MenorACargo>
+    private readonly menorACargoRepository: Repository<MenorACargo>,
+    @InjectRepository(Ciudadano)
+        private readonly ciudadanoRepository: Repository<Ciudadano>,
   ){}
 
   async create(data: CreateMenoresACargoDto, usuario: Usuario): Promise<MenorACargo> {
@@ -35,7 +39,40 @@ export class MenoresACargoService {
     if(dataMenorAdulto) throw new ConflictException("El menor ya se encuentran a cargo de este adulto.");
     //fin control de existencia de vinculo vigente entre el Adulto y el menor 
     
+    //buscar adulto y menor para controlar
+    const ciudadanos = await this.ciudadanoRepository.find(
+      {        
+        where: [
+          {id_ciudadano: data.ciudadano_tutor_id},
+          {id_ciudadano: data.ciudadano_menor_id}
+        ]
+      }
+    );   
     
+    //controlar adulto
+    let objetoEncontrado = ciudadanos.find(obj => obj.id_ciudadano === data.ciudadano_tutor_id);     
+    if(objetoEncontrado){
+      if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') < 18)){
+        throw new NotFoundException("El ciudadano seleccionado como tutor es menor de edad. (Tiene menos de 18 años)");
+      }
+    }
+    else{
+      throw new NotFoundException("El ciudadano seleccionado como tutor no existe.");
+    }
+
+    //controlar menor
+    objetoEncontrado = null;
+    objetoEncontrado = ciudadanos.find(obj => obj.id_ciudadano === data.ciudadano_menor_id);     
+    if(objetoEncontrado){
+      if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') >= 18)){
+        throw new NotFoundException("El ciudadano seleccionado como menor es adulto. (Tiene 18 años o más)");
+      }
+    }
+    else{
+      throw new NotFoundException("El ciudadano seleccionado como menor no existe.");
+    }
+
+    //guardar menor y adulto
     try {
       
       const nuevo = await this.menorACargoRepository.create(data);

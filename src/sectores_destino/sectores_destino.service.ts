@@ -13,7 +13,6 @@ export class SectoresDestinoService {
   constructor(
     @InjectRepository(SectorDestino)
     private readonly sectoresDestinoRepository: Repository<SectorDestino>,
-
     private readonly organismosDestinoService: OrganismosDestinoService 
   ){}
 
@@ -89,7 +88,7 @@ export class SectoresDestinoService {
   async findOne(id: number) {
 
     const respuesta = await this.sectoresDestinoRepository.findOneBy({id_sector_destino: id});
-    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El sector solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................

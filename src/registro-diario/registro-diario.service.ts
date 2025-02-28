@@ -8,13 +8,15 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Console } from 'console';
 import { UpdateAnularDto } from './dto/update-anular.dto';
 import { UpdateEgresoDto } from './dto/update-egreso.dto';
+import { SectoresDestinoService } from 'src/sectores_destino/sectores_destino.service';
 
 @Injectable()
 export class RegistroDiarioService {
   
   constructor(
     @InjectRepository(RegistroDiario)
-    private readonly registroDiarioRepository: Repository<RegistroDiario>
+    private readonly registroDiarioRepository: Repository<RegistroDiario>,
+    private readonly sectoresDestinoService: SectoresDestinoService
   ){}
 
   async create(data: CreateRegistroDiarioDto, usuario: Usuario): Promise<RegistroDiario> {
@@ -29,6 +31,13 @@ export class RegistroDiarioService {
     data.organismo_id = usuario.organismo_id;
     data.usuario_id = usuario.id_usuario;  
     
+    const sectorDestino = await this.sectoresDestinoService.findOne(data.sector_destino_id);    
+
+    if (!sectorDestino) throw new NotFoundException("El sector no existe.");
+
+    if(sectorDestino.organismo_destino.organismo_depende != usuario.organismo_id) 
+      throw new NotFoundException("El organismo al que pertenece el sector seleccionado no es accesible por este usuario");
+
     try {
       
       const nuevo = await this.registroDiarioRepository.create(data);
