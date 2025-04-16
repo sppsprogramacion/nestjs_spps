@@ -42,10 +42,6 @@ export class UsuariosRolController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: string) {
     
-    return this.usuariosRolService
-    
-    
-    
-    .remove(+id);
+    return this.usuariosRolService.remove(+id);
   }
 }

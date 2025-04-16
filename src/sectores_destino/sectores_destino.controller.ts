@@ -3,6 +3,7 @@ import { SectoresDestinoService } from './sectores_destino.service';
 import { CreateSectoresDestinoDto } from './dto/create-sectores_destino.dto';
 import { UpdateSectoresDestinoDto } from './dto/update-sectores_destino.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('sectores-destino')
 export class SectoresDestinoController {
@@ -19,14 +20,16 @@ export class SectoresDestinoController {
   }
 
   //BUSCAR  XORGANISMO DESTINO
-  @Get('lista-xorganismo')  
+  @Get('lista-xorganismo')
+  @Auth()  
   async findXUsuario(
+    @GetUser() user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_organismo') id_organismo: string
   ) {    
     
     let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
+    usuariox.id_usuario = user.id_usuario;
+    usuariox.organismo_id = user.organismo.id_organismo;
     
     return this.sectoresDestinoService.findXOrganismo(+id_organismo,usuariox);
   }

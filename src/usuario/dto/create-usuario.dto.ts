@@ -31,6 +31,10 @@ export class CreateUsuarioDto {
     @IsNotEmpty({message: "Debe ingresar el email."})
     email: string;
 
+    @IsInt({message: "El organismo_id debe ser un número entero"})
+    @IsNotEmpty({message: "Debe ingresar el organismo_id."})
+    organismo_id: number;
+
     @IsString()
     @Length(8,16,{message: "La clave debe tener entre $constraint1 y $constraint2 caracteres."})
     @Matches(

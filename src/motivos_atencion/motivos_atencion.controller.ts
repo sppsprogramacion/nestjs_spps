@@ -3,6 +3,7 @@ import { MotivosAtencionService } from './motivos_atencion.service';
 import { CreateMotivosAtencionDto } from './dto/create-motivos_atencion.dto';
 import { UpdateMotivosAtencionDto } from './dto/update-motivos_atencion.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('motivos-atencion')
 export class MotivosAtencionController {
@@ -19,18 +20,20 @@ export class MotivosAtencionController {
   }
 
   //BUSCAR  XORGANISMO DESTINO
-    @Get('lista-xorganismo')  
-    async findXUsuario(
-      @Query('id_organismo') id_organismo: string
-    ) {    
-      
-      let usuariox: Usuario= new Usuario;
-      usuariox.id_usuario = 2;
-      usuariox.organismo_id = 1;
-      
-      return this.motivosAtencionService.findXOrganismo(+id_organismo,usuariox);
-    }
-    //FIN BUSCAR  XORGANISMO DESTINO...................................................
+  @Get('lista-xorganismo')  
+  @Auth()
+  async findXUsuario(
+    @Query('id_organismo') id_organismo: string,
+    @GetUser() user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {    
+    
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = user.id_usuario;
+    usuariox.organismo_id = user.organismo.id_organismo;
+    
+    return this.motivosAtencionService.findXOrganismo(+id_organismo,usuariox);
+  }
+  //FIN BUSCAR  XORGANISMO DESTINO...................................................
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
