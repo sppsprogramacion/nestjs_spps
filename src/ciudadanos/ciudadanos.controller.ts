@@ -101,7 +101,9 @@ export class CiudadanosController {
   async findListaXApellido(
     @Query('apellido') apellido: string, 
   ) {    
-        
+
+    if ( apellido.length < 2 ) throw new NotFoundException('El apellido de busqueda debe tener mínimo (02) dos caracteres.');
+          
     return this.ciudadanosService.findListaXApellido(apellido);
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................

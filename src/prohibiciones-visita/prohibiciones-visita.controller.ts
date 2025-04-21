@@ -13,7 +13,11 @@ export class ProhibicionesVisitaController {
   @Post()
   create(@Body() data: CreateProhibicionesVisitaDto) {
     
-    return this.prohibicionesVisitaService.create(data);
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
+    return this.prohibicionesVisitaService.create(data, usuariox);
   }  
 
   @Get('todos')

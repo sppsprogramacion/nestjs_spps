@@ -19,13 +19,15 @@ export class ProhibicionesVisitaService {
     private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService
   ){}
 
-  async create(data: CreateProhibicionesVisitaDto): Promise<ProhibicionVisita> {
+  async create(data: CreateProhibicionesVisitaDto, usuario: Usuario): Promise<ProhibicionVisita> {
     
     let fecha_actual: any = new Date().toISOString().split('T')[0];               
     
     //cargar datos por defecto
-    data.fecha_prohibicion = fecha_actual
-
+    data.fecha_prohibicion = fecha_actual;
+    data.usuario_id = usuario.id_usuario;
+    data.organismo_id = usuario.organismo_id;
+    
     try {
       
       const nuevo = await this.prohibicionVisitaRepository.create(data);

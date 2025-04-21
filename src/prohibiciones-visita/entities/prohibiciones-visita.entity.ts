@@ -1,6 +1,7 @@
 import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Organismo } from '../../organismos/entities/organismo.entity';
+import { Usuario } from "src/usuario/entities/usuario.entity";
 
 @Entity('prohibiciones_visita')
 export class ProhibicionVisita {
@@ -84,6 +85,22 @@ export class ProhibicionVisita {
         default: false
     })
     anulado: boolean;
+
+    //USUARIO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 2
+    })
+    usuario_id: number;
+
+    @ManyToOne(type => Usuario, {eager: true} )
+    @JoinColumn({
+        name: 'usuario_id',
+        referencedColumnName: 'id_usuario'
+    })
+    usuario: Usuario;
+    //FIN USUARIO
 
 }
 

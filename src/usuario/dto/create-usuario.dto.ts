@@ -35,6 +35,7 @@ export class CreateUsuarioDto {
     @IsNotEmpty({message: "Debe ingresar el organismo_id."})
     organismo_id: number;
 
+    
     @IsString()
     @Length(8,16,{message: "La clave debe tener entre $constraint1 y $constraint2 caracteres."})
     @Matches(
