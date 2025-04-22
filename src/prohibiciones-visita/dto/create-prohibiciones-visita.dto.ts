@@ -28,6 +28,8 @@ export class CreateProhibicionesVisitaDto {
 
     anulado: boolean;
 
+    tipo_levantamiento: string;
+
     usuario_id: number;
 
 }

@@ -86,6 +86,13 @@ export class ProhibicionVisita {
     })
     anulado: boolean;
 
+    @Column({
+        type: 'varchar',
+        length: 30,
+        nullable: true
+    })
+    tipo_levantamiento: string;
+
     //USUARIO
     @Column({
         type: 'int',

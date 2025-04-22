@@ -35,8 +35,7 @@ export class ProhibicionesVisitaService {
       
       return respuesta;
     }catch (error) {
-      .3
-
+      
       this.handleDBErrors(error);  
     }     
   }
@@ -135,6 +134,7 @@ export class ProhibicionesVisitaService {
         motivo = "LEVANTAMIENTO MANUAL";
         //carga de datos a modificar
         dataProhibicion.vigente = false;
+        dataProhibicion.tipo_levantamiento = "LEV. MANUAL";
         dataProhibicion.fecha_fin = data.fecha_fin;
       }
   
