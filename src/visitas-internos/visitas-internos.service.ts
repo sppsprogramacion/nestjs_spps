@@ -5,13 +5,18 @@ import { Repository, In } from 'typeorm';
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
 import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
 import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
+import { CreateNovedadesCiudadanoDto } from 'src/novedades-ciudadano/dto/create-novedades-ciudadano.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
 
 @Injectable()
 export class VisitasInternosService {
 
   constructor(
     @InjectRepository(VisitaInterno)
-    private readonly visitaInternoRepository: Repository<VisitaInterno>
+    private readonly visitaInternoRepository: Repository<VisitaInterno>,
+
+    private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
 
   async create(data: CreateVisitasInternoDto): Promise<VisitaInterno> {
@@ -153,7 +158,7 @@ export class VisitasInternosService {
   //FIN BUSCAR  XINTERNO..................................................................
 
   //CAMBIO DE PARENTESCO
-  async updateCambioParentesco(id: number, data: UpdateCambioParentescoDto) {
+  async updateCambioParentesco(id: number, data: UpdateCambioParentescoDto, usuariox: Usuario) {
     let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
     dataVisitaInterno.parentesco_id = data.parentesco_id;
     
@@ -199,10 +204,24 @@ export class VisitasInternosService {
       if(respuestaParejasVisita) throw new ConflictException("El ciudadano ya se encuentran vinculado con otro interno como Concubino/a, Conyugue o Novo/ia. Sólo puede tener un interno como Concubino/a, Conyugue o Novio/a.");
     }
 
+    //actualizar cambios
     try{
       const respuesta = await this.visitaInternoRepository.update(id, dataVisitaInterno);
       if((await respuesta).affected == 1){
-        await this.findOne(id);
+        if((await respuesta).affected == 1){
+          //guardar novedad
+          let fecha_actual: any = new Date().toISOString().split('T')[0];
+          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
+          
+          dataNovedad.ciudadano_id = dataVisitaInterno.ciudadano_id;        
+          dataNovedad.novedad = "CAMBIO DE PARENTESCO";
+          dataNovedad.novedad_detalle = data.detalle_motivo;
+          dataNovedad.organismo_id = usuariox.organismo_id;
+          dataNovedad.usuario_id = usuariox.id_usuario;
+          dataNovedad.fecha_novedad = fecha_actual;
+                  
+          await this.novedadesCiudadanoService.create(dataNovedad);
+        } 
       } 
       return respuesta;
     }

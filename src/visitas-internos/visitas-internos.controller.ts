@@ -3,6 +3,7 @@ import { VisitasInternosService } from './visitas-internos.service';
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
 import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
 import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('visitas-internos')
 export class VisitasInternosController {
@@ -59,8 +60,11 @@ export class VisitasInternosController {
     @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
     @Body() dataDto: UpdateCambioParentescoDto
   ) {
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
 
-    return this.visitasInternosService.updateCambioParentesco(+id_visita_interno, dataDto);
+    return this.visitasInternosService.updateCambioParentesco(+id_visita_interno, dataDto, usuariox);
   }
   //FIN CAMBIAR PARENTESCO.................................
 
