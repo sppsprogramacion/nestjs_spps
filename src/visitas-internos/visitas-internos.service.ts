@@ -159,12 +159,13 @@ export class VisitasInternosService {
 
   //CAMBIO DE PARENTESCO
   async updateCambioParentesco(id: number, data: UpdateCambioParentescoDto, usuariox: Usuario) {
+    //carga de nuevo parentesco para actualizar
     let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
     dataVisitaInterno.parentesco_id = data.parentesco_id;
     
-    //controlar si existe el vinculo entre visita e interno
+    //buscar y controlar si existe el vinculo entre visita e interno
     let dataVisitaInternoActual = await this.findOne(id);
-    if(!dataVisitaInterno) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
+    if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
     //controlar si el interno esta vinculado con otra visita con estos parentescos (CONC, CONY, NOV)
     if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV"){
@@ -209,13 +210,16 @@ export class VisitasInternosService {
       const respuesta = await this.visitaInternoRepository.update(id, dataVisitaInterno);
       if((await respuesta).affected == 1){
         if((await respuesta).affected == 1){
+
           //guardar novedad
           let fecha_actual: any = new Date().toISOString().split('T')[0];
           let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
           
-          dataNovedad.ciudadano_id = dataVisitaInterno.ciudadano_id;        
+          console.log("ciudadano: ", dataVisitaInternoActual.ciudadano_id);
+          
+          dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
           dataNovedad.novedad = "CAMBIO DE PARENTESCO";
-          dataNovedad.novedad_detalle = data.detalle_motivo;
+          dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco anterior: " + dataVisitaInternoActual.parentesco.parentesco + " - " + data.detalle_motivo;
           dataNovedad.organismo_id = usuariox.organismo_id;
           dataNovedad.usuario_id = usuariox.id_usuario;
           dataNovedad.fecha_novedad = fecha_actual;
