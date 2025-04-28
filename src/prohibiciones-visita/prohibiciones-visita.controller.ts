@@ -5,6 +5,7 @@ import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
 import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('prohibiciones-visita')
 export class ProhibicionesVisitaController {
@@ -27,7 +28,9 @@ export class ProhibicionesVisitaController {
 
   //BUSCAR  XID CIUDADANO
   @Get('buscar-xciudadano')  
+  @Auth()
   async findXCiudadano(
+    @GetUser() user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string
     
   ) {    
