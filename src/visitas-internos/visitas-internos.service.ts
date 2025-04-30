@@ -8,6 +8,7 @@ import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-int
 import { CreateNovedadesCiudadanoDto } from 'src/novedades-ciudadano/dto/create-novedades-ciudadano.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
+import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
 
 @Injectable()
 export class VisitasInternosService {
@@ -215,11 +216,54 @@ export class VisitasInternosService {
           let fecha_actual: any = new Date().toISOString().split('T')[0];
           let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
           
-          console.log("ciudadano: ", dataVisitaInternoActual.ciudadano_id);
           
           dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
           dataNovedad.novedad = "CAMBIO DE PARENTESCO";
           dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco anterior: " + dataVisitaInternoActual.parentesco.parentesco + " - " + data.detalle_motivo;
+          dataNovedad.organismo_id = usuariox.organismo_id;
+          dataNovedad.usuario_id = usuariox.id_usuario;
+          dataNovedad.fecha_novedad = fecha_actual;
+                  
+          await this.novedadesCiudadanoService.create(dataNovedad);
+        } 
+      } 
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }
+  //FIN CAMBIO DE PARENTESCO....................................
+
+  //CAMBIO DE PARENTESCO
+  async updateProhibicionParentesco(id: number, data: UpdateProhibirParentescoDto, usuariox: Usuario) {
+    //carga de nuevo parentesco para actualizar
+    let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
+    //dataVisitaInterno.parentesco_id = data.parentesco_id;
+    
+    //buscar y controlar si existe el vinculo entre visita e interno
+    let dataVisitaInternoActual = await this.findOne(id);
+    if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
+    
+    data.prohibido = true;
+
+    //actualizar cambios
+    try{
+      const respuesta = await this.visitaInternoRepository.update(id, data);
+      if((await respuesta).affected == 1){
+        if((await respuesta).affected == 1){
+
+          //guardar novedad
+          let fecha_actual: any = new Date().toISOString().split('T')[0];
+          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
+          
+          
+          dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
+          dataNovedad.novedad = "PROHIBICION DE PARENTESCO";
+          dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
+             + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
+             + " - Desde: " + data.fecha_inicio + " hasta " + data.fecha_fin + " - OBS: " + data.detalles_prohibicion;
           dataNovedad.organismo_id = usuariox.organismo_id;
           dataNovedad.usuario_id = usuariox.id_usuario;
           dataNovedad.fecha_novedad = fecha_actual;

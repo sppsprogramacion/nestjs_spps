@@ -1,5 +1,6 @@
 import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { Interno } from "src/internos/entities/interno.entity";
+import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Parentesco } from "src/parentescos/entities/parentesco.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
@@ -57,12 +58,7 @@ export class VisitaInterno {
     })
     parentesco: Parentesco;
     //FIN PARENTESCO    
-
-    @Column({
-        type: "boolean",
-        default: false
-    })
-    prohibido: boolean;
+    
 
     @Column({
         type: "boolean",
@@ -77,10 +73,57 @@ export class VisitaInterno {
     anulado: boolean;
 
     @Column({
+        type: "boolean",
+        default: false
+    })
+    prohibido: boolean;
+
+    @Column({
+        type: 'date',
+        nullable: true        
+    })
+    fecha_prohibido: Date;
+
+    @Column({
+        type: 'date',
+        nullable: true        
+    })
+    fecha_inicio: Date;
+
+    @Column({
+        type: 'date',
+        nullable: true        
+    })
+    fecha_fin: Date;
+
+    @Column({
+        type: 'varchar',
+        length: 2000,
+        nullable: true
+    })
+    detalles_prohibicion: string;
+
+    @Column({
         type: 'date',
         nullable: false        
     })
     fecha_alta: Date;
+
+    //ORGANISMO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_id: number;
+
+    @ManyToOne(type => Organismo, {eager: true} )
+    @JoinColumn({
+        name: 'organismo_id',
+        referencedColumnName: 'id_organismo'
+    })
+    organismo: Organismo;
+    //FIN ORGANISMO
 
     //USUARIO
     @Column({
