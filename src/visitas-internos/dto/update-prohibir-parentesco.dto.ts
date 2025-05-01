@@ -1,5 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateVisitasInternoDto } from './create-visitas-interno.dto';
 import { IsDateString, Length } from 'class-validator';
 
 export class UpdateProhibirParentescoDto {

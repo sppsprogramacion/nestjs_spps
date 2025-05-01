@@ -240,24 +240,23 @@ export class VisitasInternosService {
   async updateProhibicionParentesco(id: number, data: UpdateProhibirParentescoDto, usuariox: Usuario) {
     //carga de nuevo parentesco para actualizar
     let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
-    //dataVisitaInterno.parentesco_id = data.parentesco_id;
+    let fecha_actual: any = new Date().toISOString().split('T')[0];
     
     //buscar y controlar si existe el vinculo entre visita e interno
     let dataVisitaInternoActual = await this.findOne(id);
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
     data.prohibido = true;
+    data.fecha_prohibido = fecha_actual;
 
     //actualizar cambios
     try{
       const respuesta = await this.visitaInternoRepository.update(id, data);
       if((await respuesta).affected == 1){
         if((await respuesta).affected == 1){
-
-          //guardar novedad
-          let fecha_actual: any = new Date().toISOString().split('T')[0];
-          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;
           
+          //guardar novedad          
+          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
           
           dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
           dataNovedad.novedad = "PROHIBICION DE PARENTESCO";
