@@ -9,6 +9,7 @@ import { CreateNovedadesCiudadanoDto } from 'src/novedades-ciudadano/dto/create-
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
+import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
 
 @Injectable()
 export class VisitasInternosService {
@@ -236,7 +237,7 @@ export class VisitasInternosService {
   }
   //FIN CAMBIO DE PARENTESCO....................................
 
-  //CAMBIO DE PARENTESCO
+  //PROHIBIR PARENTESCO
   async updateProhibicionParentesco(id: number, data: UpdateProhibirParentescoDto, usuariox: Usuario) {
     //carga de nuevo parentesco para actualizar
     let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
@@ -277,7 +278,53 @@ export class VisitasInternosService {
       this.handleDBErrors(error); 
     }   
   }
-  //FIN CAMBIO DE PARENTESCO....................................
+  //FIN PROHIBIR PARENTESCO....................................
+
+  //PROHIBIR PARENTESCO
+  async updateLevantarProhibicionParentesco(id: number, data: UpdateLevantarProhibicionParentescoDto, usuariox: Usuario) {
+    //carga de nuevo parentesco para actualizar
+    let dataVisitaInterno: UpdateProhibirParentescoDto = new UpdateProhibirParentescoDto;
+    let fecha_actual: any = new Date().toISOString().split('T')[0];
+    
+    //buscar y controlar si existe el vinculo entre visita e interno
+    let dataVisitaInternoActual = await this.findOne(id);
+    if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
+    
+    dataVisitaInterno.prohibido = false;
+    dataVisitaInterno.fecha_prohibido = null;
+    dataVisitaInterno.fecha_inicio = null;
+    dataVisitaInterno.fecha_fin = null;
+    dataVisitaInterno.detalles_prohibicion = "";
+
+    //actualizar cambios
+    try{
+      const respuesta = await this.visitaInternoRepository.update(id, dataVisitaInterno);
+      if((await respuesta).affected == 1){
+        if((await respuesta).affected == 1){
+          
+          //guardar novedad          
+          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
+          
+          dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
+          dataNovedad.novedad = "LEVANTAMIEMTO PROHIBICION DE PARENTESCO";
+          dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
+             + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
+             + " - Desde: " + dataVisitaInternoActual.fecha_inicio + " hasta " + fecha_actual + " - OBS: " + data.detalle_levantamiento;
+          dataNovedad.organismo_id = usuariox.organismo_id;
+          dataNovedad.usuario_id = usuariox.id_usuario;
+          dataNovedad.fecha_novedad = fecha_actual;
+                  
+          await this.novedadesCiudadanoService.create(dataNovedad);
+        } 
+      } 
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }
+  //FIN PROHIBIR PARENTESCO....................................
 
   //ANULAR DE PARENTESCO
   async updateAnularParentesco(id: number, data: DetalleCambioVisitasInternoDto) {

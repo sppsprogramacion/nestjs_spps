@@ -5,6 +5,7 @@ import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-int
 import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
+import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
 
 @Controller('visitas-internos')
 export class VisitasInternosController {
@@ -82,6 +83,20 @@ export class VisitasInternosController {
     return this.visitasInternosService.updateProhibicionParentesco(+id_visita_interno, dataDto, usuariox);
   }
   //FIN PROHIBIR PARENTESCO.................................
+
+  //LEVANTAR PROHIBICION PARENTESCO
+  @Put('levantar-prohibicion-parentesco')
+  updateLevantarProhibicionParentesco(
+    @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
+    @Body() dataDto: UpdateLevantarProhibicionParentescoDto
+  ) {
+    let usuariox: Usuario= new Usuario;
+    usuariox.id_usuario = 2;
+    usuariox.organismo_id = 1;
+
+    return this.visitasInternosService.updateLevantarProhibicionParentesco(+id_visita_interno, dataDto, usuariox);
+  }
+  //FIN LEVANTAR PROHIBICION PARENTESCO.................................
 
   //ANULAR PARENTESCO
   @Put('anular-parentesco')
