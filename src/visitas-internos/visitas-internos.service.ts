@@ -238,39 +238,45 @@ export class VisitasInternosService {
   //FIN CAMBIO DE PARENTESCO....................................
 
   //PROHIBIR PARENTESCO
-  async updateProhibicionParentesco(id: number, data: UpdateProhibirParentescoDto, usuariox: Usuario) {
-    //carga de nuevo parentesco para actualizar
-    let dataVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
+  async updateProhibicionParentesco(id: number, dataRequest: UpdateProhibirParentescoDto, usuariox: Usuario) {
+    
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     
+    //controlar si la fecha de inicio es menor o ihgual que la fecha de fin
+    if(dataRequest.fecha_fin.toISOString().split('T')[0] < dataRequest.fecha_inicio.toISOString().split('T')[0]) throw new ConflictException("No se realizó la prohibición. La fecha de finalizacion no puede ser anterior a la fecha de inicio.")
+
     //buscar y controlar si existe el vinculo entre visita e interno
     let dataVisitaInternoActual = await this.findOne(id);
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
-    data.prohibido = true;
-    data.fecha_prohibido = fecha_actual;
+    //controlar si esta prohibido el parentesco
+    if(dataVisitaInternoActual.prohibido) throw new ConflictException("No es posible realizar el cambio. El parentesco ya se encontraba prohibido.")
+    
+
+    dataRequest.prohibido = true;
+    dataRequest.fecha_prohibido = fecha_actual;
 
     //actualizar cambios
     try{
-      const respuesta = await this.visitaInternoRepository.update(id, data);
+      const respuesta = await this.visitaInternoRepository.update(id, dataRequest);
+      
       if((await respuesta).affected == 1){
-        if((await respuesta).affected == 1){
-          
-          //guardar novedad          
-          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
-          
-          dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
-          dataNovedad.novedad = "PROHIBICION DE PARENTESCO";
-          dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
-             + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
-             + " - Desde: " + data.fecha_inicio + " hasta " + data.fecha_fin + " - OBS: " + data.detalles_prohibicion;
-          dataNovedad.organismo_id = usuariox.organismo_id;
-          dataNovedad.usuario_id = usuariox.id_usuario;
-          dataNovedad.fecha_novedad = fecha_actual;
-                  
-          await this.novedadesCiudadanoService.create(dataNovedad);
-        } 
+        
+        //guardar novedad          
+        let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
+        
+        dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
+        dataNovedad.novedad = "PROHIBICION DE PARENTESCO";
+        dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
+            + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
+            + " - Desde: " + dataRequest.fecha_inicio.toISOString().split('T')[0] + " hasta " + dataRequest.fecha_fin.toISOString().split('T')[0] + " - OBS: " + dataRequest.detalles_prohibicion;
+        dataNovedad.organismo_id = usuariox.organismo_id;
+        dataNovedad.usuario_id = usuariox.id_usuario;
+        dataNovedad.fecha_novedad = fecha_actual;
+                
+        await this.novedadesCiudadanoService.create(dataNovedad);
       } 
+       
       return respuesta;
     }
     catch(error){
@@ -281,15 +287,29 @@ export class VisitasInternosService {
   //FIN PROHIBIR PARENTESCO....................................
 
   //PROHIBIR PARENTESCO
-  async updateLevantarProhibicionParentesco(id: number, data: UpdateLevantarProhibicionParentescoDto, usuariox: Usuario) {
-    //carga de nuevo parentesco para actualizar
-    let dataVisitaInterno: UpdateProhibirParentescoDto = new UpdateProhibirParentescoDto;
+  async updateLevantarProhibicionParentesco(id: number, dataRequest: UpdateLevantarProhibicionParentescoDto, usuariox: Usuario) {
+       
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     
-    //buscar y controlar si existe el vinculo entre visita e interno
+    //buscar 
     let dataVisitaInternoActual = await this.findOne(id);
+    //controlar si existe el vinculo entre visita e interno
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
+    //controlar si esta prohibido el parentesco
+    if(!dataVisitaInternoActual.prohibido) throw new ConflictException("No es posible realizar el cambio. El parentesco no se encontraba prohibido.")
+    
+    //controlar si la fecha_fin es mayor a la fecha actual
+    console.log("actual", fecha_actual);
+    
+    console.log("fin", dataRequest.fecha_fin.toISOString().split('T')[0]);    
+    if(dataRequest.fecha_fin.toISOString().split('T')[0] > fecha_actual) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser posterior a la fecha actual.")
+    
+    //controlar si la fecha fin es menor que la fecha inicial
+    if(dataRequest.fecha_fin.toISOString().split('T')[0] < dataVisitaInternoActual.fecha_inicio.toString()) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser anterior a la fecha de inicio de la prohibicion.")
+    
+    //carga en objeto para actualizar el levantamiento
+    let dataVisitaInterno: UpdateProhibirParentescoDto = new UpdateProhibirParentescoDto;
     dataVisitaInterno.prohibido = false;
     dataVisitaInterno.fecha_prohibido = null;
     dataVisitaInterno.fecha_inicio = null;
@@ -299,24 +319,24 @@ export class VisitasInternosService {
     //actualizar cambios
     try{
       const respuesta = await this.visitaInternoRepository.update(id, dataVisitaInterno);
+      
       if((await respuesta).affected == 1){
-        if((await respuesta).affected == 1){
-          
-          //guardar novedad          
-          let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
-          
-          dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
-          dataNovedad.novedad = "LEVANTAMIEMTO PROHIBICION DE PARENTESCO";
-          dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
-             + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
-             + " - Desde: " + dataVisitaInternoActual.fecha_inicio + " hasta " + fecha_actual + " - OBS: " + data.detalle_levantamiento;
-          dataNovedad.organismo_id = usuariox.organismo_id;
-          dataNovedad.usuario_id = usuariox.id_usuario;
-          dataNovedad.fecha_novedad = fecha_actual;
-                  
-          await this.novedadesCiudadanoService.create(dataNovedad);
-        } 
+        
+        //guardar novedad          
+        let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
+        
+        dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
+        dataNovedad.novedad = "LEVANTAMIEMTO PROHIBICION DE PARENTESCO";
+        dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
+            + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
+            + " - Desde: " + dataVisitaInternoActual.fecha_inicio + " hasta " + dataRequest.fecha_fin.toISOString().split('T')[0] + " - OBS: " + dataRequest.detalle_levantamiento;
+        dataNovedad.organismo_id = usuariox.organismo_id;
+        dataNovedad.usuario_id = usuariox.id_usuario;
+        dataNovedad.fecha_novedad = fecha_actual;
+                
+        await this.novedadesCiudadanoService.create(dataNovedad);
       } 
+       
       return respuesta;
     }
     catch(error){

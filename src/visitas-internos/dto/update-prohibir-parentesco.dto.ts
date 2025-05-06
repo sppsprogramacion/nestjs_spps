@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsDateString, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsDateString, Length } from 'class-validator';
 
 export class UpdateProhibirParentescoDto {
 
@@ -9,10 +10,12 @@ export class UpdateProhibirParentescoDto {
     
     fecha_prohibido: Date;
     
-    @IsDateString()
+    @Type(() => Date)
+    @IsDate()
     fecha_inicio: Date;
 
-    @IsDateString()
+    @Type(() => Date)
+    @IsDate()
     fecha_fin: Date;
     
     @Length(1,2000,{message: "El detalles_prohibicion debe tener entre $constraint1 y $constraint2 caracteres."})
