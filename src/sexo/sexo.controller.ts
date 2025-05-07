@@ -41,7 +41,7 @@ export class SexoController {
   @Get('buscarTodos')  //obtener cabeceras y parametros deun usuarop(tarea)
   @UseGuards( AuthGuard() ) //para proteger ruta  
   findTodos(
-    @GetUser() user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @GetUser('email') userEmail: string, //obtiene un parametro del usuario
     @RawHeaders() rawHeaders: string //obtiene la cabecera d ela peticion
   ) {
@@ -59,7 +59,7 @@ export class SexoController {
   @SetMetadata ('roles', ['admin','superadmin'])
   @UseGuards( AuthGuard(), UserRoleGuard ) //para proteger ruta  
   findTodos2(
-    @GetUser() user: Usuario, //decorador  personalizado obtiene Usuario
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario
    ) {
     
     const sexos = this.sexoService.findAll();

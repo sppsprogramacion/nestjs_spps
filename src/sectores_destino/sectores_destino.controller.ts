@@ -23,7 +23,7 @@ export class SectoresDestinoController {
   @Get('lista-xorganismo')
   @Auth()  
   async findXUsuario(
-    @GetUser() user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_organismo') id_organismo: string
   ) {    
     

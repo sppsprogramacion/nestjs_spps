@@ -4,6 +4,7 @@ import { UpdateNovedadesCiudadanoDto } from './dto/update-novedades-ciudadano.dt
 import { NovedadCiudadano } from './entities/novedades-ciudadano.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class NovedadesCiudadanoService {
@@ -18,6 +19,30 @@ export class NovedadesCiudadanoService {
     try {
       
       const nuevo = await this.novedadesCiudadanoRepository.create(data);
+      return await this.novedadesCiudadanoRepository.save(nuevo);
+    }catch (error) {
+
+      this.handleDBErrors(error);  
+    }     
+  }
+
+  async createDesdeController(dataNovedadDto: CreateNovedadesCiudadanoDto, usuario: Usuario, sistema: string): Promise<NovedadCiudadano> {
+    let fecha_actual: any = new Date().toISOString().split('T')[0];
+    //dataNovedadDto.ciudadano_id = dataVisitaInternoActual.ciudadano_id; 
+    if(sistema == "restriccion") 
+      dataNovedadDto.novedad = "NOVEDAD SITEMA RESTRICCION";       
+    if(sistema == "ciudadano") 
+      dataNovedadDto.novedad = "NOVEDAD SITEMA CIUDADANO";
+    if(sistema == "visitas") 
+      dataNovedadDto.novedad = "NOVEDAD SITEMA VISITAS";
+
+    dataNovedadDto.organismo_id = usuario.organismo_id;
+    dataNovedadDto.usuario_id = usuario.id_usuario;
+    dataNovedadDto.fecha_novedad = fecha_actual;
+
+    try {
+      
+      const nuevo = await this.novedadesCiudadanoRepository.create(dataNovedadDto);
       return await this.novedadesCiudadanoRepository.save(nuevo);
     }catch (error) {
 

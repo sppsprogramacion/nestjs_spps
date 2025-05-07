@@ -23,7 +23,7 @@ export class OrganismosDestinoController {
   @Get('lista-xusuario')  
   @Auth()
   async findXUsuario(
-    @GetUser() user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @GetUser("usuario") user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {    
     let usuariox: Usuario= new Usuario;
     usuariox.id_usuario = user.id_usuario;

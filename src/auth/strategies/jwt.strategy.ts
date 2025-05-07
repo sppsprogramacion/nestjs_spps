@@ -24,10 +24,27 @@ export class JwtStrategy extends PassportStrategy( Strategy) {
         })
     }
     
+    // async validate(payload: JwtPayload):Promise<Usuario> {
+        
+    //     const { id_usuario } = payload;
 
-    async validate(payload: JwtPayload):Promise<Usuario> {
+    //     const usuario = await this.usuarioRepository.findOneBy ({id_usuario});
+
+    //     if (!usuario) 
+    //         throw new UnauthorizedException('Token no es valido.')
+
+    //     if (!usuario.activo)
+    //         throw new UnauthorizedException('El usuario esta inactivo')
+
+
+    //     return usuario;
+
+    // }
+
+    async validate(payload: JwtPayload) {
         
         const { id_usuario } = payload;
+        const { sistema } = payload;
 
         const usuario = await this.usuarioRepository.findOneBy ({id_usuario});
 
@@ -38,7 +55,7 @@ export class JwtStrategy extends PassportStrategy( Strategy) {
             throw new UnauthorizedException('El usuario esta inactivo')
 
 
-        return usuario;
+        return {usuario,sistema};
 
     }
 }

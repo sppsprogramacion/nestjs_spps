@@ -81,7 +81,7 @@ export class AuthService {
     return {
       ...usuarioData,
       roles: roles.map((rol) => rol.rol_id),
-      token: this.getJwtToken( {id_usuario: usuario2.id_usuario} )
+      token: this.getJwtToken( {id_usuario: usuario2.id_usuario, sistema: sistema} )
     };
     //TODO: RETORNAR jWT
   }

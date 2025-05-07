@@ -30,7 +30,7 @@ export class ProhibicionesVisitaController {
   @Get('buscar-xciudadano')  
   @Auth()
   async findXCiudadano(
-    @GetUser() user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string
     
   ) {    

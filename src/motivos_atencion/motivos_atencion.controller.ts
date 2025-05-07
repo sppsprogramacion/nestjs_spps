@@ -24,7 +24,7 @@ export class MotivosAtencionController {
   @Auth()
   async findXUsuario(
     @Query('id_organismo') id_organismo: string,
-    @GetUser() user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @GetUser("usuario") user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {    
     
     let usuariox: Usuario= new Usuario;

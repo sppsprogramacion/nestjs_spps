@@ -286,7 +286,7 @@ export class VisitasInternosService {
   }
   //FIN PROHIBIR PARENTESCO....................................
 
-  //PROHIBIR PARENTESCO
+  //LEVANTAR PROHIBICION PARENTESCO
   async updateLevantarProhibicionParentesco(id: number, dataRequest: UpdateLevantarProhibicionParentescoDto, usuariox: Usuario) {
        
     let fecha_actual: any = new Date().toISOString().split('T')[0];
@@ -300,9 +300,6 @@ export class VisitasInternosService {
     if(!dataVisitaInternoActual.prohibido) throw new ConflictException("No es posible realizar el cambio. El parentesco no se encontraba prohibido.")
     
     //controlar si la fecha_fin es mayor a la fecha actual
-    console.log("actual", fecha_actual);
-    
-    console.log("fin", dataRequest.fecha_fin.toISOString().split('T')[0]);    
     if(dataRequest.fecha_fin.toISOString().split('T')[0] > fecha_actual) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser posterior a la fecha actual.")
     
     //controlar si la fecha fin es menor que la fecha inicial
@@ -344,7 +341,7 @@ export class VisitasInternosService {
       this.handleDBErrors(error); 
     }   
   }
-  //FIN PROHIBIR PARENTESCO....................................
+  //FIN LEVANTAR PROHIBICION PARENTESCO....................................
 
   //ANULAR DE PARENTESCO
   async updateAnularParentesco(id: number, data: DetalleCambioVisitasInternoDto) {
@@ -376,14 +373,14 @@ export class VisitasInternosService {
 
   //MANEJO DE ERRORES
   private handleDBErrors(error: any): never {
-    if(error.code === "ER_DUP_ENTRY"){
-      throw new BadRequestException (error.sqlMessage);
-    }
-    
-    if(error.status == 404) throw new NotFoundException(error.response);
+  if(error.code === "ER_DUP_ENTRY"){
+    throw new BadRequestException (error.sqlMessage);
+  }
   
-    throw new InternalServerErrorException (error.message);
-    }
-    //FIN MANEJO DE ERRORES........................................
+  if(error.status == 404) throw new NotFoundException(error.response);
+
+  throw new InternalServerErrorException (error.message);
+  }
+  //FIN MANEJO DE ERRORES........................................
     
 }
