@@ -30,11 +30,11 @@ export class NovedadesCiudadanoService {
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     //dataNovedadDto.ciudadano_id = dataVisitaInternoActual.ciudadano_id; 
     if(sistema == "restriccion") 
-      dataNovedadDto.novedad = "NOVEDAD SITEMA RESTRICCION";       
+      dataNovedadDto.novedad = "NOVEDAD SISTEMA RESTRICCION";       
     if(sistema == "ciudadano") 
-      dataNovedadDto.novedad = "NOVEDAD SITEMA CIUDADANO";
+      dataNovedadDto.novedad = "NOVEDAD SISTEMA CIUDADANO";
     if(sistema == "visitas") 
-      dataNovedadDto.novedad = "NOVEDAD SITEMA VISITAS";
+      dataNovedadDto.novedad = "NOVEDAD SISTEMA VISITAS";
 
     dataNovedadDto.organismo_id = usuario.organismo_id;
     dataNovedadDto.usuario_id = usuario.id_usuario;

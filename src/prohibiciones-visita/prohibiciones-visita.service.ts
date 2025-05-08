@@ -19,6 +19,7 @@ export class ProhibicionesVisitaService {
     private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService
   ){}
 
+  //NUEVO
   async create(data: CreateProhibicionesVisitaDto, usuario: Usuario): Promise<ProhibicionVisita> {
     
     let fecha_actual: any = new Date().toISOString().split('T')[0];               
@@ -39,7 +40,9 @@ export class ProhibicionesVisitaService {
       this.handleDBErrors(error);  
     }     
   }
+  //FIN NUEVO....................................................
 
+  //BUSCAR TODOS
   async findAll() {
     return await this.prohibicionVisitaRepository.find(
       {
@@ -49,6 +52,7 @@ export class ProhibicionesVisitaService {
       }
     );
   }
+  //FIN BUSCAR TODOS...........................................
 
   //BUSCAR  XCIUDADANO
   async findXCiudano(id_ciudanox: number) { 

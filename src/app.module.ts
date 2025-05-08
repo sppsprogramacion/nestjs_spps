@@ -40,6 +40,7 @@ import { AbogadosInternoModule } from './abogados-interno/abogados-interno.modul
 import { TiposDefensorModule } from './tipos-defensor/tipos-defensor.module';
 import { DriveImagenesModule } from './drive-imagenes/drive-imagenes.module';
 import { MenoresACargoModule } from './menores_a_cargo/menores_a_cargo.module';
+import { ExcepcionesIngresoVisitaModule } from './excepciones-ingreso-visita/excepciones-ingreso-visita.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { MenoresACargoModule } from './menores_a_cargo/menores_a_cargo.module';
     TiposDefensorModule,
     DriveImagenesModule,
     MenoresACargoModule,
+    ExcepcionesIngresoVisitaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
