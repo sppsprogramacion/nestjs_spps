@@ -15,10 +15,10 @@ export class CreateExcepcionIngresoVisitaDto {
     @Length(1,1000,{message: "El detalle_excepcion debe tener entre $constraint1 y $constraint2 caracteres."})
     detalle_excepcion: string;
     
-    @Type(() => Date)
-    @IsDate()
+    //@Type(() => Date)
+    @IsDateString()
     fecha_excepcion: Date;
-    
+
     cumplimentado: boolean;
     
     anulado: boolean;

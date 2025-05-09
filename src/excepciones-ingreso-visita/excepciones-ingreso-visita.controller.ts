@@ -3,7 +3,7 @@ import { ExcepcionesIngresoVisitaService } from './excepciones-ingreso-visita.se
 import { Auth, GetUser } from 'src/auth/decorators';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { CreateExcepcionIngresoVisitaDto } from './dto/create-excepciones-ingreso-visita.dto';
-import { AnularExepcionDto } from './dto/anular-prohibiciones-visita.dto';
+import { AnularExepcionDto } from './dto/anular-exepcion-visita.dto';
 
 
 @Controller('excepciones-ingreso-visita')

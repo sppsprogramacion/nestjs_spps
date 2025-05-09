@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ExcepcionIngresoVisita } from './entities/excepciones-ingreso-visita.entity';
 import { CreateExcepcionIngresoVisitaDto } from './dto/create-excepciones-ingreso-visita.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
-import { AnularExepcionDto } from './dto/anular-prohibiciones-visita.dto';
+import { AnularExepcionDto } from './dto/anular-exepcion-visita.dto';
 
 
 @Injectable()
@@ -22,7 +22,7 @@ export class ExcepcionesIngresoVisitaService {
     let fecha_actual: any = new Date().toISOString().split('T')[0];
 
     //controlar si la fecha_excepcion es menor a la fecha actual. No se puede ingresar fecha_excepcion menor a la fecha actual
-    if(dataDto.fecha_excepcion.toISOString().split('T')[0] < fecha_actual) throw new ConflictException("La fecha de excepción no puede ser anterior a la fecha actual.")
+    if(dataDto.fecha_excepcion < fecha_actual) throw new ConflictException("La fecha de excepción no puede ser anterior a la fecha actual.")
         
     //cargar datos por defecto
     dataDto.fecha_carga = fecha_actual;
@@ -112,13 +112,14 @@ export class ExcepcionesIngresoVisitaService {
         throw new NotFoundException("No se puede anular. La prohibicion ya se encontraba anulada.");
 
       //controlar si la fecha_exceocion es menor a la fecha actual. No se pueden anular excepcion anterior a la fecha actual
-      if(dataExcepcion.fecha_excepcion.toISOString().split('T')[0] < fecha_actual) throw new ConflictException("No se puede anular excepciones con fecha de excepción anterior a la fecha actual.")
+      if(dataExcepcion.fecha_excepcion < fecha_actual) throw new ConflictException("No se puede anular excepciones con fecha de excepción anterior a la fecha actual.")
         
 
       //actualiza la prohibicion en anulado
       dataExcepcion.anulado = true;
-      let fecha_excepcion: any = dataExcepcion.fecha_excepcion.toISOString().split('T')[0];
-      dataExcepcion.fecha_excepcion = fecha_excepcion;
+      // let fecha_excepcion: any = dataExcepcion.fecha_excepcion.toISOString().split('T')[0];
+      // console.log("fecha exepcion: ", fecha_excepcion);
+      // dataExcepcion.fecha_excepcion = fecha_excepcion;
       dataExcepcion.detalle_anulado = dataDto.detalle_anulado;
       dataExcepcion.usuario_anula = usuario.apellido + " " + usuario.nombre;
       
