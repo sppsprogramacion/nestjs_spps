@@ -21,7 +21,7 @@ export class ExcepcionesIngresoVisitaController {
   }
 
   //BUSCAR  XID CIUDADANO
-  @Get('buscar-xciudadano')  
+  @Get('lista-xciudadano')  
   @Auth()
   async findXCiudadano(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
@@ -34,7 +34,7 @@ export class ExcepcionesIngresoVisitaController {
   //FIN BUSCAR  XID CIUDADANO....................................................
 
   //BUSCAR  XID CIUDADANO y FECHA ACTUAL
-  @Get('buscar-xciudadano-fecha-actual')  
+  @Get('lista-xciudadano-fecha-actual')  
   @Auth()
   async findXCiudadanoFechaActual(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
