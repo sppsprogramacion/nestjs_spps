@@ -10,6 +10,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
 import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
+import { UpdateVigenciaParentescoDto } from './dto/update-vigencia-parentesco.dto';
 
 @Injectable()
 export class VisitasInternosService {
@@ -363,6 +364,51 @@ export class VisitasInternosService {
     }   
   }
   //FIN ANULAR DE PARENTESCO....................................
+
+  //REVINCULAR PARENTESCO
+  async updateRevincualarParentesco(id: number, dataRequest: UpdateVigenciaParentescoDto, usuariox: Usuario) {
+    
+    let fecha_actual: any = new Date().toISOString().split('T')[0];
+        
+    //buscar y controlar si existe el vinculo entre visita e interno
+    let dataVisitaInternoActual = await this.findOne(id);
+    if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
+    
+    //controlar si esta vigente el parentesco
+    if(dataVisitaInternoActual.vigente) throw new ConflictException("No es posible realizar el cambio. El parentesco ya se encontraba vigente.")
+    
+
+    dataRequest.vigente = true;
+
+    //actualizar cambios
+    try{
+      const respuesta = await this.visitaInternoRepository.update(id, dataRequest);
+      
+      if((await respuesta).affected == 1){
+        
+        //guardar novedad          
+        let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
+        
+        dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
+        dataNovedad.novedad = "REVINCULACION DE PARENTESCO";
+        dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
+            + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
+            + " - OBS: " + dataRequest.detalles_vigencia;
+        dataNovedad.organismo_id = usuariox.organismo_id;
+        dataNovedad.usuario_id = usuariox.id_usuario;
+        dataNovedad.fecha_novedad = fecha_actual;
+                
+        await this.novedadesCiudadanoService.create(dataNovedad);
+      } 
+       
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }
+  //FIN REVINCULAR PARENTESCO....................................
 
   async remove(id: number) {
     const respuesta = await this.visitaInternoRepository.findOneBy({id_visita_interno: id});

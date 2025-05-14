@@ -117,8 +117,9 @@ export class ExcepcionesIngresoVisitaService {
 
       //actualiza la prohibicion en anulado
       dataExcepcion.anulado = true;
-      dataExcepcion.detalle_excepcion = "Detalle anulado: " + " " + dataDto.detalle_cambio
-          + " - Fecha: " + fecha_actual + " - Usuario: " + usuario.apellido + " " + usuario.nombre
+      dataExcepcion.detalle_excepcion = "ANULADO: - Fecha: " + fecha_actual 
+          + " - Detalle: " + dataDto.detalle_cambio
+          + " - Usuario: " + usuario.apellido + " " + usuario.nombre
           + " // " + dataExcepcion.detalle_excepcion;
       
       const respuesta = await this.excepcionIngresoVisitaRepository.update(id, dataExcepcion);
@@ -159,8 +160,9 @@ export class ExcepcionesIngresoVisitaService {
 
       //actualiza la prohibicion en anulado
       dataExcepcion.anulado = true;
-      dataExcepcion.detalle_excepcion = "Detalle cumplimentado: " + " " + dataDto.detalle_cambio
-          + " - Fecha: " + fecha_actual + " - Usuario: " + usuario.apellido + " " + usuario.nombre
+      dataExcepcion.detalle_excepcion = "CUMPLIMENTADO: Fecha: " + fecha_actual 
+          + " - Detalle: " + dataDto.detalle_cambio
+          + " - Usuario: " + usuario.apellido + " " + usuario.nombre
           + " // " + dataExcepcion.detalle_excepcion;
       
       const respuesta = await this.excepcionIngresoVisitaRepository.update(id, dataExcepcion);

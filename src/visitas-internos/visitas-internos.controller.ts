@@ -6,6 +6,8 @@ import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
 import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
+import { UpdateVigenciaParentescoDto } from './dto/update-vigencia-parentesco.dto';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('visitas-internos')
 export class VisitasInternosController {
@@ -108,6 +110,20 @@ export class VisitasInternosController {
     return this.visitasInternosService.updateAnularParentesco(+id_visita_interno, dataDto);
   }
   //FIN ANULAR PARENTESCO.................................
+
+  //REVINCULAR PARENTESCO
+  @Put('revincular-parentesco')
+  @Auth()
+  updateRevinculacionParentesco(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
+    @Body() dataDto: UpdateVigenciaParentescoDto
+  ) {
+    
+    return this.visitasInternosService.updateRevincualarParentesco(+id_visita_interno, dataDto, user);
+  }
+  //FIN REVINCULAR PARENTESCO.................................
+
 
   
   @Delete(':id')

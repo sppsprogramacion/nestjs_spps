@@ -8,6 +8,6 @@ export class UpdateLevantarProhibicionParentescoDto {
     @IsDate()
     fecha_fin: Date;
 
-    @Length(1,2000,{message: "El detalle_levantamiento debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,1500,{message: "El detalle_levantamiento debe tener entre $constraint1 y $constraint2 caracteres."})
     detalle_levantamiento:string;
 }
