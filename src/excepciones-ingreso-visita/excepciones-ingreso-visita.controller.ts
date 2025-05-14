@@ -4,6 +4,7 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { CreateExcepcionIngresoVisitaDto } from './dto/create-excepciones-ingreso-visita.dto';
 import { AnularExepcionDto } from './dto/anular-exepcion-visita.dto';
+import { CumplimentarExepcionDto } from './dto/cumplimentar-exepcion-visita.dto';
 
 
 @Controller('excepciones-ingreso-visita')
@@ -58,4 +59,17 @@ export class ExcepcionesIngresoVisitaController {
     return this.excepcionesIngresoVisitaService.anularExcepcion(+id_excepcion, dataDto, user);
   }
   //FIN ANULAR PROHIBICION.................................
+
+  //CUMPLIMENTAR EXCEPCION
+  @Put('cumplimentar')
+  @Auth()
+  updateCumplimentar(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_excepcion', ParseIntPipe) id_excepcion: string ,
+    @Body() dataDto: CumplimentarExepcionDto
+  ) {
+
+    return this.excepcionesIngresoVisitaService.cumplimentarExcepcion(+id_excepcion, dataDto, user);
+  }
+  //FIN CUMPLIMENTAR EXCEPCION.................................
 }

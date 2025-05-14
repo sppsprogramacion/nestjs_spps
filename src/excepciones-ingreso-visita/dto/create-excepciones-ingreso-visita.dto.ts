@@ -22,9 +22,7 @@ export class CreateExcepcionIngresoVisitaDto {
     cumplimentado: boolean;
     
     anulado: boolean;
-    
-    usuario_anula: string;
-    
+        
     fecha_carga: Date;
 
     organismo_id: number;

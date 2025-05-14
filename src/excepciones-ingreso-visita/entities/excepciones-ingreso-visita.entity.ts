@@ -34,7 +34,7 @@ export class ExcepcionIngresoVisita {
 
     @Column({
         type: 'varchar',
-        length: 1000,
+        length: 3000,
         nullable: false
     })
     detalle_excepcion: string;
@@ -57,20 +57,6 @@ export class ExcepcionIngresoVisita {
         default: false
     })
     anulado: boolean;
-
-    @Column({
-        type: 'varchar',
-        length: 1000,
-        nullable: true
-    })
-    detalle_anulado: string;
-
-    @Column({
-        type: 'varchar',
-        length: 100,
-        nullable: true
-    })
-    usuario_anula: string;
 
     @Column({
         type: 'date',
