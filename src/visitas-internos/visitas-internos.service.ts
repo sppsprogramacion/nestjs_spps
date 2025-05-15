@@ -11,6 +11,7 @@ import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciu
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
 import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
 import { UpdateVigenciaParentescoDto } from './dto/update-vigencia-parentesco.dto';
+import { throwError } from 'rxjs';
 
 @Injectable()
 export class VisitasInternosService {
@@ -22,6 +23,7 @@ export class VisitasInternosService {
     private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
 
+  //NUEVO VINCULO
   async create(data: CreateVisitasInternoDto): Promise<VisitaInterno> {
 
     let fecha_actual: any = new Date().toISOString().split('T')[0];
@@ -87,7 +89,9 @@ export class VisitasInternosService {
       //this.handleDBErrors(error);  
     }     
   }
+  //FIN NUEVO VINCULO
 
+  //LISTA TODOS
   async findAll() {
     return await this.visitaInternoRepository.find(
       {
@@ -97,6 +101,7 @@ export class VisitasInternosService {
       }
     );
   }
+  //FIN LISTA TODOS
 
   //BUSCAR  XID
   async findOne(id: number) {
@@ -120,7 +125,7 @@ export class VisitasInternosService {
   }
   //FIN BUSCAR  XVINCULADOS..................................................................
 
-  //BUSCAR  XCIUDADANO
+  //LISTA BUSCAR  XCIUDADANO
   async findXCiudano(id_ciudanox: number) {    
     //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
     
@@ -138,9 +143,9 @@ export class VisitasInternosService {
       return prohibiciiones;
     
   }
-  //FIN BUSCAR  XCIUDADANO..................................................................
+  //FIN LISTA BUSCAR  XCIUDADANO..................................................................
 
-  //BUSCAR  XINTERNO
+  //LISTA BUSCAR  XINTERNO
   async findXInterno(id_internox: number) {    
     //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
     
@@ -158,7 +163,7 @@ export class VisitasInternosService {
       return prohibiciiones;
     
   }
-  //FIN BUSCAR  XINTERNO..................................................................
+  //FIN LISTA BUSCAR  XINTERNO..................................................................
 
   //CAMBIO DE PARENTESCO
   async updateCambioParentesco(id: number, data: UpdateCambioParentescoDto, usuariox: Usuario) {
@@ -170,6 +175,9 @@ export class VisitasInternosService {
     let dataVisitaInternoActual = await this.findOne(id);
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
+    //verificar la unidad del interno coincide con la unidad del usuario
+    if(dataVisitaInternoActual.interno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
+
     //controlar si el interno esta vinculado con otra visita con estos parentescos (CONC, CONY, NOV)
     if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV"){
       const respuestaParejasInterno = await this.visitaInternoRepository.find({  
@@ -250,6 +258,9 @@ export class VisitasInternosService {
     let dataVisitaInternoActual = await this.findOne(id);
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
+    //verificar la unidad del interno coincide con la unidad del usuario
+    if(dataVisitaInternoActual.interno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
+
     //controlar si esta prohibido el parentesco
     if(dataVisitaInternoActual.prohibido) throw new ConflictException("No es posible realizar el cambio. El parentesco ya se encontraba prohibido.")
     
@@ -297,6 +308,10 @@ export class VisitasInternosService {
     //controlar si existe el vinculo entre visita e interno
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
+    //verificar la unidad del interno coincide con la unidad del usuario
+    if(dataVisitaInternoActual.interno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
+
+
     //controlar si esta prohibido el parentesco
     if(!dataVisitaInternoActual.prohibido) throw new ConflictException("No es posible realizar el cambio. El parentesco no se encontraba prohibido.")
     
@@ -365,34 +380,48 @@ export class VisitasInternosService {
   }
   //FIN ANULAR DE PARENTESCO....................................
 
-  //REVINCULAR PARENTESCO
-  async updateRevincualarParentesco(id: number, dataRequest: UpdateVigenciaParentescoDto, usuariox: Usuario) {
+  //VIGENCIA PARENTESCO
+  async updateVigenciaParentesco(id: number, dataRequest: UpdateVigenciaParentescoDto, is_vigente: boolean, usuariox: Usuario) {
     
     let fecha_actual: any = new Date().toISOString().split('T')[0];
         
-    //buscar y controlar si existe el vinculo entre visita e interno
+    //buscar y controlar si existe el vinculo entre visita e interno 
     let dataVisitaInternoActual = await this.findOne(id);
     if(!dataVisitaInternoActual) throw new ConflictException("La visita y el interno no se encuentran vinculados.");
     
-    //controlar si esta vigente el parentesco
-    if(dataVisitaInternoActual.vigente) throw new ConflictException("No es posible realizar el cambio. El parentesco ya se encontraba vigente.")
-    
+    //verificar la unidad del interno coincide con la unidad del usuario
+    if(dataVisitaInternoActual.interno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
 
-    dataRequest.vigente = true;
+    //controlar si esta vigente el parentesco cuando se revincula
+    if(dataVisitaInternoActual.vigente && is_vigente) throw new ConflictException("No es posible realizar el cambio. El parentesco ya se encontraba vigente.")
+    
+    //controlar si no esta vigente el parentesco cuando se desvincula
+    if(!dataVisitaInternoActual.vigente && !is_vigente) throw new ConflictException("No es posible realizar el cambio. El parentesco ya se encontraba como no vigente.")
+    
+    //carga de datos para actualizar
+    let dataActualizarVisitaInterno: CreateVisitasInternoDto = new CreateVisitasInternoDto;
+    dataActualizarVisitaInterno.vigente = is_vigente;
 
     //actualizar cambios
     try{
-      const respuesta = await this.visitaInternoRepository.update(id, dataRequest);
+      const respuesta = await this.visitaInternoRepository.update(id, {vigente: is_vigente});
       
       if((await respuesta).affected == 1){
         
         //guardar novedad          
         let dataNovedad: CreateNovedadesCiudadanoDto = new CreateNovedadesCiudadanoDto;          
         
-        dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;        
-        dataNovedad.novedad = "REVINCULACION DE PARENTESCO";
+        if(is_vigente){
+          dataNovedad.novedad = "REVINCULACION DE PARENTESCO";
+        }
+        else{
+          dataNovedad.novedad = "DESVINCULACION DE PARENTESCO";
+        }
+
+        dataNovedad.ciudadano_id = dataVisitaInternoActual.ciudadano_id;     
         dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
-            + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
+            + " " + dataVisitaInternoActual.interno.nombre 
+            + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
             + " - OBS: " + dataRequest.detalles_vigencia;
         dataNovedad.organismo_id = usuariox.organismo_id;
         dataNovedad.usuario_id = usuariox.id_usuario;

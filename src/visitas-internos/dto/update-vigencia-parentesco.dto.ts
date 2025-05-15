@@ -8,7 +8,7 @@ export class UpdateVigenciaParentescoDto {
 
     vigente: boolean;
     
-    @Length(1,1500,{message: "El detalles_prohibicion debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,1500,{message: "El detalles_vigencia debe tener entre $constraint1 y $constraint2 caracteres."})
     detalles_vigencia: string;
     
 

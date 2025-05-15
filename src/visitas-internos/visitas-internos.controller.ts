@@ -14,18 +14,25 @@ export class VisitasInternosController {
   constructor(private readonly visitasInternosService: VisitasInternosService) {}
 
   @Post()
-  create(@Body() data: CreateVisitasInternoDto) {
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateVisitasInternoDto
+  ) {
     return this.visitasInternosService.create(data);
   }  
 
   @Get('todos')
+  @Auth()
   findAll() {
     return this.visitasInternosService.findAll();
   }
 
   //BUSCAR  XID CIUDADANO
   @Get('buscarlista-xciudadano')  
+  @Auth()
   async findXCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string
     
   ) {    
@@ -35,7 +42,8 @@ export class VisitasInternosController {
   //FIN BUSCAR  XID CIUDADANO....................................................
 
   //BUSCAR  XID INTERNO
-  @Get('buscarlista-xinterno')  
+  @Get('buscarlista-xinterno')
+  @Auth()  
   async findXInterno(
     @Query('id_interno', ParseIntPipe) id_interno: string
     
@@ -46,6 +54,7 @@ export class VisitasInternosController {
   //FIN BUSCAR  XID INTERNO....................................................
 
   @Get(':id')
+  @Auth()
   findOne(@Param('id', ParseIntPipe) id: string) {    
     
     return this.visitasInternosService.findOne(+id);
@@ -60,49 +69,48 @@ export class VisitasInternosController {
 
   //CAMBIAR PARENTESCO
   @Put('cambiar-parentesco')
+  @Auth()
   updateCambiarParentesco(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
     @Body() dataDto: UpdateCambioParentescoDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.visitasInternosService.updateCambioParentesco(+id_visita_interno, dataDto, usuariox);
+    
+    return this.visitasInternosService.updateCambioParentesco(+id_visita_interno, dataDto, user);
   }
   //FIN CAMBIAR PARENTESCO.................................
 
   //PROHIBIR PARENTESCO
   @Put('prohibir-parentesco')
+  @Auth()
   updateProhibirParentesco(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
     @Body() dataDto: UpdateProhibirParentescoDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
 
-    return this.visitasInternosService.updateProhibicionParentesco(+id_visita_interno, dataDto, usuariox);
+    return this.visitasInternosService.updateProhibicionParentesco(+id_visita_interno, dataDto, user);
   }
   //FIN PROHIBIR PARENTESCO.................................
 
   //LEVANTAR PROHIBICION PARENTESCO
   @Put('levantar-prohibicion-parentesco')
+  @Auth()
   updateLevantarProhibicionParentesco(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
     @Body() dataDto: UpdateLevantarProhibicionParentescoDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.visitasInternosService.updateLevantarProhibicionParentesco(+id_visita_interno, dataDto, usuariox);
+    
+    return this.visitasInternosService.updateLevantarProhibicionParentesco(+id_visita_interno, dataDto, user);
   }
   //FIN LEVANTAR PROHIBICION PARENTESCO.................................
 
   //ANULAR PARENTESCO
   @Put('anular-parentesco')
+  @Auth()
   updateAnularParentesco(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
     @Body() dataDto: DetalleCambioVisitasInternoDto
   ) {
@@ -120,10 +128,24 @@ export class VisitasInternosController {
     @Body() dataDto: UpdateVigenciaParentescoDto
   ) {
     
-    return this.visitasInternosService.updateRevincualarParentesco(+id_visita_interno, dataDto, user);
+    let is_vigente = true;
+    return this.visitasInternosService.updateVigenciaParentesco(+id_visita_interno, dataDto, is_vigente, user);
   }
   //FIN REVINCULAR PARENTESCO.................................
 
+  //REVINCULAR PARENTESCO
+  @Put('desvincular-parentesco')
+  @Auth()
+  updateDesvinculacionParentesco(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_visita_interno', ParseIntPipe) id_visita_interno: string ,
+    @Body() dataDto: UpdateVigenciaParentescoDto
+  ) {
+    
+    let is_vigente = false;
+    return this.visitasInternosService.updateVigenciaParentesco(+id_visita_interno, dataDto, is_vigente, user);
+  }
+  //FIN REVINCULAR PARENTESCO.................................
 
   
   @Delete(':id')
