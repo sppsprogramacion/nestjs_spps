@@ -10,7 +10,7 @@ export class CreateVisitasInternoDto {
     @IsInt({message: "El interno_id debe ser un número entero."})
     interno_id: number;
 
-    @Length(1,100,{message: "El parentesco_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,20,{message: "El parentesco_id debe tener entre $constraint1 y $constraint2 caracteres."})
     parentesco_id: string;       
     
     prohibido: boolean;

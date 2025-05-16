@@ -41,6 +41,7 @@ import { TiposDefensorModule } from './tipos-defensor/tipos-defensor.module';
 import { DriveImagenesModule } from './drive-imagenes/drive-imagenes.module';
 import { MenoresACargoModule } from './menores_a_cargo/menores_a_cargo.module';
 import { ExcepcionesIngresoVisitaModule } from './excepciones-ingreso-visita/excepciones-ingreso-visita.module';
+import { ProhibicionesAnticipadasModule } from './prohibiciones-anticipadas/prohibiciones-anticipadas.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { ExcepcionesIngresoVisitaModule } from './excepciones-ingreso-visita/exc
     DriveImagenesModule,
     MenoresACargoModule,
     ExcepcionesIngresoVisitaModule,
+    ProhibicionesAnticipadasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
