@@ -3,29 +3,37 @@ import { ProhibicionesAnticipadasService } from './prohibiciones-anticipadas.ser
 import { CreateProhibicionesAnticipadaDto } from './dto/create-prohibiciones-anticipada.dto';
 import { UpdateProhibicionesAnticipadaDto } from './dto/update-prohibiciones-anticipada.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('prohibiciones-anticipadas')
 export class ProhibicionesAnticipadasController {
   constructor(private readonly prohibicionesAnticipadasService: ProhibicionesAnticipadasService) {}
 
   @Post()
-  create(@Body() data: CreateProhibicionesAnticipadaDto) {
-    
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.prohibicionesAnticipadasService.create(data, usuariox);
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateProhibicionesAnticipadaDto
+  ) {
+  
+    return this.prohibicionesAnticipadasService.create(data, user);
   }  
   
   @Get('todos')
-  findAll() {
+  @Auth()
+  findAll(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {
     return this.prohibicionesAnticipadasService.findAll();
   }
 
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: string) {    
+  @Auth()
+  findOne(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id', ParseIntPipe) id: string
+  ) {    
     
     return this.prohibicionesAnticipadasService.findOne(+id);
   }
@@ -67,15 +75,14 @@ export class ProhibicionesAnticipadasController {
   //FIN ANULAR PROHIBICION.................................
   
   @Put(':id')
+  @Auth()
   update(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateProhibicionesAnticipadaDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
 
-    return this.prohibicionesAnticipadasService.update(+id, dataDto, usuariox);
+    return this.prohibicionesAnticipadasService.update(+id, dataDto, user);
   }
   
 }

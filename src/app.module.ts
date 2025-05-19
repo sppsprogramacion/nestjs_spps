@@ -42,6 +42,7 @@ import { DriveImagenesModule } from './drive-imagenes/drive-imagenes.module';
 import { MenoresACargoModule } from './menores_a_cargo/menores_a_cargo.module';
 import { ExcepcionesIngresoVisitaModule } from './excepciones-ingreso-visita/excepciones-ingreso-visita.module';
 import { ProhibicionesAnticipadasModule } from './prohibiciones-anticipadas/prohibiciones-anticipadas.module';
+import { BitacoraProhibicionesAnticipadasModule } from './bitacora-prohibiciones-anticipadas/bitacora-prohibiciones-anticipadas.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { ProhibicionesAnticipadasModule } from './prohibiciones-anticipadas/proh
     MenoresACargoModule,
     ExcepcionesIngresoVisitaModule,
     ProhibicionesAnticipadasModule,
+    BitacoraProhibicionesAnticipadasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

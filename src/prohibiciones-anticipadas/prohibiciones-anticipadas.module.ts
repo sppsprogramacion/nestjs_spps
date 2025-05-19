@@ -4,16 +4,18 @@ import { ProhibicionesAnticipadasController } from './prohibiciones-anticipadas.
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProhibicionAnticipada } from './entities/prohibiciones-anticipada.entity';
+import { BitacoraProhibicionAnticipada } from '../bitacora-prohibiciones-anticipadas/entities/bitacora-prohibiciones-anticipada.entity';
+import { BitacoraProhibicionesAnticipadasService } from 'src/bitacora-prohibiciones-anticipadas/bitacora-prohibiciones-anticipadas.service';
 
 @Module({
   imports: [
     AuthModule,
     TypeOrmModule.forFeature([
       ProhibicionAnticipada,
-      //BitacoraProhibicionVisita
+      BitacoraProhibicionAnticipada
     ])
   ],
   controllers: [ProhibicionesAnticipadasController],
-  providers: [ProhibicionesAnticipadasService]
+  providers: [ProhibicionesAnticipadasService, BitacoraProhibicionesAnticipadasService]
 })
 export class ProhibicionesAnticipadasModule {}
