@@ -194,9 +194,22 @@ export class ProhibicionesAnticipadasService {
       dataBitacora.usuario_id = usuario.id_usuario;
 
       //verificar datos modificados
-      let datosModificados: string = "";
-      
-      datosModificados = "DATOS ANTERIORES : " + this.getDetailedDifferences(dataProhibicionActual, nuevaData);
+      let dataActualComparar: UpdateProhibicionesAnticipadaDto = new UpdateProhibicionesAnticipadaDto;
+      dataActualComparar.apellido_interno = dataProhibicionActual.apellido_interno;
+      dataActualComparar.apellido_visita = dataProhibicionActual.apellido_visita;
+      dataActualComparar.detalle = dataProhibicionActual.detalle;
+      dataActualComparar.dni_visita = dataProhibicionActual.dni_visita;
+      dataActualComparar.is_exinterno = dataProhibicionActual.is_exinterno;
+      dataActualComparar.nombre_interno = dataProhibicionActual.nombre_interno;
+      dataActualComparar.nombre_visita = dataProhibicionActual.nombre_visita;
+      dataActualComparar.parentesco_id = dataProhibicionActual.parentesco_id;
+      dataActualComparar.sexo_id = dataProhibicionActual.sexo_id;
+
+      //const{detalle_motivo, ...dataComparar} = dataActualComparar;
+
+      const datosModificados = this.getReadableDifferences(dataActualComparar, nuevaData);
+      dataBitacora.datos_modificados = datosModificados;
+      console.log("datos", datosModificados);
       // if(dataProhibicionActual.dni_visita != nuevaData.dni_visita){
       //   datosModificados = "DATOS ANTERIORES: Dni visita: " + dataProhibicionActual.dni_visita;
       // }
@@ -213,7 +226,7 @@ export class ProhibicionesAnticipadasService {
       //guardar bitacora de prohibicion
       if((await respuesta).affected == 1){
                 
-        //await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
+        await this.bitacoraProhibicionesAnticipadasService.create(dataBitacora);
       } 
       return respuesta;
     }
@@ -237,21 +250,21 @@ export class ProhibicionesAnticipadasService {
   //FIN MANEJO DE ERRORES........................................
 
   //COMPARAR Y OBTENER DIFERENCIAS ENTRE OBJETOS
-  private getDetailedDifferences<T>(obj1: T, obj2: T): Partial<Record<keyof T, { oldValue: any, newValue: any }>> {
-    const differences: Partial<Record<keyof T, { oldValue: any, newValue: any }>> = {};
-  
+  private getReadableDifferences<T>(obj1: T, obj2: T): string {
+    let result = "DATOS ANTERIORES: ";
+
     for (const key in obj1) {
       if (Object.prototype.hasOwnProperty.call(obj1, key)) {
-        if (obj1[key] !== obj2[key]) {
-          differences[key] = {
-            oldValue: obj1[key],
-            newValue: obj2[key]
-          };
+        const value1 = obj1[key];
+        const value2 = obj2[key];
+  
+        if (value1 !== value2) {
+          result += `${key} cambió de '${value1}' a '${value2}'; `;
         }
       }
     }
-  
-    return differences;
+
+    return result.trim();
   }
 
 }

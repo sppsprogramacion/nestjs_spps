@@ -13,6 +13,7 @@ export class BitacoraProhibicionesVisitaService {
     private readonly bitacoraProhibicionVisitaRepository: Repository<BitacoraProhibicionVisita>
   ){}
 
+  //CREAR 
   async create(data: CreateBitacoraProhibicionesVisitaDto): Promise<BitacoraProhibicionVisita> {
     
     try {
@@ -24,7 +25,9 @@ export class BitacoraProhibicionesVisitaService {
       this.handleDBErrors(error);  
     }     
   }
+  //FIN CREAR
 
+  //LISTA TODOS
   async findAll() {
     return await this.bitacoraProhibicionVisitaRepository.find(
       {
@@ -34,8 +37,9 @@ export class BitacoraProhibicionesVisitaService {
       }
     );
   }
+  //FIN LISTA TODOS
 
-  //BUSCAR  XPROHIBICION VISTA
+  //BUSCAR LISTA XPROHIBICION VISTA
   async findXProhibicionVisita(id_prohibicion_visitax: number) {    
     //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
     
@@ -51,9 +55,8 @@ export class BitacoraProhibicionesVisitaService {
       );   
           
       return prohibiciiones;
-    
   }
-  //FIN BUSCAR  XPROHIBICION VISTA..................................................................
+  //FIN BUSCAR LISTA XPROHIBICION VISTA..................................................................
 
   //BUSCAR  XID
   async findOne(id: number) {
