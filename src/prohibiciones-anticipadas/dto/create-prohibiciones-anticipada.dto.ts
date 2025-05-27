@@ -1,8 +1,8 @@
-import { IsDateString, IsInt, Length } from "class-validator";
+import { IsBoolean, IsDateString, IsInt, Length } from "class-validator";
 
 
 export class CreateProhibicionesAnticipadaDto {
-    id_prohibicion_visita: number;
+    id_prohibicion_anticipada: number;
     
     @IsInt({message: "El dni debe ser un número entero."})
     dni_visita: number;
@@ -33,10 +33,13 @@ export class CreateProhibicionesAnticipadaDto {
     
     @IsDateString()
     fecha_fin: Date;
-        
+    
+    @IsBoolean({message: "is_exinterno debe ser verdadero o falso"})
     is_exinterno: boolean;
 
     vigente: boolean;    
+
+    tipo_levantamiento: string;
     
     fecha_prohibicion: Date;
     

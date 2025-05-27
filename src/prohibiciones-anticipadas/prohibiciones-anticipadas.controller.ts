@@ -4,6 +4,7 @@ import { CreateProhibicionesAnticipadaDto } from './dto/create-prohibiciones-ant
 import { UpdateProhibicionesAnticipadaDto } from './dto/update-prohibiciones-anticipada.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
+import { LevantarManualProhibicionAnticipadaDto } from './dto/levantar-manual-prohibicion-anticipada.dto';
 
 @Controller('prohibiciones-anticipadas')
 export class ProhibicionesAnticipadasController {
@@ -46,33 +47,18 @@ export class ProhibicionesAnticipadasController {
   //FIN PARA RUTA NO DEFINIDA...............................
   
   //LEVANTAMIENTO MANUAL
-  // @Put('levantar-manual')
-  // updateLevantarManual(
-  //   @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
-  //   @Body() dataDto: LevantarManualProhibicionesVisitaDto
-  // ) {
-  //   let usuariox: Usuario= new Usuario;
-  //   usuariox.id_usuario = 2;
-  //   usuariox.organismo_id = 1;
+  @Put('levantar-manual')
+  @Auth()
+  updateLevantarManual(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
+    @Body() dataDto: LevantarManualProhibicionAnticipadaDto
+  ) {
 
-  //   return this.prohibicionesAnticipadasService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar", usuariox);
-  // }
+    return this.prohibicionesAnticipadasService.levantarManualmente(+id_prohibicion, dataDto, "levantar", user);
+  }
   //FIN LEVANTAMIENTO MANUAL.................................
   
-    
-  //ANULAR PROHIBICION
-  // @Put('anular')
-  // updateAnular(
-  //   @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
-  //   @Body() dataDto: AnularProhibicionesVisitaDto
-  // ) {
-  //   let usuariox: Usuario= new Usuario;
-  //   usuariox.id_usuario = 2;
-  //   usuariox.organismo_id = 1;
-  
-  //   return this.prohibicionesVisitaService.anularProhibicion(+id_prohibicion, dataDto, usuariox);
-  // }
-  //FIN ANULAR PROHIBICION.................................
   
   @Put(':id')
   @Auth()

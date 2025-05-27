@@ -11,8 +11,7 @@ export class ProhibicionAnticipada {
 
     @Column({
         type: 'int',
-        nullable: false,
-        unique: true
+        nullable: false
     })
     dni_visita: number;
 
@@ -105,6 +104,13 @@ export class ProhibicionAnticipada {
         default: true
     })
     vigente: boolean;
+
+    @Column({
+        type: 'varchar',
+        length: 200,
+        nullable: true
+    })
+    tipo_levantamiento: string;
 
     @Column({
         type: 'date',
