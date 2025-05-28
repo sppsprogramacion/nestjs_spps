@@ -159,7 +159,7 @@ export class ExcepcionesIngresoVisitaService {
         
 
       //actualiza la prohibicion en anulado
-      dataExcepcion.anulado = true;
+      dataExcepcion.cumplimentado = true;
       dataExcepcion.detalle_excepcion = "CUMPLIMENTADO: Fecha: " + fecha_actual 
           + " - Detalle: " + dataDto.detalle_cambio
           + " - Usuario: " + usuario.apellido + " " + usuario.nombre

@@ -5,10 +5,22 @@ import { UpdateProhibicionesAnticipadaDto } from './dto/update-prohibiciones-ant
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { LevantarManualProhibicionAnticipadaDto } from './dto/levantar-manual-prohibicion-anticipada.dto';
+import { UpdateResult } from 'typeorm';
 
 @Controller('prohibiciones-anticipadas')
 export class ProhibicionesAnticipadasController {
   constructor(private readonly prohibicionesAnticipadasService: ProhibicionesAnticipadasService) {}
+
+  //LEVANTAR PROHIBICIONES AUTOMATICO
+  @Post('levantar-automatico')
+  @Auth()
+  actualizarExpiradas(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    
+  ): Promise<UpdateResult> {
+    return this.prohibicionesAnticipadasService.levantarAutomatico(user);
+  }
+  //FIN LEVANTAR PROHIBICIONES AUTOMATICO......................................................
 
   @Post()
   @Auth()
@@ -19,6 +31,7 @@ export class ProhibicionesAnticipadasController {
   
     return this.prohibicionesAnticipadasService.create(data, user);
   }  
+  
   
   @Get('todos')
   @Auth()

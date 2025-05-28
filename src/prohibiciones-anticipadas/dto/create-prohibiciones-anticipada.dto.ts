@@ -25,9 +25,6 @@ export class CreateProhibicionesAnticipadaDto {
     @Length(1,100,{message: "El nombre debe tener entre $constraint1 y $constraint2 caracteres."})
     nombre_interno: string;
 
-    @Length(1,20,{message: "El parentesco_id debe tener entre $constraint1 y $constraint2 caracteres."})
-    parentesco_id: string;
-
     @IsDateString()
     fecha_inicio: Date;
     

@@ -147,25 +147,28 @@ export class ProhibicionesAnticipadasService {
   //FIN LEVANTAR PROHIBICION MANUAL..........................................................
 
   //LEVANTAR AUTOMATICO
-  async levantarAutomatico(id: number, dataRequest: LevantarAutomaticoProhibicionAnticipadaDto, accion: string, usuario: Usuario) {
+  async levantarAutomatico(usuario: Usuario) {
     
     let dataProhibicion: CreateProhibicionesAnticipadaDto = new CreateProhibicionesAnticipadaDto;
      
-    try{
-      
+    try{      
       //prepara los primeros datos para la bitacora de la prohibicion
-      let fecha_actual: any = new Date().toISOString().split('T')[0];         
+      let fechaActual: any = new Date().toISOString().split('T')[0];         
       
       //carga de datos a modificar
       dataProhibicion.vigente = false;
-      dataProhibicion.tipo_levantamiento = "LEV. AUTOMATICO"
-        + " - Fecha: " + fecha_actual 
-        + " - Usuario: " + usuario.apellido + " " + usuario.nombre
+      dataProhibicion.tipo_levantamiento = "LEV. AUTOMATICO";
 
       //guardadr modificacion registro
       //guardar el levantamineto
-      const respuestaProhibicion = await this.prohibicionAnticipadaRepository.update(id, dataProhibicion);
-      
+      const respuestaProhibicion = await this.prohibicionAnticipadaRepository
+            .createQueryBuilder()
+            .update()
+            .set(dataProhibicion)
+            .where("fecha_fin < :fechaActual", { fechaActual: fechaActual })
+            .andWhere('organismo_id = :id_organismo', {id_organismo: usuario.organismo_id})
+            .andWhere('vigente = :vigente', {vigente: true})
+            .execute();
 
       return respuestaProhibicion;
     }
@@ -175,7 +178,7 @@ export class ProhibicionesAnticipadasService {
     }   
     
   }  
-  //FIN LEVANTAR PROHIBICION MANUAL..........................................................
+  //FIN LEVANTAR PROHIBICION AUTOMATICO..........................................................
     
   //MODIFICAR
   async update(id: number, data: UpdateProhibicionesAnticipadaDto, usuario:Usuario) {
@@ -211,7 +214,6 @@ export class ProhibicionesAnticipadasService {
       dataActualComparar.dni_visita = dataProhibicionActual.dni_visita;
       dataActualComparar.nombre_interno = dataProhibicionActual.nombre_interno;
       dataActualComparar.nombre_visita = dataProhibicionActual.nombre_visita;
-      dataActualComparar.parentesco_id = dataProhibicionActual.parentesco_id;
       dataActualComparar.sexo_id = dataProhibicionActual.sexo_id;
       dataActualComparar.is_exinterno = dataProhibicionActual.is_exinterno;
       dataActualComparar.fecha_inicio = dataProhibicionActual.fecha_inicio;

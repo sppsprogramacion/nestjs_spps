@@ -25,9 +25,6 @@ export class UpdateProhibicionesAnticipadaDto {
     @Length(1,100,{message: "El nombre debe tener entre $constraint1 y $constraint2 caracteres."})
     nombre_interno: string;
 
-    @Length(1,20,{message: "El parentesco_id debe tener entre $constraint1 y $constraint2 caracteres."})
-    parentesco_id: string;
-
     @IsBoolean({message: "is_exinterno debe ser verdadero o falso"})
     is_exinterno: boolean;
 

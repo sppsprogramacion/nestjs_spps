@@ -65,22 +65,6 @@ export class ProhibicionAnticipada {
     })
     nombre_interno: string;
 
-    //PARENTESCO
-    @Column({
-        type: 'varchar',
-        length: 20,
-        nullable: true,
-    })
-    parentesco_id: string;
-
-    @ManyToOne(type => Parentesco, {eager: true} )
-    @JoinColumn({
-        name: 'parentesco_id',
-        referencedColumnName: 'id_parentesco'
-    })
-    parentesco: Parentesco;
-    //FIN PARENTESCO    
-    
     @Column({
         type: 'date',
         nullable: false
@@ -107,7 +91,7 @@ export class ProhibicionAnticipada {
 
     @Column({
         type: 'varchar',
-        length: 200,
+        length: 30,
         nullable: true
     })
     tipo_levantamiento: string;
