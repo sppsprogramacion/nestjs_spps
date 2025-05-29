@@ -77,6 +77,19 @@ export class ProhibicionesAnticipadasService {
       return prohibiciiones;      
   }
   //FIN BUSCAR  XORGANISMO..................................................................
+  
+  //BUSCAR LISTA POR APELLIDO
+  async findListaXApellido(apellidox: string) {
+        
+    return this.prohibicionAnticipadaRepository
+    .createQueryBuilder('prohibiciones_anticipadas')
+    .select(['prohibiciones_anticipadas.id_prohibicion_anticipada', 'prohibiciones_anticipadas.apellido_visita', 'prohibiciones_anticipadas.nombre_visita', 'prohibiciones_anticipadas.dni_visita']) // Campos específicos
+    .leftJoinAndSelect('prohibiciones_anticipadas.sexo', 'sexo') // Relación
+    .where('prohibiciones_anticipadas.apellido_visita LIKE :apellido', {apellido: `%${apellidox}%`})
+    .orderBy('prohibiciones_anticipadas.apellido_visita', 'ASC')
+    .getMany();
+  }
+  //FIN BUSCAR LISTA POR APELLIDO....................................
 
   //BUSCAR  XID
   async findOne(id: number) {
