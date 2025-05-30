@@ -6,6 +6,7 @@ import { Readable } from 'stream';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DriveImagen } from './entities/drive-imagene.entity';
 import { Repository } from 'typeorm';
+import { OAuth2Client, JWT } from 'google-auth-library';
 
 @Injectable()
 export class DriveImagenesService {
@@ -17,14 +18,31 @@ export class DriveImagenesService {
   private internoFolderId: string = "1-MX0q6H8OlFTaSdE2obkCpcsIwIk89Zb";
 
 
-  constructor() {
+  // constructor() {
     
+  //   const auth = new google.auth.GoogleAuth({
+  //     keyFile: 'src/config/google-service-account.json', // Ruta del JSON
+  //     scopes: ['https://www.googleapis.com/auth/drive.file'],
+  //   });
+
+  //   this.driveClient = google.drive({ version: 'v3', auth });
+  // }
+
+  constructor() {
     const auth = new google.auth.GoogleAuth({
-      keyFile: 'src/config/google-service-account.json', // Ruta del JSON
+      keyFile: 'src/config/google-service-account.json',
       scopes: ['https://www.googleapis.com/auth/drive.file'],
     });
-
-    this.driveClient = google.drive({ version: 'v3', auth });
+  
+    // Este bloque es asíncrono, no puedes usar await en el constructor directamente.
+    auth.getClient().then(authClient => {
+      this.driveClient = google.drive({
+        version: 'v3',
+        auth: authClient as OAuth2Client | JWT,
+      });
+    }).catch(error => {
+      console.error('Error al inicializar Google Drive:', error);
+    });
   }
 
   //SUBIR IMAGEN
