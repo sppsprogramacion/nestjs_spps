@@ -231,7 +231,8 @@ export class ProhibicionesAnticipadasService {
       dataActualComparar.is_exinterno = dataProhibicionActual.is_exinterno;
       dataActualComparar.fecha_inicio = dataProhibicionActual.fecha_inicio;
       dataActualComparar.fecha_fin = dataProhibicionActual.fecha_fin;
-      
+      console.log("datos actual", dataActualComparar);
+      console.log("datos enviado", nuevaData);
       //comparar la data enviada en la request con la data actual almacendada en bd
       const datosModificados = this.getReadableDifferences(dataActualComparar, nuevaData);
       
