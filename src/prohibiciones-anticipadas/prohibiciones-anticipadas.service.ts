@@ -83,7 +83,7 @@ export class ProhibicionesAnticipadasService {
         
     return this.prohibicionAnticipadaRepository
     .createQueryBuilder('prohibiciones_anticipadas')
-    .select(['prohibiciones_anticipadas.id_prohibicion_anticipada', 'prohibiciones_anticipadas.apellido_visita', 'prohibiciones_anticipadas.nombre_visita', 'prohibiciones_anticipadas.dni_visita']) // Campos específicos
+    .select(['prohibiciones_anticipadas.id_prohibicion_anticipada', 'prohibiciones_anticipadas.apellido_visita', 'prohibiciones_anticipadas.nombre_visita', 'prohibiciones_anticipadas.dni_visita','prohibiciones_anticipadas.vigente']) // Campos específicos
     .leftJoinAndSelect('prohibiciones_anticipadas.sexo', 'sexo') // Relación
     .where('prohibiciones_anticipadas.apellido_visita LIKE :apellido', {apellido: `%${apellidox}%`})
     .orderBy('prohibiciones_anticipadas.apellido_visita', 'ASC')
