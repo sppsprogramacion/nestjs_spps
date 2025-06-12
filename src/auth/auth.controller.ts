@@ -36,7 +36,7 @@ export class AuthController {
     loginUsuarioDto: LoginUsuarioDto
 
   ) {
-    return this.authService.loginUsuario(loginUsuarioDto,"judiciales");
+    return this.authService.loginUsuario(loginUsuarioDto,"judicial");
     
   }
 
