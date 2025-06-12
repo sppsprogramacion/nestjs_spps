@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateCiudadanosCategoriaDto } from './dto/create-ciudadanos-categoria.dto';
 import { UpdateCiudadanosCategoriaDto } from './dto/update-ciudadanos-categoria.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,6 +24,10 @@ export class CiudadanosCategoriasService {
     data.organismo_id = usuario.organismo_id;
     data.usuario_id = usuario.id_usuario;
 
+    //controlar si y existe el vinculo entre visita e interno
+    let dataVisitaInterno = await this.findOneXVinculados(data.ciudadano_id, data.categoria_ciudadano_id);
+    if(dataVisitaInterno) throw new ConflictException("El ciudadano ya tiene esta categoria asignada y activa.");
+        
     try {
       
       const nuevo = await this.ciudadanoCategoriaRepository.create(data);
@@ -147,16 +151,29 @@ export class CiudadanosCategoriasService {
     return await this.ciudadanoCategoriaRepository.remove(respuesta);
   }
 
+  //BUSCAR  XVINCULADOS
+  async findOneXVinculados(id_ciudadano: number, id_categoria: number) {
+
+    const respuesta = await this.ciudadanoCategoriaRepository.findOneBy({  
+        categoria_ciudadano_id: id_categoria, 
+        ciudadano_id: id_ciudadano,
+        vigente: true
+        
+    });   
+
+    return respuesta;
+  }
+  //FIN BUSCAR  XVINCULADOS..................................................................
 
   //MANEJO DE ERRORES
   private handleDBErrors(error: any): never {
-    if(error.code === "ER_DUP_ENTRY"){
-      throw new BadRequestException (error.sqlMessage);
-    }
-    
-    if(error.status == 404) throw new NotFoundException(error.response);
+  if(error.code === "ER_DUP_ENTRY"){
+    throw new BadRequestException (error.sqlMessage);
+  }
   
-    throw new InternalServerErrorException (error.message);
-    }
-    //FIN MANEJO DE ERRORES........................................
+  if(error.status == 404) throw new NotFoundException(error.response);
+
+  throw new InternalServerErrorException (error.message);
+  }
+  //FIN MANEJO DE ERRORES........................................
 }
