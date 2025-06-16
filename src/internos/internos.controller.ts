@@ -36,7 +36,7 @@ export class InternosController {
     //cargar datos por defecto
     let fecha_actual: any = new Date().toISOString().split('T')[0];    
     createDto.fecha_carga = fecha_actual;  
-    createDto.foto = "foto-" + createDto.prontuario.toString();
+    createDto.foto = "foto-interno-0.jpg";
     
     let id_usuario = 2;
     let id_organismo = 1;
@@ -87,6 +87,16 @@ export class InternosController {
     
     let id_organismo = 1;
     return this.internosService.findListaXApellido(apellido,id_organismo);
+  }
+  //FIN BUSCAR LISTA X APELLIDO...........................................
+
+  //BUSCAR LISTA X APELLIDO
+  @Get('buscarlista-xapellido')  
+  async findListaXApellidoGeneral(
+    @Query('apellido') apellido: string, 
+  ) {    
+    
+    return this.internosService.findListaXApellidoGeneral(apellido);
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................
 

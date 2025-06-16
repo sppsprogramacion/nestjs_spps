@@ -112,19 +112,32 @@ export class DriveImagenesService {
       imagenDefecto = "foto-interno-0.jpg";
     }
 
+    //buscar foto
     const response = await this.driveClient.files.list({
       q: `name='${fileName}' and '${folderId}' in parents`, // 🔍 Buscar archivo por nombre
       fields: 'files(id, name, webViewLink, webContentLink)',
     });
   
+    //cuando no encuentra la imagen devuelve la imagen por defecto
     if (response.data.files.length === 0) {
-      return null;
-      throw new NotFoundException('Archivo no encontrado');
-    }
+      //busca imagen por defecto
+      const response2 = await this.driveClient.files.list({
+        q: `name='${imagenDefecto}' and '${folderId}' in parents`, // 🔍 Buscar archivo por nombre
+        fields: 'files(id, name, webViewLink, webContentLink)',
+      });
+      //cuando no encuentra la imagen personalizada o por defecto devuelve null
+      if (response2.data.files.length === 0) {
+        return null;
+      }
+      
+      //devuelve imagen por defecto en caso de fallar antes
+      return response2.data.files[0]; // 📂 Devuelve el primer archivo encontrado
+    }    
 
     const fileId = response.data.files[0].id;
     //return `https://drive.google.com/uc?id=${fileId}&export=download`;
     
+    //devuelve la primer imagen buscada
     return response.data.files[0]; // 📂 Devuelve el primer archivo encontrado
   }
   //fin BUSCAR IMAGEN.....................

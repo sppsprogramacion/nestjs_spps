@@ -4,12 +4,15 @@ import { UpdateInternoDto } from './dto/update-interno.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Interno } from './entities/interno.entity';
 import { Repository } from 'typeorm';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Injectable()
 export class InternosService {
   constructor(
     @InjectRepository(Interno)
-    private readonly internoRepository: Repository<Interno>
+    private readonly internoRepository: Repository<Interno>,
+
+    private readonly driveImagenesService: DriveImagenesService,
   ){}
   
   async create(createDto: CreateInternoDto, usuario_id: number, organismo_id: number) {
@@ -124,6 +127,14 @@ export class InternosService {
   async findOne(id: number) {
     const respuesta = await this.internoRepository.findOneBy({id_interno: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.", "verificque el id del ciudadano");
+    let imgUrl: string = "";
+    let foto_nombre = respuesta.foto;
+
+    //obtener url de la imagen en drive y agregado en la respuesta
+    const file = await this.driveImagenesService.getFileByName(foto_nombre, "interno");
+    
+    imgUrl = await file.webContentLink;
+    respuesta.foto = imgUrl;
 
     return respuesta;
   }
