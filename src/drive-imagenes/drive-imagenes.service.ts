@@ -1,11 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { google } from 'googleapis';
-import * as fs from 'fs';
 import { Readable } from 'stream';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DriveImagen } from './entities/drive-imagene.entity';
-import { Repository } from 'typeorm';
 import { OAuth2Client, JWT } from 'google-auth-library';
 
 @Injectable()
