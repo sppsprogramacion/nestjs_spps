@@ -43,6 +43,8 @@ import { MenoresACargoModule } from './menores_a_cargo/menores_a_cargo.module';
 import { ExcepcionesIngresoVisitaModule } from './excepciones-ingreso-visita/excepciones-ingreso-visita.module';
 import { ProhibicionesAnticipadasModule } from './prohibiciones-anticipadas/prohibiciones-anticipadas.module';
 import { BitacoraProhibicionesAnticipadasModule } from './bitacora-prohibiciones-anticipadas/bitacora-prohibiciones-anticipadas.module';
+import { OjosColorModule } from './ojos_color/ojos_color.module';
+import { TamanioModule } from './tamanio/tamanio.module';
 
 @Module({
   imports: [
@@ -93,6 +95,8 @@ import { BitacoraProhibicionesAnticipadasModule } from './bitacora-prohibiciones
     ExcepcionesIngresoVisitaModule,
     ProhibicionesAnticipadasModule,
     BitacoraProhibicionesAnticipadasModule,
+    OjosColorModule,
+    TamanioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

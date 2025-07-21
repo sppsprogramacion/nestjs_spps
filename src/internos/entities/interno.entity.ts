@@ -92,8 +92,8 @@ export class Interno {
 
     //NACIONALIDAD
     @Column({
-        type: 'int',
-        nullable: false,
+        type: 'varchar',
+        length: 10,
         default: 'SINNAC'
     })
     nacionalidad_id: string;

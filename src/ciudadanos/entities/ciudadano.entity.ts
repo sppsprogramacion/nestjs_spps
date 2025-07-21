@@ -82,9 +82,9 @@ export class Ciudadano {
 
     //NACIONALIDAD
     @Column({
-        type: 'int',
-        nullable: false,
-        default: 'SINNAC'
+        type: 'varchar',
+        length: 10,
+        default: 'AR'
     })
     nacionalidad_id: string;
 
