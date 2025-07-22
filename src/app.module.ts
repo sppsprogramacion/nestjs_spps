@@ -45,6 +45,10 @@ import { ProhibicionesAnticipadasModule } from './prohibiciones-anticipadas/proh
 import { BitacoraProhibicionesAnticipadasModule } from './bitacora-prohibiciones-anticipadas/bitacora-prohibiciones-anticipadas.module';
 import { OjosColorModule } from './ojos_color/ojos_color.module';
 import { TamanioModule } from './tamanio/tamanio.module';
+import { NarizFormaModule } from './nariz-forma/nariz-forma.module';
+import { PeloTipoModule } from './pelo-tipo/pelo-tipo.module';
+import { PeloColorModule } from './pelo-color/pelo-color.module';
+import { PielModule } from './piel/piel.module';
 
 @Module({
   imports: [
@@ -97,6 +101,10 @@ import { TamanioModule } from './tamanio/tamanio.module';
     BitacoraProhibicionesAnticipadasModule,
     OjosColorModule,
     TamanioModule,
+    NarizFormaModule,
+    PeloTipoModule,
+    PeloColorModule,
+    PielModule,
   ],
   controllers: [AppController],
   providers: [AppService],
