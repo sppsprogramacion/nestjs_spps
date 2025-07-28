@@ -53,6 +53,8 @@ export class CreateCiudadanoDto {
     
     tiene_discapacidad: boolean;
     
+    discapacidad_detalle:string;
+    
     es_visita: boolean;    
     
     foto: string;     

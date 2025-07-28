@@ -197,6 +197,14 @@ export class Ciudadano {
         default: false
     })
     tiene_discapacidad: boolean;
+
+    @Column({
+        type:'varchar',
+        length: 2000,
+        nullable: false,
+        default: 'Sin especificar'
+    })
+    discapacidad_detalle: string;
     
     
     @Column({

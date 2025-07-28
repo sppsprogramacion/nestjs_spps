@@ -226,13 +226,24 @@ export class CiudadanosService {
     
     let dataCiudadano: CreateCiudadanoDto = new CreateCiudadanoDto;
     let novedad: string="";
+    
+    //buscar ciudadano antes de modificar los datos  
+    let dataCiudadanoAnterior = await this.findOne(id_ciudadanox);
 
     if(accion){
+      //verificar si es visita
+      if (dataCiudadanoAnterior.es_visita ) 
+        throw new NotFoundException("Este ciudadano ya se encuentra habilitado como visita.");
+
       novedad = "ESTABLECER ESTADO COMO VISITA";
       dataCiudadano.es_visita = accion;
     }
 
     if(!accion){
+      //verificar si es visita
+      if (!dataCiudadanoAnterior.es_visita ) 
+        throw new NotFoundException("Este ciudadano no se encuentra habilitado como visita.");
+
       novedad = "QUITAR ESTADO COMO VISITA";
       dataCiudadano.es_visita = accion;
     }
@@ -270,14 +281,25 @@ export class CiudadanosService {
     let dataCiudadano: CreateCiudadanoDto = new CreateCiudadanoDto;
     let novedad: string="";
 
+    //buscar ciudadano antes de modificar los datos  
+    let dataCiudadanoAnterior = await this.findOne(id_ciudadanox);
+
     if(accion){
+      if (dataCiudadanoAnterior.tiene_discapacidad ) 
+        throw new NotFoundException("Este ciudadano ya se encuentra con discapacidad.");
+
       novedad = "ESTABLECER CON DISCAPACIDAD";
       dataCiudadano.tiene_discapacidad = accion;
+      dataCiudadano.discapacidad_detalle = data.novedad_detalle;
     }
 
     if(!accion){
+      if (!dataCiudadanoAnterior.tiene_discapacidad ) 
+        throw new NotFoundException("Este ciudadano no se encuentra con discapacidad.");
+
       novedad = "QUITAR DISCAPACIDAD";
       dataCiudadano.tiene_discapacidad = accion;
+      dataCiudadano.discapacidad_detalle = "";
     }
     
     try{
