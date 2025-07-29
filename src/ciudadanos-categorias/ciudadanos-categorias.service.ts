@@ -24,7 +24,7 @@ export class CiudadanosCategoriasService {
     data.organismo_id = usuario.organismo_id;
     data.usuario_id = usuario.id_usuario;
 
-    //controlar si y existe el vinculo entre visita e interno
+    //controlar si y existe esta categoria para el ciudadano
     let dataVisitaInterno = await this.findOneXVinculados(data.ciudadano_id, data.categoria_ciudadano_id);
     if(dataVisitaInterno) throw new ConflictException("El ciudadano ya tiene esta categoria asignada y activa.");
         

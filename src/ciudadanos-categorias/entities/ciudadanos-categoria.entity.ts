@@ -76,7 +76,7 @@ export class CiudadanoCategoria {
     })
     organismo: Organismo;
     //FIN ORGANISMO   
-
+    
     //USUARIO
     @Column({
         type: 'int',
