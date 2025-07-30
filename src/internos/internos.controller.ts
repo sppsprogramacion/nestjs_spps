@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, NotFoundException, Put, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
-import { InternosService } from './internos.service';
-import { CreateInternoDto } from './dto/create-interno.dto';
-import { UpdateInternoDto } from './dto/update-interno.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+import { Auth, GetUser } from 'src/auth/decorators';
+import { CreateInternoDto } from './dto/create-interno.dto';
+import { InternosService } from './internos.service';
+import { UpdateInternoDto } from './dto/update-interno.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('internos')
 export class InternosController {
@@ -31,16 +34,17 @@ export class InternosController {
   }
 
   @Post()
-  create(@Body() createDto: CreateInternoDto) {
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() createDto: CreateInternoDto) {
 
     //cargar datos por defecto
     let fecha_actual: any = new Date().toISOString().split('T')[0];    
     createDto.fecha_carga = fecha_actual;  
     createDto.foto = "foto-interno-0.jpg";
-    
-    let id_usuario = 2;
-    let id_organismo = 1;
-    return this.internosService.create(createDto,id_usuario,id_organismo);
+        
+    return this.internosService.create(createDto, user);
   }
 
   @Get('todos')
@@ -85,6 +89,8 @@ export class InternosController {
     @Query('apellido') apellido: string, 
   ) {    
     
+    if ( apellido.length < 2 ) throw new NotFoundException('El apellido de busqueda debe tener mínimo (02) dos caracteres.');
+          
     let id_organismo = 1;
     return this.internosService.findListaXApellido(apellido,id_organismo);
   }

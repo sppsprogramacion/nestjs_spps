@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Interno } from './entities/interno.entity';
 import { Repository } from 'typeorm';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class InternosService {
@@ -15,13 +16,13 @@ export class InternosService {
     private readonly driveImagenesService: DriveImagenesService,
   ){}
   
-  async create(createDto: CreateInternoDto, usuario_id: number, organismo_id: number) {
+  async create(createDto: CreateInternoDto, usuariox: Usuario) {
     let num_tramite_nuevo:number = 0;
     
     //obtener numero de interno
     const num_interno_max = await this.internoRepository.createQueryBuilder('internos')
     .select('COUNT(internos.codigo)','num_max')
-    .where('internos.organismo_id = :organismo_id', {organismo_id: organismo_id})
+    .where('internos.organismo_id = :organismo_id', {organismo_id: usuariox.organismo_id})
     .getRawOne();
    
     if(!num_interno_max) {
@@ -30,9 +31,9 @@ export class InternosService {
     num_tramite_nuevo = parseInt(num_interno_max.num_max) + 1;
 
     //cargar datos por defecto
-    createDto.codigo = organismo_id + "-" + num_tramite_nuevo;
-    createDto.organismo_id = organismo_id;
-    createDto.organismo_carga_id = organismo_id;
+    createDto.codigo = usuariox.organismo_id + "-" + num_tramite_nuevo;
+    createDto.organismo_id = usuariox.organismo_id;
+    createDto.organismo_carga_id = usuariox.organismo_id;
 
     try {
 

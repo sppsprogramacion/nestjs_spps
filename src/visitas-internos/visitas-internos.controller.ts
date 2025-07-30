@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put, Query } from '@nestjs/common';
-import { VisitasInternosService } from './visitas-internos.service';
+
+import { Auth, GetUser } from 'src/auth/decorators';
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
 import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
 import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
@@ -7,7 +8,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
 import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
 import { UpdateVigenciaParentescoDto } from './dto/update-vigencia-parentesco.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { VisitasInternosService } from './visitas-internos.service';
 
 @Controller('visitas-internos')
 export class VisitasInternosController {
@@ -19,7 +20,7 @@ export class VisitasInternosController {
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateVisitasInternoDto
   ) {
-    return this.visitasInternosService.create(data);
+    return this.visitasInternosService.create(data, user);
   }  
 
   @Get('todos')

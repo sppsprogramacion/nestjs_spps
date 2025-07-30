@@ -24,16 +24,19 @@ export class VisitasInternosService {
   ){}
 
   //NUEVO VINCULO
-  async create(data: CreateVisitasInternoDto): Promise<VisitaInterno> {
+  async create(data: CreateVisitasInternoDto, usuariox: Usuario): Promise<VisitaInterno> {
 
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     data.fecha_alta = fecha_actual;
-    data.usuario_id = 2;
-
+    data.usuario_id = usuariox.id_usuario;
+    
     //controlar si y existe el vinculo entre visita e interno
     let dataVisitaInterno = await this.findOneXVinculados(data.ciudadano_id, data.interno_id);
     if(dataVisitaInterno) throw new ConflictException("La visita y el interno ya se encuentran vinculados.");
     
+    //verificar la unidad del interno coincide con la unidad del usuario
+    if(dataVisitaInterno.interno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
+
     //controlar si el interno esta vinculado con otra visita con estos parentescos (CONC, CONY, NOV)
     if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV"){
       const respuestaParejasInterno = await this.visitaInternoRepository.find({  

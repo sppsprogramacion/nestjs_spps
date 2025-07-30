@@ -4,9 +4,11 @@ import { InternosController } from './internos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Interno } from './entities/interno.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       Interno
     ])
