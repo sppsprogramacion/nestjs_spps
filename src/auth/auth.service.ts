@@ -69,7 +69,8 @@ export class AuthService {
     );
     
     //control de autorizacion del usuario en el sistema indicado
-    const sistemasRoles = usuario2.roles.map((rolUsuario) => rolUsuario.rol.sistema_id)    
+    const sistemasRoles = usuario2.roles.map((rolUsuario) => rolUsuario.rol.sistema_id) 
+       
     if(!sistemasRoles.includes( sistema )){        
       throw new UnauthorizedException ("No está autorizado en este sistema");
     }
