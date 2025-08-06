@@ -34,8 +34,14 @@ export class CiudadanosController {
     }
 
     let ciudadanoImagen: UpdateCiudadanoDto= new UpdateCiudadanoDto;
+    //controlar si exite el ciudadano
     let ciudadano = await this.findOne(id_ciudadano);
-
+    
+    //Controlar si tiene o no imagen cargada
+    let foto_nombre = "foto-ciudadano-" + id_ciudadano + ".jpg";
+    let existeFile: boolean = await this.driveImagenesService.existeFileByName(foto_nombre, "ciudadano");
+    if(existeFile) throw new NotFoundException("El ciudadano tiene una imagen cargada.");
+    
     //guardar imagen
     const uploadedFile = await this.driveImagenesService.uploadFile(file, "ciudadano", +id_ciudadano);
     
@@ -223,6 +229,16 @@ export class CiudadanosController {
     usuariox.organismo_id = 1;
 
     return this.ciudadanosService.update(+id, updateCiudadanoDto, usuariox, "todo");
+  }
+
+  @Delete('delete-imagen')
+  async deleteImagenes(
+     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+  ) {
+    
+    let fileName = "foto-ciudadano-" + id_ciudadano + ".jpg";
+    const result = await this.driveImagenesService.deleteAllFilesByName(fileName, "ciudadano");
+    return result;
   }
 
   @Delete(':id')

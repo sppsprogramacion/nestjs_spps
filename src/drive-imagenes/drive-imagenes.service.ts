@@ -12,18 +12,7 @@ export class DriveImagenesService {
   //nombres de carpetas en google drive
   private ciudadanoFolderId: string = "1TrULzVJGIf0LVo4k1__lourNol-ch6FO";
   private internoFolderId: string = "1-MX0q6H8OlFTaSdE2obkCpcsIwIk89Zb";
-
-
-  // constructor() {
-    
-  //   const auth = new google.auth.GoogleAuth({
-  //     keyFile: 'src/config/google-service-account.json', // Ruta del JSON
-  //     scopes: ['https://www.googleapis.com/auth/drive.file'],
-  //   });
-
-  //   this.driveClient = google.drive({ version: 'v3', auth });
-  // }
-
+  
   constructor() {
     const auth = new google.auth.GoogleAuth({
       keyFile: 'src/config/google-service-account.json',
@@ -84,7 +73,7 @@ export class DriveImagenesService {
       fields: 'id, webViewLink',
     });
 
-    // ✅ Hacer público el archivo después de subirlo
+    // Hacer público el archivo después de subirlo
     await this.makeFilePublic(response.data.id);
 
     return response.data;
@@ -110,7 +99,7 @@ export class DriveImagenesService {
 
     //buscar foto
     const response = await this.driveClient.files.list({
-      q: `name='${fileName}' and '${folderId}' in parents`, // 🔍 Buscar archivo por nombre
+      q: `name='${fileName}' and '${folderId}' in parents`, // Buscar archivo por nombre
       fields: 'files(id, name, webViewLink, webContentLink)',
     });
   
@@ -118,7 +107,7 @@ export class DriveImagenesService {
     if (response.data.files.length === 0) {
       //busca imagen por defecto
       const response2 = await this.driveClient.files.list({
-        q: `name='${imagenDefecto}' and '${folderId}' in parents`, // 🔍 Buscar archivo por nombre
+        q: `name='${imagenDefecto}' and '${folderId}' in parents`, // Buscar archivo por nombre
         fields: 'files(id, name, webViewLink, webContentLink)',
       });
       //cuando no encuentra la imagen personalizada o por defecto devuelve null
@@ -127,20 +116,99 @@ export class DriveImagenesService {
       }
       
       //devuelve imagen por defecto en caso de fallar antes
-      return response2.data.files[0]; // 📂 Devuelve el primer archivo encontrado
+      return response2.data.files[0]; // Devuelve el primer archivo encontrado
     }    
 
     const fileId = response.data.files[0].id;
     //return `https://drive.google.com/uc?id=${fileId}&export=download`;
     
     //devuelve la primer imagen buscada
-    return response.data.files[0]; // 📂 Devuelve el primer archivo encontrado
+    return response.data.files[0]; // Devuelve el primer archivo encontrado
   }
   //fin BUSCAR IMAGEN.....................
+
+  //DETERMINAR SI TIENE IMAGEN VALIDA EN CARPETA - carpeta puede ser de ciudadano o interno
+  async existeFileByName(fileName: string, carpeta: string) {
+
+    let folderId: string;
+    let imagenDefecto: string;
+
+    if(carpeta == "ciudadano"){
+      
+      folderId= this.ciudadanoFolderId;
+      imagenDefecto = "foto-ciudadano-0.jpg";
+    }
+
+    if(carpeta == "interno"){
+      
+      folderId= this.internoFolderId;
+      imagenDefecto = "foto-interno-0.jpg";
+    }
+
+    //buscar foto
+    const response = await this.driveClient.files.list({
+      q: `name='${fileName}' and '${folderId}' in parents`, // Buscar archivo por nombre
+      fields: 'files(id, name, webViewLink, webContentLink)',
+    });
+    
+    
+    //cuando no encuentra la imagen devuelve la imagen por defecto
+    if (response.data.files.length === 0) {
+      return false;
+    }    
+
+    return true;
+  }
+
+  //ELIMINAR IMAGEN
+  async deleteAllFilesByName(fileName: string, carpeta?: string) {
+    let folderId: string;
+    let imagenDefecto: string;
+
+    let query = `name='${fileName}'`;
+    
+    if(carpeta == "ciudadano"){
+      
+      folderId= this.ciudadanoFolderId;
+      imagenDefecto = "foto-ciudadano-0.jpg";
+    }
+
+    if(carpeta == "interno"){
+      
+      folderId= this.internoFolderId;
+      imagenDefecto = "foto-interno-0.jpg";
+    }
+
+    if (folderId) {
+      query += ` and '${folderId}' in parents`; // Buscar solo en una carpeta específica
+    }
+  
+    const response = await this.driveClient.files.list({
+      q: query,
+      fields: 'files(id, name)',
+    });
+  
+    if (response.data.files.length === 0) {
+      throw new NotFoundException('No se encontraron archivos con ese nombre');
+    }
+  
+    //Recorremos y eliminamos todos los archivos encontrados
+    const deletedFiles = [];
+    for (const file of response.data.files) {
+      await this.driveClient.files.delete({ fileId: file.id });
+      deletedFiles.push({ fileId: file.id, fileName: file.name });
+    }
+  
+    return {
+      message: `Se eliminaron ${deletedFiles.length} archivos con el nombre "${fileName}"`,
+      deletedFiles,
+    };
+  }
+  //FIN ELIMINAR IMAGEN.....................................
   
 
   //HACER PUBLICO UN ARCHIVO
-  // 📌 Método para hacer público un archivo específico en Google Drive
+  // Método para hacer público un archivo específico en Google Drive
   async makeFilePublic(fileId: string) {
     const permission = {
       type: 'anyone', // Cualquiera con el enlace puede verlo
