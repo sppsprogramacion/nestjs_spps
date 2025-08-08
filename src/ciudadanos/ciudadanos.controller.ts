@@ -237,8 +237,14 @@ export class CiudadanosController {
   ) {
     
     let fileName = "foto-ciudadano-" + id_ciudadano + ".jpg";
-    const result = await this.driveImagenesService.deleteAllFilesByName(fileName, "ciudadano");
-    return result;
+
+    let eliminadoFile: boolean = await this.driveImagenesService.deleteAllFilesByName(fileName, "ciudadano");
+    if(!eliminadoFile) throw new NotFoundException("La imagen no se elimino correctamente");
+    
+    return {
+      message: 'Imagen eliminada correctamente',
+      eliminado: true,
+    };
   }
 
   @Delete(':id')

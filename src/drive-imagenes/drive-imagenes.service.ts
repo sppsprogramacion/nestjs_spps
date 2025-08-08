@@ -85,14 +85,12 @@ export class DriveImagenesService {
     let folderId: string;
     let imagenDefecto: string;
 
-    if(carpeta == "ciudadano"){
-      
+    if(carpeta == "ciudadano"){      
       folderId= this.ciudadanoFolderId;
       imagenDefecto = "foto-ciudadano-0.jpg";
     }
 
-    if(carpeta == "interno"){
-      
+    if(carpeta == "interno"){      
       folderId= this.internoFolderId;
       imagenDefecto = "foto-interno-0.jpg";
     }
@@ -152,7 +150,7 @@ export class DriveImagenesService {
     });
     
     
-    //cuando no encuentra la imagen devuelve la imagen por defecto
+    //cuando no encuentra la imagen devuelve false
     if (response.data.files.length === 0) {
       return false;
     }    
@@ -188,21 +186,29 @@ export class DriveImagenesService {
       fields: 'files(id, name)',
     });
   
+    //control si existe la imagen
     if (response.data.files.length === 0) {
       throw new NotFoundException('No se encontraron archivos con ese nombre');
     }
   
     //Recorremos y eliminamos todos los archivos encontrados
-    const deletedFiles = [];
+    let cantidadEliminados: number = 0;
+
     for (const file of response.data.files) {
-      await this.driveClient.files.delete({ fileId: file.id });
-      deletedFiles.push({ fileId: file.id, fileName: file.name });
+      try {
+        await this.driveClient.files.delete({ fileId: file.id });
+        cantidadEliminados = cantidadEliminados + 1;
+      } catch (error) {
+        
+      }
     }
-  
-    return {
-      message: `Se eliminaron ${deletedFiles.length} archivos con el nombre "${fileName}"`,
-      deletedFiles,
-    };
+    
+    if (response.data.files.length == cantidadEliminados){      
+      return true;
+    }
+    else{
+      return false;
+    }
   }
   //FIN ELIMINAR IMAGEN.....................................
   
