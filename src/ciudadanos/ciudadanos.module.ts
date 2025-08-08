@@ -10,9 +10,11 @@ import { BitacoraCiudadano } from 'src/bitacora-ciudadano/entities/bitacora-ciud
 import { BitacoraCiudadanoService } from 'src/bitacora-ciudadano/bitacora-ciudadano.service';
 import { DomiciliosCiudadanoService } from 'src/domicilios-ciudadano/domicilios-ciudadano.service';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       Ciudadano,
       BitacoraCiudadano,

@@ -10,6 +10,7 @@ import { UpdateDomicilioCiudadanoDto } from './dto/update-domicilio-ciudadano.dt
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 import { Ciudadano } from './entities/ciudadano.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('ciudadanos')
 export class CiudadanosController {
@@ -19,15 +20,13 @@ export class CiudadanosController {
   ) {}
 
   @Post('upload-img-ciudadano')
+  @Auth()
   @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
   ) {
-
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
 
     if (!file) {
       throw new BadRequestException('No se recibió ningún archivo');
@@ -50,7 +49,7 @@ export class CiudadanosController {
       
       ciudadanoImagen.foto = "foto-ciudadano-" + id_ciudadano + ".jpg";
       ciudadanoImagen.detalle_motivo = "Carga de imagen del ciudadano";
-      await this.ciudadanosService.update(+id_ciudadano,ciudadanoImagen,usuariox, "datos_personales");
+      await this.ciudadanosService.update(+id_ciudadano,ciudadanoImagen,user, "datos_personales");
     }
     
 
@@ -62,19 +61,19 @@ export class CiudadanosController {
   }
 
   @Post()
-  create(@Body() createCiudadanoDto: CreateCiudadanoDto) {
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() createCiudadanoDto: CreateCiudadanoDto
+  ) {
 
     //cargar datos por defecto
     let fecha_actual: any = new Date().toISOString().split('T')[0];    
-    
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-    
+        
     createCiudadanoDto.fecha_alta = fecha_actual;  
     createCiudadanoDto.foto = "foto-ciudadano-0.jpg";
     
-    return this.ciudadanosService.create(createCiudadanoDto, usuariox);
+    return this.ciudadanosService.create(createCiudadanoDto, user);
   }
 
   @Get('todos')
@@ -129,111 +128,101 @@ export class CiudadanosController {
 
   //ESTABLECER ESTADO COMO VISITA
   @Put('establecer-visita')
+  @Auth()
   updateEstablecerComoVisita(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
     @Body() dataDto: EstablecerVisitaDto
   ) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-    
-    return this.ciudadanosService.establecerComoVisita(+id_ciudadano, dataDto, true, usuariox);
+    return this.ciudadanosService.establecerComoVisita(+id_ciudadano, dataDto, true, user);
   }
   //FIN ESTABLECER ESTADO COMO VISITA.................................  
 
   //QUITAR ESTADO COMO VISITA
   @Put('quitar-visita')
+  @Auth()
   updateQuitarComoVisita(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
     @Body() dataDto: EstablecerVisitaDto
   ) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.ciudadanosService.establecerComoVisita(+id_ciudadano, dataDto, false, usuariox);
+    return this.ciudadanosService.establecerComoVisita(+id_ciudadano, dataDto, false, user);
   }
   //FIN QUITAR ESTADO COMO VISITA.................................
 
   //ESTABLECER CON DISCAPACIDAD
   @Put('establecer-discapacidad')
+  @Auth()
   updateEstablecerConDiscapacidad(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
     @Body() dataDto: EstablecerVisitaDto
   ) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-    
-    return this.ciudadanosService.establecerConDiscapacidad(+id_ciudadano, dataDto, true, usuariox);
+    return this.ciudadanosService.establecerConDiscapacidad(+id_ciudadano, dataDto, true, user);
   }
   //FIN ESTABLECER CON DISCAPACIDAD.................................  
 
   //QUITAR DISCAPACIDAD
   @Put('quitar-discapacidad')
+  @Auth()
   updateQuitarDiscapacidad(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
     @Body() dataDto: EstablecerVisitaDto
   ) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.ciudadanosService.establecerConDiscapacidad(+id_ciudadano, dataDto, false, usuariox);
+    return this.ciudadanosService.establecerConDiscapacidad(+id_ciudadano, dataDto, false, user);
   }
   //FIN QUITAR DISCAPACIDAD...........................................
 
   //MODIFICAR DATOS PERSONALES
   @Put('update-datos-personales')
+  @Auth()
   updateDatosPersonales(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
     @Body() dataDto: UpdateDatosPersonalesCiudadanoDto
   ) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
     //datos_personales: para que solo se modifiquen los datos_personales e identificar
     //quq se guarde en tabla bitacora_ciudadano
-    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox, "datos_personales");
+    return this.ciudadanosService.update(+id_ciudadano, dataDto, user, "datos_personales");
   }
   //FIN MODIFICAR DATOS PERSONALES...........................................
 
   //MODIFICAR DOMICILIO
   @Put('update-domicilio')
+  @Auth()
   updateDomicilio(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string ,
     @Body() dataDto: UpdateDomicilioCiudadanoDto
   ) {
-  
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-  
+
     //domicilio: para que solo se modifiquen los datos de domicilio e identificar
     //que se guarde en tabla domicilios_ciudadano
-    return this.ciudadanosService.update(+id_ciudadano, dataDto, usuariox, "domicilio");
+    return this.ciudadanosService.update(+id_ciudadano, dataDto, user, "domicilio");
   }
   //FIN MODIFICAR DOMICILIO...........................................
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateCiudadanoDto: UpdateCiudadanoDto) {
+  @Auth()
+  update(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id') id: string, 
+    @Body() updateCiudadanoDto: UpdateCiudadanoDto) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.ciudadanosService.update(+id, updateCiudadanoDto, usuariox, "todo");
+    return this.ciudadanosService.update(+id, updateCiudadanoDto, user, "todo");
   }
 
-  @Delete('delete-imagen')
+  @Delete('quitar-imagen')
+  @Auth()
   async deleteImagenes(
-     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
   ) {
     
     let fileName = "foto-ciudadano-" + id_ciudadano + ".jpg";
@@ -241,14 +230,18 @@ export class CiudadanosController {
     let eliminadoFile: boolean = await this.driveImagenesService.deleteAllFilesByName(fileName, "ciudadano");
     if(!eliminadoFile) throw new NotFoundException("La imagen no se elimino correctamente");
     
+    //modificar nombre de la imagen en el ciudadano
+    if(eliminadoFile){
+      let ciudadanoImagen: UpdateCiudadanoDto= new UpdateCiudadanoDto;
+      ciudadanoImagen.foto = "foto-ciudadano-0.jpg";
+      ciudadanoImagen.detalle_motivo = "Quitar imagen del ciudadano";
+      await this.ciudadanosService.update(+id_ciudadano,ciudadanoImagen,user, "datos_personales");
+    }
+
     return {
       message: 'Imagen eliminada correctamente',
       eliminado: true,
     };
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ciudadanosService.remove(+id);
-  }
 }
