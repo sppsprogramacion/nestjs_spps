@@ -3,18 +3,20 @@ import { MenoresACargoService } from './menores_a_cargo.service';
 import { CreateMenoresACargoDto } from './dto/create-menores_a_cargo.dto';
 import { UpdateMenoresACargoDto } from './dto/update-menores_a_cargo.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('menores-a-cargo')
 export class MenoresACargoController {
   constructor(private readonly menoresACargoService: MenoresACargoService) {}
 
   @Post()
-  create(@Body() createMenoresACargoDto: CreateMenoresACargoDto) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-    
-    return this.menoresACargoService.create(createMenoresACargoDto, usuariox);
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() createMenoresACargoDto: CreateMenoresACargoDto
+  ) {
+        
+    return this.menoresACargoService.create(createMenoresACargoDto, user);
   }
 
   @Get()
