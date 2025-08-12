@@ -1,5 +1,6 @@
 import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { ParentescoMenor } from "src/parentescos-menores/entities/parentescos-menor.entity";
 import { Parentesco } from "src/parentescos/entities/parentesco.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -44,19 +45,19 @@ export class MenorACargo {
 
     //PARENTESCO
     @Column({
-        type: 'int',
+        type: 'varchar',
+        length: 20,
         nullable: false,
-        default: 1
     })
-    parentesco_id: number;
+    parentesco_menor_id: string;
 
-    @ManyToOne(type => Parentesco, {eager: true} )
+    @ManyToOne(type => ParentescoMenor, {eager: true} )
     @JoinColumn({
-        name: 'parentesco_id',
-        referencedColumnName: 'id_parentesco'
+        name: 'parentesco_menor_id',
+        referencedColumnName: 'id_parentesco_menor'
     })
-    parentesco: Parentesco;
-    //FIN PARENTESCO
+    parentesco_menor: ParentescoMenor;
+    //FIN PARENTESCO    
     
     @Column({
         type: 'date',

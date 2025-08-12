@@ -39,9 +39,4 @@ export class ParentescosController {
     return this.parentescosService.update(id, dataDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    
-    return this.parentescosService.remove(id);
-  }
 }

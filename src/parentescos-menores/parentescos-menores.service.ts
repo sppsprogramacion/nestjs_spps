@@ -1,24 +1,26 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateParentescoDto } from './dto/create-parentesco.dto';
-import { UpdateParentescoDto } from './dto/update-parentesco.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Parentesco } from './entities/parentesco.entity';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { CreateParentescosMenoreDto } from './dto/create-parentescos-menore.dto';
+import { ParentescoMenor } from './entities/parentescos-menor.entity';
+import { UpdateParentescosMenoreDto } from './dto/update-parentescos-menore.dto';
 
 @Injectable()
-export class ParentescosService {
+export class ParentescosMenoresService {
   
+
   constructor(
-    @InjectRepository(Parentesco)
-    private readonly parentescoRepository: Repository<Parentesco>
+    @InjectRepository(ParentescoMenor)
+    private readonly parentescoMenorRepository: Repository<ParentescoMenor>
   ){}
 
-  async create(data: CreateParentescoDto): Promise<Parentesco> {
+  async create(data: CreateParentescosMenoreDto): Promise<ParentescoMenor> {
 
     try {
       
-      const nuevo = await this.parentescoRepository.create(data);
-      return await this.parentescoRepository.save(nuevo);
+      const nuevo = await this.parentescoMenorRepository.create(data);
+      return await this.parentescoMenorRepository.save(nuevo);
     }catch (error) {
 
       this.handleDBErrors(error);  
@@ -26,10 +28,10 @@ export class ParentescosService {
   }
 
   async findAll() {
-    return await this.parentescoRepository.find(
+    return await this.parentescoMenorRepository.find(
       {
           order:{
-              parentesco: "ASC"
+              parentesco_menor: "ASC"
           }
       }
     );
@@ -38,16 +40,16 @@ export class ParentescosService {
   //BUSCAR  XID
   async findOne(id: String) {
 
-    const respuesta = await this.parentescoRepository.findOneBy({id_parentesco: id});
+    const respuesta = await this.parentescoMenorRepository.findOneBy({id_parentesco_menor: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: string, data: UpdateParentescoDto) {
+  async update(id: string, data: UpdateParentescosMenoreDto) {
 
     try{
-      const respuesta = await this.parentescoRepository.update(id, data);
+      const respuesta = await this.parentescoMenorRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
       } 

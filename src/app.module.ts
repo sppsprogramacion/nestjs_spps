@@ -49,6 +49,7 @@ import { NarizFormaModule } from './nariz-forma/nariz-forma.module';
 import { PeloTipoModule } from './pelo-tipo/pelo-tipo.module';
 import { PeloColorModule } from './pelo-color/pelo-color.module';
 import { PielModule } from './piel/piel.module';
+import { ParentescosMenoresModule } from './parentescos-menores/parentescos-menores.module';
 
 @Module({
   imports: [
@@ -105,6 +106,7 @@ import { PielModule } from './piel/piel.module';
     PeloTipoModule,
     PeloColorModule,
     PielModule,
+    ParentescosMenoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
