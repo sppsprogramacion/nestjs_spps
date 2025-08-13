@@ -67,7 +67,7 @@ export class MenorACargo {
 
     @Column({
         type: "boolean",
-        default: true
+        default: false
     })
     anulado: boolean;
 

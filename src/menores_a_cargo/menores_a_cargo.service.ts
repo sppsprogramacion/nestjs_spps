@@ -7,7 +7,8 @@ import { Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateAnularMenorCargoDto } from './dto/update-anular-menor-cargo.dto';
 import { Ciudadano } from 'src/ciudadanos/entities/ciudadano.entity';
-import moment from 'moment';
+//import moment from 'moment';
+import * as moment from 'moment';
 
 @Injectable()
 export class MenoresACargoService {
@@ -27,6 +28,10 @@ export class MenoresACargoService {
     data.fecha_carga = fecha_actual;
     data.organismo_id = usuario.organismo_id;
     data.usuario_id = usuario.id_usuario;
+
+    //control que el adulto y menor sean diferentes 
+    if(data.ciudadano_menor_id == data.ciudadano_tutor_id ) throw new ConflictException("El ciudadano selecionado como menor es el mismo que el adulto.");
+    //fin control que el adulto y menor sean diferentes  
 
     //control de existencia de vinculo vigente entre Adulto y el menor
     const dataMenorAdulto = await this.menorACargoRepository.findOneBy({  
@@ -52,8 +57,21 @@ export class MenoresACargoService {
     //controlar adulto
     let objetoEncontrado = ciudadanos.find(obj => obj.id_ciudadano === data.ciudadano_tutor_id);     
     if(objetoEncontrado){
-      if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') < 18)){
-        throw new NotFoundException("El ciudadano seleccionado como tutor es menor de edad. (Tiene menos de 18 años)");
+      // if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') < 18)){
+      //   throw new NotFoundException("El ciudadano seleccionado como tutor es menor de edad. (Tiene menos de 18 años)");
+      // }
+
+      const fechaNac = new Date(objetoEncontrado.fecha_nac);
+      const hoy = new Date();
+      let edad = hoy.getFullYear() - fechaNac.getFullYear();
+      const m = hoy.getMonth() - fechaNac.getMonth();
+      if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
+        edad--;
+      }
+      if (edad < 18) {
+        throw new NotFoundException(
+          `El ciudadano seleccionado como tutor es menor de edad. (Tiene ${edad} años)`
+        );
       }
     }
     else{
@@ -64,9 +82,22 @@ export class MenoresACargoService {
     objetoEncontrado = null;
     objetoEncontrado = ciudadanos.find(obj => obj.id_ciudadano === data.ciudadano_menor_id);     
     if(objetoEncontrado){
-      if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') >= 18)){
-        throw new NotFoundException("El ciudadano seleccionado como menor es adulto. (Tiene 18 años o más)");
+      // if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') >= 18)){
+      //   throw new NotFoundException("El ciudadano seleccionado como menor es adulto. (Tiene 18 años o más)");
+      // }
+      const fechaNac = new Date(objetoEncontrado.fecha_nac);
+      const hoy = new Date();
+      let edad = hoy.getFullYear() - fechaNac.getFullYear();
+      const m = hoy.getMonth() - fechaNac.getMonth();
+      if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
+        edad--;
       }
+      if (edad >= 18) {
+        throw new NotFoundException(
+          `El ciudadano seleccionado como menor es adulto. (Tiene ${edad} años)`
+        );
+      }
+
     }
     else{
       throw new NotFoundException("El ciudadano seleccionado como menor no existe.");
@@ -82,6 +113,7 @@ export class MenoresACargoService {
       this.handleDBErrors(error);  
     }     
   }
+  //FIN CREAR...................................
 
   async findAll() {
     return await this.menorACargoRepository.find(
@@ -116,8 +148,31 @@ export class MenoresACargoService {
           }
         }
       );   
-          
-      return respuesta;
+
+      // Calcular la edad sin moment
+      const respuestaConEdad = respuesta.map(item => {
+        let edad = null;
+    
+        if (item.ciudadanoMenor.fecha_nac) {
+          const fechaNac = new Date(item.ciudadanoMenor.fecha_nac);
+          const hoy = new Date();
+          edad = hoy.getFullYear() - fechaNac.getFullYear();
+    
+          // Ajustar si el cumpleaños no ha pasado este año
+          const mes = hoy.getMonth() - fechaNac.getMonth();
+          if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+          }
+        }
+    
+        return {
+          ...item,
+          edad
+        };
+      });
+    
+      return respuestaConEdad;
+
     
   }
   //FIN BUSCAR LISTA XCIUDADANO TUTOR..................................................................

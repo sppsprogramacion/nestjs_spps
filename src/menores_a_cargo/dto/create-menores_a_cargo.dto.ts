@@ -1,4 +1,4 @@
-import { IsInt } from "class-validator";
+import { IsInt, Length } from "class-validator";
 
 
 export class CreateMenoresACargoDto {
@@ -11,8 +11,8 @@ export class CreateMenoresACargoDto {
     @IsInt({message: "El ciudadano_menor_id debe ser un número entero."})
     ciudadano_menor_id: number;
     
-    @IsInt({message: "El parentesco_id debe ser un número entero."})
-    parentesco_id
+    @Length(1,20,{message: "El parentesco_menor_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    parentesco_menor_id
 
     fecha_carga: Date;
     
