@@ -88,6 +88,43 @@ export class CiudadanosService {
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................
 
+  //BUSCAR LISTA POR APELLIDO CON EDAD
+  async findListaXApellidoConEdad(apellidox: string) {
+        
+    const respuesta = await this.ciudadanoRepository
+    .createQueryBuilder('ciudadano')
+    .select(['ciudadano.id_ciudadano', 'ciudadano.apellido', 'ciudadano.nombre', 'ciudadano.dni', 'ciudadano.fecha_nac']) // Campos específicos
+    .leftJoinAndSelect('ciudadano.sexo', 'sexo') // Relación
+    .where('ciudadano.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
+    .orderBy('ciudadano.apellido', 'ASC')
+    .getMany();
+
+    // Calcular la edad sin moment
+      const respuestaConEdad = respuesta.map(item => {
+        let edad = null;
+    
+        if (item.fecha_nac) {
+          const fechaNac = new Date(item.fecha_nac);
+          const hoy = new Date();
+          edad = hoy.getFullYear() - fechaNac.getFullYear();
+    
+          // Ajustar si el cumpleaños no ha pasado este año
+          const mes = hoy.getMonth() - fechaNac.getMonth();
+          if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+          }
+        }
+    
+        return {
+          ...item,
+          edad
+        };
+      });
+    
+      return respuestaConEdad;
+  }
+  //FIN BUSCAR LISTA POR APELLIDO CON EDAD....................................
+
   //BUSCAR  XDni
   async findXDni(dnix: number) {
     

@@ -113,6 +113,18 @@ export class CiudadanosController {
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................
 
+  //BUSCAR LISTA X APELLIDO
+  @Get('buscarlista-edad-xapellido')  
+  async findListaConEdadXApellido(
+    @Query('apellido') apellido: string, 
+  ) {    
+
+    if ( apellido.length < 2 ) throw new NotFoundException('El apellido de busqueda debe tener mínimo (02) dos caracteres.');
+          
+    return this.ciudadanosService.findListaXApellidoConEdad(apellido);
+  }
+  //FIN BUSCAR LISTA X APELLIDO...........................................
+
   
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id_ciudadano: string) {

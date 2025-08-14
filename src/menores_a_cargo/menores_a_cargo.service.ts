@@ -151,29 +151,27 @@ export class MenoresACargoService {
 
       // Calcular la edad sin moment
       const respuestaConEdad = respuesta.map(item => {
-        let edad = null;
+        let edadMenor = null;
     
         if (item.ciudadanoMenor.fecha_nac) {
           const fechaNac = new Date(item.ciudadanoMenor.fecha_nac);
           const hoy = new Date();
-          edad = hoy.getFullYear() - fechaNac.getFullYear();
+          edadMenor = hoy.getFullYear() - fechaNac.getFullYear();
     
           // Ajustar si el cumpleaños no ha pasado este año
           const mes = hoy.getMonth() - fechaNac.getMonth();
           if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-            edad--;
+            edadMenor--;
           }
         }
     
         return {
           ...item,
-          edad
+          edadMenor
         };
       });
     
-      return respuestaConEdad;
-
-    
+      return respuestaConEdad;    
   }
   //FIN BUSCAR LISTA XCIUDADANO TUTOR..................................................................
 
