@@ -7,18 +7,19 @@ import { DateValidationPipe } from 'src/pipes/date-validation.pipe';
 import { TimeValidationPipe } from 'src/pipes/time-validation.pipe';
 import { UpdateAnularDto } from './dto/update-anular.dto';
 import { UpdateEgresoDto } from './dto/update-egreso.dto';
+import { Auth, GetUser } from 'src/auth/decorators';
 @Controller('registro-diario')
 export class RegistroDiarioController {
   constructor(private readonly registroDiarioService: RegistroDiarioService) {}
 
   @Post()
-  create(@Body() data: CreateRegistroDiarioDto) {
-
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateRegistroDiarioDto
+  ) {
     
-    return this.registroDiarioService.create(data, usuariox);
+    return this.registroDiarioService.create(data, user);
   }  
 
   @Get('todos')
@@ -39,30 +40,29 @@ export class RegistroDiarioController {
   //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-pendientes-salida')  
-  async findPendientesSalida() {    
+  @Auth()
+  async findPendientesSalida(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {    
     
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
 
-    return this.registroDiarioService.findPendientesSalidaFechaActual(usuariox);
+    return this.registroDiarioService.findPendientesSalidaFechaActual(user);
   }
   //FIN BUSCAR  PENDIENTES SALIDA....................................................
 
   //BUSCAR XFECHA_HORA_INGRESO_EGRESO - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-fecha-hora')  
+  @Auth()
   async findXFechaHoraIngresoEgreso(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('fecha_ingreso', DateValidationPipe) fecha_ingreso: string,
     @Query('hora_inicio', TimeValidationPipe) hora_inicio: string,
     @Query('hora_fin', TimeValidationPipe) hora_fin: string,      
   ) {    
     
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
     
-    return this.registroDiarioService.findXFechaHoraIngresoEgreso(fecha_ingreso,hora_inicio, hora_fin, usuariox);
+    return this.registroDiarioService.findXFechaHoraIngresoEgreso(fecha_ingreso,hora_inicio, hora_fin, user);
   }
   //FIN BUSCAR  XFECHA_INGRESO....................................................
 
@@ -83,35 +83,29 @@ export class RegistroDiarioController {
 
   //EGRESO REGISTRO
   @Put('egreso')
+  @Auth()
   updateEgreso(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
     @Body() dataDto: UpdateEgresoDto
   ) {
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.apellido = "DIAZ";
-    usuariox.nombre = "PEDRO";
-    usuariox.organismo_id = 1;
-
-    return this.registroDiarioService.registrarEgreso(+id_registro, dataDto, usuariox);
+    
+    return this.registroDiarioService.registrarEgreso(+id_registro, dataDto, user);
   }
   //FIN EGRESO REGISTRO.................................
 
   //ANULAR REGISTRO
   @Put('anular')
+  @Auth()
   updateAnular(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
     @Body() dataDto: UpdateAnularDto
   ) {
+   
 
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.apellido = "DIAZ";
-    usuariox.nombre = "PEDRO";
-    usuariox.organismo_id = 1;
-
-    return this.registroDiarioService.anularRegistro(+id_registro, dataDto, usuariox);
+    return this.registroDiarioService.anularRegistro(+id_registro, dataDto, user);
   }
   //FIN ANULAR REGISTRO.................................
 

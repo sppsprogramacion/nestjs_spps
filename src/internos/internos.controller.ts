@@ -85,13 +85,15 @@ export class InternosController {
   
   //BUSCAR LISTA X APELLIDO
   @Get('buscarlista-xapellido')  
+  @Auth()
   async findListaXApellido(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('apellido') apellido: string, 
   ) {    
     
     if ( apellido.length < 2 ) throw new NotFoundException('El apellido de busqueda debe tener mínimo (02) dos caracteres.');
           
-    let id_organismo = 1;
+    let id_organismo = user.organismo_id;
     return this.internosService.findListaXApellido(apellido,id_organismo);
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................

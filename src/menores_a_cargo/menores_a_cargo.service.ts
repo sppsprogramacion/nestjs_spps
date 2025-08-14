@@ -30,7 +30,7 @@ export class MenoresACargoService {
     data.usuario_id = usuario.id_usuario;
 
     //control que el adulto y menor sean diferentes 
-    if(data.ciudadano_menor_id == data.ciudadano_tutor_id ) throw new ConflictException("El ciudadano selecionado como menor es el mismo que el adulto.");
+    if(data.ciudadano_menor_id == data.ciudadano_tutor_id ) throw new ConflictException("El ciudadano selecionado como menor es el mismo que el adulto tutor.");
     //fin control que el adulto y menor sean diferentes  
 
     //control de existencia de vinculo vigente entre Adulto y el menor
@@ -41,7 +41,7 @@ export class MenoresACargoService {
       
     }); 
 
-    if(dataMenorAdulto) throw new ConflictException("El menor ya se encuentran a cargo de este adulto.");
+    if(dataMenorAdulto) throw new ConflictException("El menor ya se encuentran a cargo de este adulto tutor.");
     //fin control de existencia de vinculo vigente entre el Adulto y el menor 
     
     //buscar adulto y menor para controlar
@@ -57,10 +57,8 @@ export class MenoresACargoService {
     //controlar adulto
     let objetoEncontrado = ciudadanos.find(obj => obj.id_ciudadano === data.ciudadano_tutor_id);     
     if(objetoEncontrado){
-      // if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') < 18)){
-      //   throw new NotFoundException("El ciudadano seleccionado como tutor es menor de edad. (Tiene menos de 18 años)");
-      // }
-
+      
+      //obtener y controlar edad
       const fechaNac = new Date(objetoEncontrado.fecha_nac);
       const hoy = new Date();
       let edad = hoy.getFullYear() - fechaNac.getFullYear();
@@ -70,21 +68,21 @@ export class MenoresACargoService {
       }
       if (edad < 18) {
         throw new NotFoundException(
-          `El ciudadano seleccionado como tutor es menor de edad. (Tiene ${edad} años)`
+          `El ciudadano adulto tutor es menor de edad. (Tiene ${edad} años)`
         );
       }
+      //fin obtener y controlar edad
     }
     else{
-      throw new NotFoundException("El ciudadano seleccionado como tutor no existe.");
+      throw new NotFoundException("El ciudadano adulto tutor no existe.");
     }
 
     //controlar menor
     objetoEncontrado = null;
     objetoEncontrado = ciudadanos.find(obj => obj.id_ciudadano === data.ciudadano_menor_id);     
     if(objetoEncontrado){
-      // if((moment().diff(moment(objetoEncontrado.fecha_nac), 'years') >= 18)){
-      //   throw new NotFoundException("El ciudadano seleccionado como menor es adulto. (Tiene 18 años o más)");
-      // }
+      
+      //obtener y controlar edad
       const fechaNac = new Date(objetoEncontrado.fecha_nac);
       const hoy = new Date();
       let edad = hoy.getFullYear() - fechaNac.getFullYear();

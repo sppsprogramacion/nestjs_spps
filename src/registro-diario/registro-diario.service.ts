@@ -35,7 +35,7 @@ export class RegistroDiarioService {
 
     if (!sectorDestino) throw new NotFoundException("El sector no existe.");
 
-    if(sectorDestino.organismo_destino.organismo_depende != usuario.organismo_id && sectorDestino.organismo_destino.organismo_depende != 22) 
+    if(sectorDestino.organismo_destino.organismo_depende != usuario.organismo_id && sectorDestino.organismo_destino.id_organismo_destino != 22) 
       throw new NotFoundException("El organismo al que pertenece el sector seleccionado no es accesible por este usuario");
       
     try {
