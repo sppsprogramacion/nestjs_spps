@@ -26,12 +26,9 @@ export class MotivosAtencionController {
     @Query('id_organismo') id_organismo: string,
     @GetUser("usuario") user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {    
+        
     
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = user.id_usuario;
-    usuariox.organismo_id = user.organismo.id_organismo;
-    
-    return this.motivosAtencionService.findXOrganismo(+id_organismo,usuariox);
+    return this.motivosAtencionService.findXOrganismo(+id_organismo,user);
   }
   //FIN BUSCAR  XORGANISMO DESTINO...................................................
 

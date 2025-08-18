@@ -17,11 +17,8 @@ export class NovedadesCiudadanoController {
     @GetUser("sistema") sistema: string,
     @Body() data: CreateNovedadesCiudadanoDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = user.id_usuario;
-    usuariox.organismo_id = user.organismo_id;
     
-    return this.novedadesCiudadanoService.createDesdeController(data, usuariox, sistema);
+    return this.novedadesCiudadanoService.createDesdeController(data, user, sistema);
   }  
 
   //BUSCAR  XID PCIUDADANO

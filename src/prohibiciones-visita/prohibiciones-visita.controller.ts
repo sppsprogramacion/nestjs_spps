@@ -12,13 +12,13 @@ export class ProhibicionesVisitaController {
   constructor(private readonly prohibicionesVisitaService: ProhibicionesVisitaService) {}
 
   @Post()
-  create(@Body() data: CreateProhibicionesVisitaDto) {
-    
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.prohibicionesVisitaService.create(data, usuariox);
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateProhibicionesVisitaDto
+  ) {
+        
+    return this.prohibicionesVisitaService.create(data, user);
   }  
 
   @Get('todos')
@@ -54,57 +54,52 @@ export class ProhibicionesVisitaController {
 
   //LEVANTAMIENTO MANUAL
   @Put('levantar-manual')
+  @Auth()
   updateLevantarManual(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: LevantarManualProhibicionesVisitaDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar", usuariox);
+    
+    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar", user);
   }
   //FIN LEVANTAMIENTO MANUAL.................................
 
   //PROHIBIR MANUAL
   @Put('prohibir-manual')
+  @Auth()
   updateProhibirManual(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: LevantarManualProhibicionesVisitaDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "prohibir", usuariox);
+    
+    return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "prohibir", user);
   }
   //FIN PROHIBIR MANUAL.................................
 
   //ANULAR PROHIBICION
   @Put('anular')
+  @Auth()
   updateAnular(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
     @Body() dataDto: AnularProhibicionesVisitaDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.prohibicionesVisitaService.anularProhibicion(+id_prohibicion, dataDto, usuariox);
+    
+    return this.prohibicionesVisitaService.anularProhibicion(+id_prohibicion, dataDto, user);
   }
   //FIN ANULAR PROHIBICION.................................
 
   @Put(':id')
+  @Auth()
   update(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateProhibicionesVisitaDto
   ) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.organismo_id = 1;
-
-    return this.prohibicionesVisitaService.update(+id, dataDto, usuariox);
+    
+    return this.prohibicionesVisitaService.update(+id, dataDto, user);
   }
-
 
 }

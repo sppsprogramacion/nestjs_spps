@@ -4,20 +4,20 @@ import { CreateCiudadanosCategoriaDto } from './dto/create-ciudadanos-categoria.
 import { UpdateCiudadanosCategoriaDto } from './dto/update-ciudadanos-categoria.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateAnularCategoriaDto } from './dto/update-anular-categoria.dto';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('ciudadanos-categorias')
 export class CiudadanosCategoriasController {
   constructor(private readonly ciudadanosCategoriasService: CiudadanosCategoriasService) {}
 
   @Post()
-  create(@Body() data: CreateCiudadanosCategoriaDto) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.apellido = "DIAZ";
-    usuariox.nombre = "PEDRO";
-    usuariox.organismo_id = 1;
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateCiudadanosCategoriaDto
+  ) {
     
-    return this.ciudadanosCategoriasService.create(data, usuariox);
+    return this.ciudadanosCategoriasService.create(data, user);
   }  
 
   @Get('todos')
@@ -60,18 +60,14 @@ export class CiudadanosCategoriasController {
 
   //QUITAR VIGENTE
   @Put('quitar-vigente')
+  @Auth()
   updateQuirarVigente(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano_categoria', ParseIntPipe) id_ciudadano_categoria: string ,
     @Body() dataDto: UpdateAnularCategoriaDto
   ) {
-
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.apellido = "DIAZ";
-    usuariox.nombre = "PEDRO";
-    usuariox.organismo_id = 1;
-
-    return this.ciudadanosCategoriasService.quitarVigente(+id_ciudadano_categoria, dataDto, usuariox);
+    
+    return this.ciudadanosCategoriasService.quitarVigente(+id_ciudadano_categoria, dataDto, user);
   }
   //FIN QUITAR VIGENTE.................................
 

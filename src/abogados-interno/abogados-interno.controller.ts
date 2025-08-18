@@ -3,20 +3,20 @@ import { AbogadosInternoService } from './abogados-interno.service';
 import { CreateAbogadosInternoDto } from './dto/create-abogados-interno.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateQuitarVigenteDto } from './dto/update-quitar-vigente.dto';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('abogados-interno')
 export class AbogadosInternoController {
   constructor(private readonly abogadosInternoService: AbogadosInternoService) {}
 
   @Post()
-  create(@Body() data: CreateAbogadosInternoDto) {
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.apellido = "DIAZ";
-    usuariox.nombre = "PEDRO";
-    usuariox.organismo_id = 1;
-    
-    return this.abogadosInternoService.create(data, usuariox);
+  @Auth()
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateAbogadosInternoDto
+  ) {
+        
+    return this.abogadosInternoService.create(data, user);
   }  
 
   //BUSCAR LISTA XID CIUDADANO
@@ -74,18 +74,14 @@ export class AbogadosInternoController {
 
   //QUITAR VIGENTE
   @Put('quitar-vigente')
+  @Auth()
   updateQuirarVigente(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_abogado_interno', ParseIntPipe) id_abogado_interno: string ,
     @Body() dataDto: UpdateQuitarVigenteDto
   ) {
-
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = 2;
-    usuariox.apellido = "DIAZ";
-    usuariox.nombre = "PEDRO";
-    usuariox.organismo_id = 1;
-
-    return this.abogadosInternoService.quitarVigente(+id_abogado_interno, dataDto, usuariox);
+    
+    return this.abogadosInternoService.quitarVigente(+id_abogado_interno, dataDto, user);
   }
   //FIN QUITAR VIGENTE.................................
 

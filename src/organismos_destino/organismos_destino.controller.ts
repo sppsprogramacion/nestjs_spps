@@ -25,11 +25,8 @@ export class OrganismosDestinoController {
   async findXUsuario(
     @GetUser("usuario") user: Usuario //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {    
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = user.id_usuario;
-    usuariox.organismo_id = user.organismo.id_organismo;
-    
-    return this.organismosDestinoService.findXUsuario(usuariox);
+        
+    return this.organismosDestinoService.findXUsuario(user);
   }
   //FIN BUSCAR  XORGANISMO DEL USUARIO....................................................
 

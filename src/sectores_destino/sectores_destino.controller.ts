@@ -26,12 +26,8 @@ export class SectoresDestinoController {
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_organismo') id_organismo: string
   ) {    
-    
-    let usuariox: Usuario= new Usuario;
-    usuariox.id_usuario = user.id_usuario;
-    usuariox.organismo_id = user.organismo.id_organismo;
-    
-    return this.sectoresDestinoService.findXOrganismo(+id_organismo,usuariox);
+        
+    return this.sectoresDestinoService.findXOrganismo(+id_organismo,user);
   }
   //FIN BUSCAR  XORGANISMO DESTINO...................................................
 
