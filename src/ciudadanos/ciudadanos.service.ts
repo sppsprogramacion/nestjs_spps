@@ -100,28 +100,28 @@ export class CiudadanosService {
     .getMany();
 
     // Calcular la edad sin moment
-      const respuestaConEdad = respuesta.map(item => {
-        let edad = null;
-    
-        if (item.fecha_nac) {
-          const fechaNac = new Date(item.fecha_nac);
-          const hoy = new Date();
-          edad = hoy.getFullYear() - fechaNac.getFullYear();
-    
-          // Ajustar si el cumpleaños no ha pasado este año
-          const mes = hoy.getMonth() - fechaNac.getMonth();
-          if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-            edad--;
-          }
+    const respuestaConEdad = respuesta.map(item => {
+      let edad = null;
+  
+      if (item.fecha_nac) {
+        const fechaNac = new Date(item.fecha_nac);
+        const hoy = new Date();
+        edad = hoy.getFullYear() - fechaNac.getFullYear();
+  
+        // Ajustar si el cumpleaños no ha pasado este año
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+          edad--;
         }
-    
-        return {
-          ...item,
-          edad
-        };
-      });
-    
-      return respuestaConEdad;
+      }
+  
+      return {
+        ...item,
+        edad
+      };
+    });
+  
+    return respuestaConEdad;
   }
   //FIN BUSCAR LISTA POR APELLIDO CON EDAD....................................
 
@@ -143,7 +143,6 @@ export class CiudadanosService {
     
     let imgUrl: string = "";
     let foto_nombre = respuesta.foto;
-    //let foto_nombre = "1.jpg"
     
     //obtener url de la imagen en drive y agregado en la respuesta
     const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
@@ -151,15 +150,24 @@ export class CiudadanosService {
     imgUrl = await file.webContentLink;
     respuesta.foto = imgUrl;
 
-    // if(!file){
-    //   respuesta.foto = respuesta.foto_defecto;
-    // }
-    // else{
-    //   imgUrl = await file.webContentLink;
-    //   respuesta.foto = imgUrl;
-    // }
+    // Calcular la edad sin moment    
+    let edad = null;
+    if (respuesta.fecha_nac) {
+      const fechaNac = new Date(respuesta.fecha_nac);
+      const hoy = new Date();
+      edad = hoy.getFullYear() - fechaNac.getFullYear();
 
-    return respuesta;
+      // Ajustar si el cumpleaños no ha pasado este año
+      const mes = hoy.getMonth() - fechaNac.getMonth();
+      if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+        edad--;
+      }
+    }
+
+    return {
+      ...respuesta,
+      edad
+    };
   }
   //FIN BUSCAR POR ID......................
 
