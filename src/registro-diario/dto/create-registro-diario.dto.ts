@@ -30,7 +30,7 @@ export class CreateRegistroDiarioDto {
     hora_ingreso: string;
 
     @IsOptional()
-    @MaxLength(20000,{message: "Las observaciones tener hasta $constraint1 caracteres."})    
+    @MaxLength(2000,{message: "Las observaciones tener hasta $constraint1 caracteres."})    
     observaciones: string;
     
     anulado: boolean;
