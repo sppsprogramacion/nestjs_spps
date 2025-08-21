@@ -12,6 +12,8 @@ import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dt
 import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
 import { UpdateVigenciaParentescoDto } from './dto/update-vigencia-parentesco.dto';
 import { throwError } from 'rxjs';
+import { CiudadanosService } from 'src/ciudadanos/ciudadanos.service';
+import { InternosService } from 'src/internos/internos.service';
 
 @Injectable()
 export class VisitasInternosService {
@@ -19,7 +21,7 @@ export class VisitasInternosService {
   constructor(
     @InjectRepository(VisitaInterno)
     private readonly visitaInternoRepository: Repository<VisitaInterno>,
-
+    private readonly internoService: InternosService,
     private readonly novedadesCiudadanoService: NovedadesCiudadanoService
   ){}
 
@@ -35,7 +37,8 @@ export class VisitasInternosService {
     if(dataVisitaInterno) throw new ConflictException("La visita y el interno ya se encuentran vinculados.");
     
     //verificar la unidad del interno coincide con la unidad del usuario
-    if(dataVisitaInterno.interno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
+    let dataInterno = await this.internoService.findOne(data.interno_id);
+    if(dataInterno.organismo_id != usuariox.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
 
     //controlar si el interno esta vinculado con otra visita con estos parentescos (CONC, CONY, NOV)
     if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV"){
