@@ -50,7 +50,8 @@ export class VisitasInternosService {
         
       });
       
-      if(respuestaParejasInterno) throw new ConflictException("El interno ya se encuentran vinculado con otro ciudadano como Concubino/a, Conyugue o Novio/a. Sólo puede tener un ciudadno como Concubino/a, Conyugue o Novio/a.");
+      console.log("parentescos interno", respuestaParejasInterno);
+      if(respuestaParejasInterno.length > 0) throw new ConflictException("El interno ya se encuentran vinculado con un ciudadano como Concubino/a, Conyugue o Novio/a. Sólo puede tener un ciudadno como Concubino/a, Conyugue o Novio/a.");
     
     }
 
@@ -75,8 +76,9 @@ export class VisitasInternosService {
         },
         
       });
-      
-      if(respuestaParejasVisita) throw new ConflictException("El ciudadano ya se encuentran vinculado con otro interno como Concubino/a, Conyugue o Novo/ia. Sólo puede tener un interno como Concubino/a, Conyugue o Novio/a.");
+
+      console.log("parentescos visita", respuestaParejasVisita);
+      if(respuestaParejasVisita.length > 0) throw new ConflictException("El ciudadano ya se encuentran vinculado con otro interno como Concubino/a, Conyugue o Novo/ia. Sólo puede tener un interno como Concubino/a, Conyugue o Novio/a.");
     }
 
     try {
