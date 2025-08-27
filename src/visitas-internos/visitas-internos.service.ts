@@ -50,9 +50,10 @@ export class VisitasInternosService {
     });
     
 
+    //control de vinculos
     let isHabilitado: boolean = true;
     let mensajeInhabilitado: string = "";
-    //control de vinculos
+
     for(const vinculo of respuestaParentescos){
       //controlar si se encuentran vinculados la visita y el interno
       if(vinculo.interno_id == data.interno_id && vinculo.ciudadano_id == data.ciudadano_id){
@@ -85,11 +86,11 @@ export class VisitasInternosService {
         }
       }
     }
-    //fin control de vinculos
     
     if(isHabilitado == false){
       throw new ConflictException(mensajeInhabilitado);
     }   
+    //fin control de vinculos
     
     // //controlar si el interno esta vinculado con otra visita con estos parentescos (CONC, CONY, NOV)
     // if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV"){
@@ -104,32 +105,7 @@ export class VisitasInternosService {
     //   if(respuestaParejasInterno.length > 0) throw new ConflictException("El interno ya se encuentran vinculado con un ciudadano como Concubino/a, Conyugue o Novio/a. Sólo puede tener un ciudadno como Concubino/a, Conyugue o Novio/a.");
     
     // }
-
-    // //controlar si el interno esta vinculado con otra visita con estos parentescos (MAD, PAD)
-    // if(data.parentesco_id == "PAD" || data.parentesco_id == "MAD"){
-    //   const respuestaPadres = await this.visitaInternoRepository.findOneBy({  
-    //     interno_id: data.interno_id, 
-    //     parentesco_id: data.parentesco_id
-        
-    //   });
-      
-    //   if(respuestaPadres) throw new ConflictException("El interno ya se encuentran vinculado con otro ciudadano con éste parentesco. Sólo puede tener un ciudadno vinculado con este parentesco");
     
-    // }
-
-    // //controlar si la visita esta vinculada con otro interno con estos parentescos (CONC, CONY, NOV)
-    // if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV"){
-    //   const respuestaParejasVisita = await this.visitaInternoRepository.find({  
-    //     where: {
-    //       ciudadano_id: data.ciudadano_id,
-    //       parentesco_id: In(["CONC", "CONY", "NOV"]),
-    //     },
-        
-    //   });
-
-    //   if(respuestaParejasVisita.length > 0) throw new ConflictException("El ciudadano ya se encuentran vinculado con otro interno como Concubino/a, Conyugue o Novo/ia. Sólo puede tener un interno como Concubino/a, Conyugue o Novio/a.");
-    // }
-
     try {
       
       const nuevo = await this.visitaInternoRepository.create(data);
