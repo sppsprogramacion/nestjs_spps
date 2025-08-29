@@ -1,20 +1,18 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { VisitaInterno } from './entities/visitas-interno.entity';
 import { Repository, In } from 'typeorm';
+
 import { CreateVisitasInternoDto } from './dto/create-visitas-interno.dto';
-import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
-import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
 import { CreateNovedadesCiudadanoDto } from 'src/novedades-ciudadano/dto/create-novedades-ciudadano.dto';
-import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { DetalleCambioVisitasInternoDto } from './dto/detalle-cambio-visitas-interno.dto';
+import { InternosService } from 'src/internos/internos.service';
 import { NovedadesCiudadanoService } from 'src/novedades-ciudadano/novedades-ciudadano.service';
+import { UpdateCambioParentescoDto } from './dto/update-cambio-parentesco.dto';
 import { UpdateProhibirParentescoDto } from './dto/update-prohibir-parentesco.dto';
 import { UpdateLevantarProhibicionParentescoDto } from './dto/update-levantar-prohibicion-parentesco.dto';
 import { UpdateVigenciaParentescoDto } from './dto/update-vigencia-parentesco.dto';
-import { throwError } from 'rxjs';
-import { CiudadanosService } from 'src/ciudadanos/ciudadanos.service';
-import { InternosService } from 'src/internos/internos.service';
-import { clouddebugger } from 'googleapis/build/src/apis/clouddebugger';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { VisitaInterno } from './entities/visitas-interno.entity';
 
 @Injectable()
 export class VisitasInternosService {
