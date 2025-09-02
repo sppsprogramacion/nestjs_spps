@@ -1,3 +1,4 @@
+import { Organismo } from "src/organismos/entities/organismo.entity";
 import { ProhibicionVisita } from "src/prohibiciones-visita/entities/prohibiciones-visita.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -75,6 +76,22 @@ export class BitacoraProhibicionVisita {
         nullable: false
     })
     detalle_motivo: string;
+
+    //ORGANISMO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_id: number;
+
+    @ManyToOne(type => Organismo, {eager: true} )
+    @JoinColumn({
+        name: 'organismo_id',
+        referencedColumnName: 'id_organismo'
+    })
+    organismo: Organismo;
+    //FIN ORGANISMO
 
     //USUARIO
     @Column({
