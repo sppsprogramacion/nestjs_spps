@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, Length } from "class-validator";
+
 
 export class CreateBitacoraCiudadanoDto {
 

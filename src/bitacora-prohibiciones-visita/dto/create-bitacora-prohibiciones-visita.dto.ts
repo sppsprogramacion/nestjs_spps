@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsInt, Length } from "class-validator";
+import { IsInt } from "class-validator";
 
 
 export class CreateBitacoraProhibicionesVisitaDto {

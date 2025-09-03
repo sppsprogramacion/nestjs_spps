@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsBoolean, IsDateString, IsInt, Length } from "class-validator";
 
 
@@ -26,9 +27,11 @@ export class CreateProhibicionesAnticipadaDto {
     nombre_interno: string;
 
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_inicio: Date;
     
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_fin: Date;
     
     @IsBoolean({message: "is_exinterno debe ser verdadero o falso"})

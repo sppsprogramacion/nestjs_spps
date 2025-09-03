@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsDateString, IsInt, Length } from "class-validator";
 
 
@@ -19,9 +20,11 @@ export class CreateProhibicionesVisitaDto {
     detalle: string;
    
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_inicio: Date;
 
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_fin: Date;
 
     vigente: boolean;

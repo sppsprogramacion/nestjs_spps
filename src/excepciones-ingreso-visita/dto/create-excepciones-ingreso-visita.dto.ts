@@ -1,4 +1,4 @@
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { IsDate, IsDateString, IsInt, Length } from "class-validator";
 
 
@@ -15,8 +15,9 @@ export class CreateExcepcionIngresoVisitaDto {
     @Length(1,1000,{message: "El detalle_excepcion debe tener entre $constraint1 y $constraint2 caracteres."})
     detalle_excepcion: string;
     
-    //@Type(() => Date)
+    
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_excepcion: Date;
 
     cumplimentado: boolean;

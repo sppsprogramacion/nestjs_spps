@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsDateString, IsInt, Length } from "class-validator";
 
 
@@ -21,6 +22,7 @@ export class CreateInternoDto {
     sexo_id: number;    
     
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_nacimiento: Date;
     
     @Length(1,100,{message: "El teléfono debe tener entre $constraint1 y $constraint2 caracteres."})

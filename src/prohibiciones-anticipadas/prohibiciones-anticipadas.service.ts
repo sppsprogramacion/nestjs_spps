@@ -26,8 +26,7 @@ export class ProhibicionesAnticipadasService {
     
     //controlar si la fecha inicio es menor o igual a la fecha_fin
     if(data.fecha_inicio > data.fecha_fin) throw new ConflictException("La fecha_inicio no puede ser mayor que la fecha_fin.")
-            
-
+    
     //cargar datos por defecto
     data.fecha_prohibicion = fecha_actual;
     data.usuario_id = usuario.id_usuario;
@@ -231,8 +230,7 @@ export class ProhibicionesAnticipadasService {
       dataActualComparar.is_exinterno = dataProhibicionActual.is_exinterno;
       dataActualComparar.fecha_inicio = dataProhibicionActual.fecha_inicio;
       dataActualComparar.fecha_fin = dataProhibicionActual.fecha_fin;
-      console.log("datos actual", dataActualComparar);
-      console.log("datos enviado", nuevaData);
+      
       //comparar la data enviada en la request con la data actual almacendada en bd
       const datosModificados = this.getReadableDifferences(dataActualComparar, nuevaData);
       
@@ -249,7 +247,7 @@ export class ProhibicionesAnticipadasService {
       dataBitacora.organismo_id = usuario.organismo_id;
       dataBitacora.usuario_id = usuario.id_usuario;
       dataBitacora.datos_modificados = datosModificados;
-      console.log("datos", datosModificados);
+      
       
       //actualiza la prohibicion
       const respuesta = await this.prohibicionAnticipadaRepository.update(id, nuevaData);

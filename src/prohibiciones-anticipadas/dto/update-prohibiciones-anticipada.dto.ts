@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateProhibicionesAnticipadaDto } from './create-prohibiciones-anticipada.dto';
-import { IsBoolean, IsDateString, IsInt, Length } from 'class-validator';
+import { IsBoolean, IsDate, IsDateString, IsInt, Length } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export class UpdateProhibicionesAnticipadaDto {
 
@@ -29,9 +30,11 @@ export class UpdateProhibicionesAnticipadaDto {
     is_exinterno: boolean;
 
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])    
     fecha_inicio: Date;
     
     @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
     fecha_fin: Date;
 
     @Length(1,2000,{message: "El detalle_motivo debe tener entre $constraint1 y $constraint2 caracteres."})
