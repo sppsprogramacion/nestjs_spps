@@ -1,4 +1,5 @@
 import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
+import { Interno } from "src/internos/entities/interno.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -24,6 +25,22 @@ export class ExcepcionIngresoVisita {
     })
     ciudadano: Ciudadano;
     //FIN CIUDADANO
+
+    //INTERNO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    interno_id: number;
+
+    @ManyToOne(type => Interno, {eager: true} )
+    @JoinColumn({
+        name: 'interno_id',
+        referencedColumnName: 'id_interno'
+    })
+    interno: Interno;
+    //FIN INTERNO
 
     @Column({
         type: 'varchar',

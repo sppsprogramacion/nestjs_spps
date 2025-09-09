@@ -8,6 +8,9 @@ export class CreateExcepcionIngresoVisitaDto {
     
     @IsInt({message: "El ciudadano_id debe ser un número entero."})
     ciudadano_id: number;
+
+    @IsInt({message: "El interno_id debe ser un número entero."})
+    interno_id: number;
     
     @Length(1,200,{message: "El motivo debe tener entre $constraint1 y $constraint2 caracteres."})
     motivo: string;
