@@ -88,7 +88,6 @@ export class ExcepcionesIngresoVisitaService {
     async findXFechaExcepcion(fecha_excepcionx: string, usuario: Usuario) {    
       
       const f_excepcion: any = new Date(fecha_excepcionx).toISOString().split('T')[0];
-  
       const registros = await this.excepcionIngresoVisitaRepository.find(
         {        
           where: {
