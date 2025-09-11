@@ -84,6 +84,24 @@ export class ExcepcionesIngresoVisitaService {
   }
   //FIN BUSCAR  XCIUDADANO Y FECHA ACTUAL..................................................................
 
+  //BUSCAR  XCIUDADANO
+    async findXFechaExcepcion(fecha_excepcionx: string, usuario: Usuario) {    
+      
+      const f_excepcion: any = new Date(fecha_excepcionx).toISOString().split('T')[0];
+  
+      const registros = await this.excepcionIngresoVisitaRepository.find(
+        {        
+          where: {
+            fecha_excepcion: f_excepcion,
+            anulado: false,
+            organismo_id: usuario.organismo_id
+          },
+        }
+      );   
+          
+      return registros;    
+  }
+  //FIN BUSCAR  XCIUDADANO..................................................................
 
   //BUSCAR  XID
   async findOne(id: number) {

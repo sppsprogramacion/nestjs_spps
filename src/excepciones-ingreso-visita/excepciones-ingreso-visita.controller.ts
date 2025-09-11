@@ -5,6 +5,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { CreateExcepcionIngresoVisitaDto } from './dto/create-excepciones-ingreso-visita.dto';
 import { AnularExepcionDto } from './dto/anular-exepcion-visita.dto';
 import { CumplimentarExepcionDto } from './dto/cumplimentar-exepcion-visita.dto';
+import { DateValidationPipe } from 'src/pipes/date-validation.pipe';
 
 
 @Controller('excepciones-ingreso-visita')
@@ -20,6 +21,18 @@ export class ExcepcionesIngresoVisitaController {
         
     return this.excepcionesIngresoVisitaService.create(data, user);
   }
+
+  //BUSCAR XFECHA_EXCEPCION  - segun organismo del usuario,
+  @Get('lista-fecha')  
+  @Auth()
+  async findXFechaExcepcion(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('fecha_excpcion', DateValidationPipe) fecha_excpcion: string   
+  ) {    
+        
+    return this.excepcionesIngresoVisitaService.findXFechaExcepcion(fecha_excpcion, user);
+  }
+  //FIN BUSCAR  XFECHA_EXCEPCION....................................................
 
   //BUSCAR  XID CIUDADANO
   @Get('lista-xciudadano')  

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Put } from '@nestjs/common';
 import { MenoresACargoService } from './menores_a_cargo.service';
 import { CreateMenoresACargoDto } from './dto/create-menores_a_cargo.dto';
 import { UpdateMenoresACargoDto } from './dto/update-menores_a_cargo.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
+import { UpdateAnularMenorCargoDto } from './dto/update-anular-menor-cargo.dto';
 
 @Controller('menores-a-cargo')
 export class MenoresACargoController {
@@ -41,6 +42,19 @@ export class MenoresACargoController {
   findOne(@Param('id') id: string) {
     return this.menoresACargoService.findOne(+id);
   }
+
+  //ANULAR MENOR
+  @Put('anular-menor')
+  @Auth()
+  updateAnularMenor(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_menor_acargo', ParseIntPipe) id_menor_acargo: string ,
+    @Body() dataDto: UpdateAnularMenorCargoDto
+  ) {
+
+    return this.menoresACargoService.anular(+id_menor_acargo, dataDto, user);
+  }
+  //FIN ANULAR MENOR.................................
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateMenoresACargoDto: UpdateMenoresACargoDto) {
