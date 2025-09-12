@@ -117,7 +117,7 @@ export class ExcepcionesIngresoVisitaService {
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     
     try{
-      //buscar eexcepcion antes de modificar los datos 
+      //buscar excepcion antes de modificar los datos 
       let dataExcepcion = await this.findOne(id);
 
       //verificar si el organismo de la prohibicion corresponde al organismo del usuario
@@ -127,6 +127,10 @@ export class ExcepcionesIngresoVisitaService {
       //verificar si la excepcion esta anulada, solo se anulan excepciones no anuladas
       if(dataExcepcion.anulado) 
         throw new NotFoundException("No se puede anular. La excepcion ya se encontraba anulada.");
+      
+      //verificar si la excepcion esta cumplimentada, solo se anulan excepciones no anuladas
+      if(dataExcepcion.cumplimentado) 
+        throw new NotFoundException("No se puede anular. La excepcion ya se encontraba cumplimentada.");
 
       //controlar si la fecha_exceocion es menor a la fecha actual. No se pueden anular excepcion anterior a la fecha actual
       if(fecha_actual > dataExcepcion.fecha_excepcion) throw new ConflictException("No se puede anular excepciones con fecha de excepción anterior a la fecha actual.")
@@ -167,7 +171,7 @@ export class ExcepcionesIngresoVisitaService {
       if(dataExcepcion.anulado) 
         throw new NotFoundException("No se puede cumplimentar. La excepcion ya se encontraba anulada.");
 
-      //verificar si la excepcion esta anulada, solo se anulan excepciones no anuladas
+      //verificar si la excepcion esta cumplimentada, solo se anulan excepciones no anuladas
       if(dataExcepcion.cumplimentado) 
         throw new NotFoundException("No se puede cumplimentar. La excepcion ya se encontraba cumplimentada.");
 
@@ -203,5 +207,5 @@ export class ExcepcionesIngresoVisitaService {
   
     throw new InternalServerErrorException (error.message);
   }
-  //FIN MANEJO DE ERRORES........................................
+  //FIN MANEJO DE ERRORES..............................................
 }
