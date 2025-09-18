@@ -73,6 +73,12 @@ export class ExcepcionIngresoVisita {
         type: "boolean",
         default: false
     })
+    controlado: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
     anulado: boolean;
 
     @Column({

@@ -27,10 +27,11 @@ export class ExcepcionesIngresoVisitaController {
   @Auth()
   async findXFechaExcepcion(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-    @Query('fecha_excpcion', DateValidationPipe) fecha_excpcion: string   
+    @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string, 
+    @Query('fecha_fin', DateValidationPipe) fecha_fin: string   
   ) {    
         
-    return this.excepcionesIngresoVisitaService.findXFechaExcepcion(fecha_excpcion, user);
+    return this.excepcionesIngresoVisitaService.findXFechaExcepcion(fecha_inicio, fecha_fin, user);
   }
   //FIN BUSCAR  XFECHA_EXCEPCION....................................................
 

@@ -24,6 +24,8 @@ export class CreateExcepcionIngresoVisitaDto {
     fecha_excepcion: Date;
 
     cumplimentado: boolean;
+
+    controlado: boolean;
     
     anulado: boolean;
         

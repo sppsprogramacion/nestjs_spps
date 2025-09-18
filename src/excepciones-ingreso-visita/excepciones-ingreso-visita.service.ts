@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { ExcepcionIngresoVisita } from './entities/excepciones-ingreso-visita.entity';
 import { CreateExcepcionIngresoVisitaDto } from './dto/create-excepciones-ingreso-visita.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
@@ -84,14 +84,15 @@ export class ExcepcionesIngresoVisitaService {
   }
   //FIN BUSCAR  XCIUDADANO Y FECHA ACTUAL..................................................................
 
-  //BUSCAR  XCIUDADANO
-    async findXFechaExcepcion(fecha_excepcionx: string, usuario: Usuario) {    
+  //BUSCAR  XFECHA EXCEPCION
+    async findXFechaExcepcion(fecha_inicio: string, fecha_fin: string, usuario: Usuario) {    
       
-      const f_excepcion: any = new Date(fecha_excepcionx).toISOString().split('T')[0];
+      const f_inicio: any = new Date(fecha_inicio).toISOString().split('T')[0];
+      const f_fin: any = new Date(fecha_fin).toISOString().split('T')[0];
       const registros = await this.excepcionIngresoVisitaRepository.find(
         {        
           where: {
-            fecha_excepcion: f_excepcion,
+            fecha_excepcion: Between(f_inicio, f_fin),
             anulado: false,
             organismo_id: usuario.organismo_id
           },
@@ -100,7 +101,7 @@ export class ExcepcionesIngresoVisitaService {
           
       return registros;    
   }
-  //FIN BUSCAR  XCIUDADANO..................................................................
+  //FIN BUSCAR  XFECHA EXCEPCION..................................................................
 
   //BUSCAR  XID
   async findOne(id: number) {
@@ -169,19 +170,28 @@ export class ExcepcionesIngresoVisitaService {
     
       //verificar si la excepcion esta anulada, solo se anulan excepciones no anuladas
       if(dataExcepcion.anulado) 
-        throw new NotFoundException("No se puede cumplimentar. La excepcion ya se encontraba anulada.");
+        throw new NotFoundException("No se puede aplicar el control. La excepcion ya se encontraba anulada.");
 
-      //verificar si la excepcion esta cumplimentada, solo se anulan excepciones no anuladas
-      if(dataExcepcion.cumplimentado) 
-        throw new NotFoundException("No se puede cumplimentar. La excepcion ya se encontraba cumplimentada.");
+      //verificar si la excepcion esta controlada, solo se controlan excepciones no controladas
+      if(dataExcepcion.controlado) 
+        throw new NotFoundException("No se puede aplicar el control. La excepcion ya se encontraba controlada.");
 
-      //controlar si la fecha actual < fecha_excepcion. No se pueden cumplimentar cuando la fecha actual es anterior a la fecha_excepcion
+      //controlar si la fecha actual < fecha_excepcion. No se pueden controlar cuando la fecha actual es anterior a la fecha_excepcion
       if(fecha_actual < dataExcepcion.fecha_excepcion) throw new ConflictException("No se puede cumplimentar excepciones con fecha de excepción posterior a la fecha actual.")
         
 
       //actualiza la prohibicion en anulado
-      dataExcepcion.cumplimentado = true;
-      dataExcepcion.detalle_excepcion = "CUMPLIMENTADO: Fecha: " + fecha_actual 
+      dataExcepcion.cumplimentado = dataDto.cumplimentado;
+      dataExcepcion.controlado = true;
+      let controlCumplimentado = "";
+      if(dataExcepcion.cumplimentado){
+        controlCumplimentado= "CUMPLIMENTADO"
+      }
+      else{
+        controlCumplimentado= "NO CUMPLIMENTADO"
+      }
+
+      dataExcepcion.detalle_excepcion = controlCumplimentado + ": Fecha: " + fecha_actual 
           + " - Detalle: " + dataDto.detalle_cambio
           + " - Usuario: " + usuario.apellido + " " + usuario.nombre
           + " // " + dataExcepcion.detalle_excepcion;
