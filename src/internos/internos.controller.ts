@@ -98,12 +98,16 @@ export class InternosController {
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................
 
-  //BUSCAR LISTA X APELLIDO
-  @Get('buscarlista-xapellido')  
+  //BUSCAR LISTA X APELLIDO GENERAL
+  @Get('buscarlista-xapellido-gral')
+  @Auth()  
   async findListaXApellidoGeneral(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('apellido') apellido: string, 
   ) {    
     
+    if ( apellido.length < 2 ) throw new NotFoundException('El apellido de busqueda debe tener mínimo (02) dos caracteres.');
+         
     return this.internosService.findListaXApellidoGeneral(apellido);
   }
   //FIN BUSCAR LISTA X APELLIDO...........................................
