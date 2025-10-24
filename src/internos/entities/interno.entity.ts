@@ -1,7 +1,10 @@
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
 import { Nacionalidad } from "src/nacionalidades/entities/nacionalidad.entity";
+import { NarizForma } from "src/nariz-forma/entities/nariz-forma.entity";
 import { OjosColor } from "src/ojos_color/entities/ojos_color.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { PeloColor } from "src/pelo-color/entities/pelo-color.entity";
+import { PeloTipo } from "src/pelo-tipo/entities/pelo-tipo.entity";
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Tamanio } from "src/tamanio/entities/tamanio.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
@@ -128,6 +131,57 @@ export class Interno {
     })
     nariz_tamanio: Tamanio;
     //FIN NARIZ TAMANIO
+
+    //NARIZ FORMA
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'A'
+    })
+    nariz_forma_id: number;
+
+    @ManyToOne(type => NarizForma, {eager: true} )
+    @JoinColumn({
+        name: 'nariz_forma_id',
+        referencedColumnName: 'id_nariz_forma'
+    })
+    nariz_forma: NarizForma;
+    //FIN NARIZ FORMA
+
+    //PELO TIPO
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'CH'
+    })
+    pelo_tipo_id: number;
+
+    @ManyToOne(type => PeloTipo, {eager: true} )
+    @JoinColumn({
+        name: 'pelo_tipo_id',
+        referencedColumnName: 'id_pelo_tipo'
+    })
+    pelo_tipo: PeloTipo;
+    //FIN PELO TIPO
+
+    //PELO COLOR
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'CH'
+    })
+    pelo_color_id: number;
+
+    @ManyToOne(type => PeloColor, {eager: true} )
+    @JoinColumn({
+        name: 'pelo_color_id',
+        referencedColumnName: 'id_pelo_tipo'
+    })
+    pelo_color: PeloTipo;
+    //FIN PELO COLOR
 
     //FIN CARACTERISTICAS PERSONALES.................................
 
