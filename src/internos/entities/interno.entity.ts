@@ -1,7 +1,9 @@
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
 import { Nacionalidad } from "src/nacionalidades/entities/nacionalidad.entity";
+import { OjosColor } from "src/ojos_color/entities/ojos_color.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Sexo } from "src/sexo/entities/sexo.entity";
+import { Tamanio } from "src/tamanio/entities/tamanio.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -35,18 +37,26 @@ export class Interno {
 
     @Column({
         type:'varchar',
-        length: 100,
+        length: 300,
         nullable: false
     })
     apellido: string;
 
     @Column({
         type:'varchar',
-        length: 100,
+        length: 300,
         nullable: false
     })
     nombre: string;
 
+    @Column({
+        type:'varchar',
+        length: 200,
+        nullable: false
+    })
+    alias: string;
+
+    //CARACTERISTICAS PERSONALES
     //SEXO
     @Column({
         type: 'int',
@@ -61,6 +71,65 @@ export class Interno {
     })
     sexo: Sexo;
     //FIN SEXO
+
+    @Column({
+        type:'decimal',
+        nullable: false
+    })
+    talla: number;
+
+    //OJOS COLOR
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'A'
+    })
+    ojos_color_id: number;
+
+    @ManyToOne(type => OjosColor, {eager: true} )
+    @JoinColumn({
+        name: 'ojo_color_id',
+        referencedColumnName: 'id_ojo_color'
+    })
+    ojos_color: OjosColor;
+    //FIN OJOS COLOR
+
+    //OJOS TAMANIO
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'CH'
+    })
+    ojos_tamanio_id: number;
+
+    @ManyToOne(type => Tamanio, {eager: true} )
+    @JoinColumn({
+        name: 'ojos_tamanio_id',
+        referencedColumnName: 'id_tamanio'
+    })
+    ojos_tamanio: Tamanio;
+    //FIN OJOS TAMANIO
+
+    //NARIZ TAMANIO
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'CH'
+    })
+    nariz_tamanio_id: number;
+
+    @ManyToOne(type => Tamanio, {eager: true} )
+    @JoinColumn({
+        name: 'nariz_tamanio_id',
+        referencedColumnName: 'id_tamanio'
+    })
+    nariz_tamanio: Tamanio;
+    //FIN NARIZ TAMANIO
+
+    //FIN CARACTERISTICAS PERSONALES.................................
 
     @Column({
         type: 'date',
