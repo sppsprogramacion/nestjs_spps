@@ -18,8 +18,9 @@ export class CreateInternoDto {
     @Length(1,300,{message: "El nombre debe tener entre $constraint1 y $constraint2 caracteres."})
     nombre: string;
 
-    @Length(1,200,{message: "El alias debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Transform(({ value }) => value === '' ? undefined : value)
     @IsOptional()
+    @Length(1,200,{message: "alias debe tener entre $constraint1 y $constraint2 caracteres."})
     alias: string;
 
     @IsInt({message: "sexo_id debe ser un número entero"})
@@ -28,56 +29,61 @@ export class CreateInternoDto {
     @IsInt({message: "talla debe ser un número entero"})
     talla: number;
     
-    @IsInt({message: "ojos_color_id debe ser un número entero"})
-    ojos_color_id: number;
+    @Length(1,10,{message: "ojos_color_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    ojos_color_id: string;
     
-    @IsInt({message: "ojos_tamanio_id debe ser un número entero"})
-    ojos_tamanio_id: number;
+    @Length(1,10,{message: "ojos_tamanio_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    ojos_tamanio_id: string;
    
-    @IsInt({message: "nariz_tamanio_id debe ser un número entero"})
-    nariz_tamanio_id: number;
+    @Length(1,10,{message: "nariz_tamanio_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    nariz_tamanio_id: string;
     
-    @IsInt({message: "nariz_forma_id debe ser un número entero"})
-    nariz_forma_id: number;
+    @Length(1,10,{message: "nariz_forma_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    nariz_forma_id: string;
     
-    @IsInt({message: "pelo_tipo_id debe ser un número entero"})
-    pelo_tipo_id: number;
+    @Length(1,10,{message: "pelo_tipo_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    pelo_tipo_id: string;
     
-    @IsInt({message: "pelo_color_id debe ser un número entero"})
-    pelo_color_id: number;
+    @Length(1,10,{message: "pelo_color_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    pelo_color_id: string;
 
-    @IsInt({message: "piel_id debe ser un número entero"})
-    piel_id: number;
+    @Length(1,10,{message: "piel_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    piel_id: string;
 
-    @Length(1,100,{message: "La nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,10,{message: "nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
     nacionalidad_id: string;
         
-    @Length(1,100,{message: "La provincia_nacimiento_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,10,{message: "provincia_nacimiento_id debe tener entre $constraint1 y $constraint2 caracteres."})
     provincia_nacimiento_id: string;
     
-    @Length(1,100,{message: "La departamento_nacimiento_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @IsInt({message: "departamento_nacimiento_id debe ser un número entero"})
     departamento_nacimiento_id: number;
     
     @IsDateString()
     @Transform(({ value }) => value.split('T')[0])
     fecha_nacimiento: Date;
         
-    @IsInt({message: "El estado_civil_id debe ser un número entero"})
+    @IsInt({message: "estado_civil_id debe ser un número entero"})
     estado_civil_id: number;
     
-    @IsInt({message: "zona_residencia_id debe ser un número entero"})
-    zona_residencia_id: number;
+    @Length(1,10,{message: "zona_residencia_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    zona_residencia_id: string;
     
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
     @Length(1,200,{message: "padre debe tener entre $constraint1 y $constraint2 caracteres."})
     padre: string;
     
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
     @Length(1,200,{message: "madre debe tener entre $constraint1 y $constraint2 caracteres."})
     madre: string;
     
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
     @Length(1,500,{message: "parientes debe tener entre $constraint1 y $constraint2 caracteres."})
     parientes: string;    
-    
-    
+        
     @Length(1,100,{message: "El teléfono debe tener entre $constraint1 y $constraint2 caracteres."})
     telefono: string;    
 

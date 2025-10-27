@@ -92,7 +92,7 @@ export class Interno {
         nullable: false,
         default: 'A'
     })
-    ojos_color_id: number;
+    ojos_color_id: string;
 
     @ManyToOne(type => OjosColor, {eager: true} )
     @JoinColumn({
@@ -109,7 +109,7 @@ export class Interno {
         nullable: false,
         default: 'CH'
     })
-    ojos_tamanio_id: number;
+    ojos_tamanio_id: string;
 
     @ManyToOne(type => Tamanio, {eager: true} )
     @JoinColumn({
@@ -126,7 +126,7 @@ export class Interno {
         nullable: false,
         default: 'CH'
     })
-    nariz_tamanio_id: number;
+    nariz_tamanio_id: string;
 
     @ManyToOne(type => Tamanio, {eager: true} )
     @JoinColumn({
@@ -143,7 +143,7 @@ export class Interno {
         nullable: false,
         default: 'A'
     })
-    nariz_forma_id: number;
+    nariz_forma_id: string;
 
     @ManyToOne(type => NarizForma, {eager: true} )
     @JoinColumn({
@@ -160,7 +160,7 @@ export class Interno {
         nullable: false,
         default: 'CO'
     })
-    pelo_tipo_id: number;
+    pelo_tipo_id: string;
 
     @ManyToOne(type => PeloTipo, {eager: true} )
     @JoinColumn({
@@ -177,7 +177,7 @@ export class Interno {
         nullable: false,
         default: 'C'
     })
-    pelo_color_id: number;
+    pelo_color_id: string;
 
     @ManyToOne(type => PeloColor, {eager: true} )
     @JoinColumn({
@@ -194,7 +194,7 @@ export class Interno {
         nullable: false,
         default: 'T'
     })
-    piel_id: number;
+    piel_id: string;
 
     @ManyToOne(type => Piel, {eager: true} )
     @JoinColumn({
@@ -283,7 +283,7 @@ export class Interno {
         length: 10,
         default: "U"
     })
-    zona_residencia_id: number;
+    zona_residencia_id: string;
 
     @ManyToOne(type => ZonaResidencia, {eager: true} )
     @JoinColumn({
