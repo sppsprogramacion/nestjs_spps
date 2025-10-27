@@ -1,3 +1,6 @@
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+
+import { Departamento } from "src/departamentos/entities/departamento.entity";
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
 import { Nacionalidad } from "src/nacionalidades/entities/nacionalidad.entity";
 import { NarizForma } from "src/nariz-forma/entities/nariz-forma.entity";
@@ -5,10 +8,12 @@ import { OjosColor } from "src/ojos_color/entities/ojos_color.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
 import { PeloColor } from "src/pelo-color/entities/pelo-color.entity";
 import { PeloTipo } from "src/pelo-tipo/entities/pelo-tipo.entity";
+import { Piel } from "src/piel/entities/piel.entity";
+import { Provincia } from "src/provincias/entities/provincia.entity";
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Tamanio } from "src/tamanio/entities/tamanio.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { ZonaResidencia } from "src/zona-residencia/entities/zona-residencia.entity";
 
 @Entity('internos')
 export class Interno {
@@ -34,7 +39,6 @@ export class Interno {
     @Column({
         type: 'int',
         nullable: false,
-        unique: false
     })
     dni: number;
 
@@ -55,7 +59,7 @@ export class Interno {
     @Column({
         type:'varchar',
         length: 200,
-        nullable: false
+        nullable: true
     })
     alias: string;
 
@@ -154,7 +158,7 @@ export class Interno {
         type: 'varchar',
         length: 10,
         nullable: false,
-        default: 'CH'
+        default: 'CO'
     })
     pelo_tipo_id: number;
 
@@ -171,48 +175,39 @@ export class Interno {
         type: 'varchar',
         length: 10,
         nullable: false,
-        default: 'CH'
+        default: 'C'
     })
     pelo_color_id: number;
 
     @ManyToOne(type => PeloColor, {eager: true} )
     @JoinColumn({
         name: 'pelo_color_id',
-        referencedColumnName: 'id_pelo_tipo'
+        referencedColumnName: 'id_pelo_color'
     })
-    pelo_color: PeloTipo;
+    pelo_color: PeloColor;
     //FIN PELO COLOR
+
+    //PIEL
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'T'
+    })
+    piel_id: number;
+
+    @ManyToOne(type => Piel, {eager: true} )
+    @JoinColumn({
+        name: 'piel_id',
+        referencedColumnName: 'id_piel'
+    })
+    piel: Piel;
+    //FIN PIEL
 
     //FIN CARACTERISTICAS PERSONALES.................................
 
-    @Column({
-        type: 'date',
-        nullable: false
-    })
-    fecha_nacimiento: Date;
-
-    @Column({
-        type: 'varchar',
-        length: 100,
-        nullable: true
-    })
-    telefono: string;    
-
-    //ESTADO CIVIL
-    @Column({
-        type: 'int',
-        nullable: false
-    })
-    estado_civil_id: number;
-
-    @ManyToOne(type => EstadoCivil, {eager: true} )
-    @JoinColumn({
-        name: 'estado_civil_id',
-        referencedColumnName: 'id_estado_civil'
-    })
-    estado_civil: EstadoCivil;
-    //FIN ESTADO CIVIL
-
+    //DATOS FILIATORIOS
+    
     //NACIONALIDAD
     @Column({
         type: 'varchar',
@@ -228,6 +223,105 @@ export class Interno {
     })
     nacionalidad: Nacionalidad;
     //FIN NACIONALIDAD
+
+    //PROVINCIA NACIMIENTO
+    @Column({
+        type: 'varchar',
+        length: 10,
+        default: 'SINESP'
+    })
+    provincia_nacimiento_id: string;
+
+    @ManyToOne(type => Provincia, {eager: true} )
+    @JoinColumn({
+        name: 'provincia_nacimiento_id',
+        referencedColumnName: 'id_provincia'
+    })
+    provincia_nacimiento: Provincia;
+    //FIN PROVINCIA NACIMIENTO
+
+    //DEPARTAMENTO NACIMIENTO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    departamento_nacimiento_id: number;
+
+    @ManyToOne(type => Departamento, {eager: true} )
+    @JoinColumn({
+        name: 'departamento_nacimiento_id',
+        referencedColumnName: 'id_departamento'
+    })
+    departamento_nacimiento: Departamento;
+    //FIN DEPARTAMENTO NACIMIENTO
+
+    @Column({
+        type: 'date',
+        nullable: false
+    })
+    fecha_nacimiento: Date;
+    
+    //ESTADO CIVIL
+    @Column({
+        type: 'int',
+        nullable: false
+    })
+    estado_civil_id: number;
+
+    @ManyToOne(type => EstadoCivil, {eager: true} )
+    @JoinColumn({
+        name: 'estado_civil_id',
+        referencedColumnName: 'id_estado_civil'
+    })
+    estado_civil: EstadoCivil;
+    //FIN ESTADO CIVIL
+
+    //ZONA RESIDENCIA
+    @Column({
+        type: 'varchar',
+        length: 10,
+        default: "U"
+    })
+    zona_residencia_id: number;
+
+    @ManyToOne(type => ZonaResidencia, {eager: true} )
+    @JoinColumn({
+        name: 'zona_residencia_id',
+        referencedColumnName: 'id_zona_residencia'
+    })
+    zona_residencia: ZonaResidencia;
+    //FIN ZONA RESIDENCIA
+
+    @Column({
+        type:'varchar',
+        length: 200,
+        nullable: true
+    })
+    padre: string;
+
+    @Column({
+        type:'varchar',
+        length: 200,
+        nullable: true
+    })
+    madre: string;
+
+    @Column({
+        type:'varchar',
+        length: 500,
+        nullable: true
+    })
+    parientes: string;
+    
+    //FIN DATOS FILIATORIOS......................................................
+
+    @Column({
+        type: 'varchar',
+        length: 100,
+        nullable: true
+    })
+    telefono: string;    
 
     //ORGANISMO
     @Column({
@@ -249,7 +343,8 @@ export class Interno {
     @Column({
         type: 'varchar',
         length: 500,
-        nullable: true
+        nullable: true,
+        default: "foto-interno-0.jpg"
     })
     foto: string; 
     

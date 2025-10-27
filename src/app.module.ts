@@ -50,7 +50,7 @@ import { PeloTipoModule } from './pelo-tipo/pelo-tipo.module';
 import { PeloColorModule } from './pelo-color/pelo-color.module';
 import { PielModule } from './piel/piel.module';
 import { ParentescosMenoresModule } from './parentescos-menores/parentescos-menores.module';
-import { OjosTamanioModule } from './ojos-tamanio/ojos-tamanio.module';
+import { ZonaResidenciaModule } from './zona-residencia/zona-residencia.module';
 
 @Module({
   imports: [
@@ -108,7 +108,7 @@ import { OjosTamanioModule } from './ojos-tamanio/ojos-tamanio.module';
     PeloColorModule,
     PielModule,
     ParentescosMenoresModule,
-    OjosTamanioModule,
+    ZonaResidenciaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
