@@ -18,4 +18,12 @@ export class PeloTipo {
         unique: true
     })
     pelo_tipo: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'pelo_tipo'
+    })
+    tipo_caracteristica: string
 }

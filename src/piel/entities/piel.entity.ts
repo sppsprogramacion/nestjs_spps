@@ -19,4 +19,12 @@ export class Piel {
         unique: true
     })
     piel: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'piel'
+    })
+    tipo_caracteristica: string
 }

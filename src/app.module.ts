@@ -51,6 +51,7 @@ import { PeloColorModule } from './pelo-color/pelo-color.module';
 import { PielModule } from './piel/piel.module';
 import { ParentescosMenoresModule } from './parentescos-menores/parentescos-menores.module';
 import { ZonaResidenciaModule } from './zona-residencia/zona-residencia.module';
+import { CaracteristicasPersonalesModule } from './caracteristicas-personales/caracteristicas-personales.module';
 
 @Module({
   imports: [
@@ -109,6 +110,7 @@ import { ZonaResidenciaModule } from './zona-residencia/zona-residencia.module';
     PielModule,
     ParentescosMenoresModule,
     ZonaResidenciaModule,
+    CaracteristicasPersonalesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -19,4 +19,12 @@ export class PeloColor {
         unique: true
     })
     pelo_color: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'pelo_color'
+    })
+    tipo_caracteristica: string
 }

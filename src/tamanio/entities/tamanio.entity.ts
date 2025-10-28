@@ -18,4 +18,12 @@ export class Tamanio {
         unique: true
     })
     tamanio: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'tamanio'
+    })
+    tipo_caracteristica: string
 }

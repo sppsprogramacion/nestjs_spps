@@ -18,4 +18,12 @@ export class OjosColor {
         unique: true
     })
     ojo_color: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'ojo_color'
+    })
+    tipo_caracteristica: string
 }

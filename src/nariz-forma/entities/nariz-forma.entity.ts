@@ -17,4 +17,12 @@ export class NarizForma {
         unique: true
     })
     nariz_forma: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'nariz_forma'
+    })
+    tipo_caracteristica: string
 }
