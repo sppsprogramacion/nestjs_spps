@@ -25,6 +25,8 @@ export class CaracteristicasPersonalesService {
       UNION ALL
       SELECT id_pelo_tipo AS id, pelo_tipo AS descripcion, tipo_caracteristica FROM pelo_tipo
       UNION ALL
+      SELECT id_pelo_color AS id, pelo_color AS descripcion, tipo_caracteristica FROM pelo_color
+      UNION ALL
       SELECT id_piel AS id, piel AS descripcion, tipo_caracteristica FROM piel
       UNION ALL
       SELECT id_tamanio AS id, tamanio AS descripcion, tipo_caracteristica FROM tamanio
@@ -63,6 +65,13 @@ export class CaracteristicasPersonalesService {
         id_pelo_tipo: r.id,
         pelo_tipo: r.descripcion
       }));
+    
+    const pelo_color = resultados
+      .filter(r => r.tipo_caracteristica === 'pelo_color')
+      .map(r => ({
+        id_pelo_color: r.id,
+        pelo_color: r.descripcion
+      }));
 
     const piel = resultados
       .filter(r => r.tipo_caracteristica === 'piel')
@@ -78,7 +87,7 @@ export class CaracteristicasPersonalesService {
         tamanio: r.descripcion
       }));
 
-    return { ojos_color, nariz_forma, pelo_tipo, piel, tamanio };
+    return { ojos_color, nariz_forma, pelo_tipo, pelo_color, piel, tamanio };
   
   }
 }
