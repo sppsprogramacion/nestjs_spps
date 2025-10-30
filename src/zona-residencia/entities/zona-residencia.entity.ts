@@ -18,4 +18,12 @@ export class ZonaResidencia {
     })
     zona_residencia: string
 
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'zona_residencia'
+    })
+    tipo_caracteristica: string
+
 }

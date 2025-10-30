@@ -13,4 +13,12 @@ export class EstadoCivil {
         unique: true
     })
     estado_civil: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'estado_civil'
+    })
+    tipo_caracteristica: string
 }

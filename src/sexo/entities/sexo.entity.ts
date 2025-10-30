@@ -16,5 +16,13 @@ export class Sexo {
     })
     sexo: string
 
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'sexo'
+    })
+    tipo_caracteristica: string
+
    
 }

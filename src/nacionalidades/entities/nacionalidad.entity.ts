@@ -18,4 +18,12 @@ export class Nacionalidad {
         unique: true
     })
     nacionalidad: string
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        default: 'nacionalidad'
+    })
+    tipo_caracteristica: string
 }

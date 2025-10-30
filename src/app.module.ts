@@ -52,6 +52,7 @@ import { PielModule } from './piel/piel.module';
 import { ParentescosMenoresModule } from './parentescos-menores/parentescos-menores.module';
 import { ZonaResidenciaModule } from './zona-residencia/zona-residencia.module';
 import { CaracteristicasPersonalesModule } from './caracteristicas-personales/caracteristicas-personales.module';
+import { ListasGeneralesTablasModule } from './listas-generales-tablas/listas-generales-tablas.module';
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { CaracteristicasPersonalesModule } from './caracteristicas-personales/ca
     ParentescosMenoresModule,
     ZonaResidenciaModule,
     CaracteristicasPersonalesModule,
+    ListasGeneralesTablasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

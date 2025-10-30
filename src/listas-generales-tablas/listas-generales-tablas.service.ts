@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { CreateListasGeneralesTablaDto } from './dto/create-listas-generales-tabla.dto';
+import { UpdateListasGeneralesTablaDto } from './dto/update-listas-generales-tabla.dto';
 import { DataSource } from 'typeorm';
 
 @Injectable()
-export class CaracteristicasPersonalesService {
-  constructor(private dataSource: DataSource) {}
+export class ListasGeneralesTablasService {
 
-  async obtenerTodas() {    
+  constructor(private dataSource: DataSource) {}
+  
+  async obtenerCaracteristicasPersonalesTodas() {    
 
     const resultados = await this.dataSource.query(`
       SELECT id_ojo_color AS id, ojo_color AS descripcion, tipo_caracteristica FROM ojos_color
@@ -73,6 +76,45 @@ export class CaracteristicasPersonalesService {
       }));
 
     return { ojos_color, nariz_forma, pelo_tipo, pelo_color, piel, tamanio, sexo };
+  
+  }
+
+
+  async obtenerTablasFiliarotiosTodas() {    
+
+    const resultados = await this.dataSource.query(`
+      SELECT id_estado_civil AS id, estado_civil AS descripcion, tipo_caracteristica FROM estado_civil
+      UNION ALL
+      SELECT id_nacionalidad AS id, nacionalidad AS descripcion, tipo_caracteristica FROM nacionalidades
+      UNION ALL
+      SELECT id_zona_residencia AS id, zona_residencia AS descripcion, tipo_caracteristica FROM zona_residencia
+      
+    `);
+
+    const estado_civil = resultados
+      .filter(r => r.tipo_caracteristica === 'estado_civil')
+      .map(r => ({
+        id_estado_civil: r.id,
+        estado_civil: r.descripcion
+      }));
+
+    const nacionalidad = resultados
+      .filter(r => r.tipo_caracteristica === 'nacionalidad')
+      .map(r => ({
+        id_nacionalidad: r.id,
+        nacionalidad: r.descripcion
+      }));
+
+    const zona_residencia = resultados
+      .filter(r => r.tipo_caracteristica === 'zona_residencia')
+      .map(r => ({
+        id_zona_residencia: r.id,
+        zona_residencia: r.descripcion
+      }));
+    
+    
+
+    return { estado_civil, nacionalidad, zona_residencia };
   
   }
 }
