@@ -51,7 +51,6 @@ import { PeloColorModule } from './pelo-color/pelo-color.module';
 import { PielModule } from './piel/piel.module';
 import { ParentescosMenoresModule } from './parentescos-menores/parentescos-menores.module';
 import { ZonaResidenciaModule } from './zona-residencia/zona-residencia.module';
-import { CaracteristicasPersonalesModule } from './caracteristicas-personales/caracteristicas-personales.module';
 import { ListasGeneralesTablasModule } from './listas-generales-tablas/listas-generales-tablas.module';
 
 @Module({
@@ -111,7 +110,6 @@ import { ListasGeneralesTablasModule } from './listas-generales-tablas/listas-ge
     PielModule,
     ParentescosMenoresModule,
     ZonaResidenciaModule,
-    CaracteristicasPersonalesModule,
     ListasGeneralesTablasModule,
   ],
   controllers: [AppController],
