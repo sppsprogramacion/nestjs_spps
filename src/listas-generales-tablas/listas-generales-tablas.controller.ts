@@ -5,7 +5,7 @@ import { ListasGeneralesTablasService } from './listas-generales-tablas.service'
 export class ListasGeneralesTablasController {
   constructor(private readonly listasGeneralesTablasService: ListasGeneralesTablasService) {}
 
-  @Get('tablas-caracteriasticas-generales')
+  @Get('tablas-caracteriasticas-personales')
   async obtenerCaracteristicasPersonales() {
     return await this.listasGeneralesTablasService.obtenerCaracteristicasPersonalesTodas();
   }
