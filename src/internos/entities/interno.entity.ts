@@ -96,7 +96,7 @@ export class Interno {
 
     @ManyToOne(type => OjosColor, {eager: true} )
     @JoinColumn({
-        name: 'ojo_color_id',
+        name: 'ojos_color_id',
         referencedColumnName: 'id_ojo_color'
     })
     ojos_color: OjosColor;

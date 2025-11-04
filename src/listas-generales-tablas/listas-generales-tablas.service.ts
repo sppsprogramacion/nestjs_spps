@@ -29,8 +29,8 @@ export class ListasGeneralesTablasService {
     const ojos_color = resultados
       .filter(r => r.tipo_caracteristica === 'ojo_color')
       .map(r => ({
-        id_ojos_color: r.id,
-        ojos_color: r.descripcion
+        id_ojo_color: r.id,
+        ojo_color: r.descripcion
       }));
 
     const nariz_forma = resultados
