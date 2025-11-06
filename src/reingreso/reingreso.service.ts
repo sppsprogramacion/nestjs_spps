@@ -1,23 +1,24 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateOrganismoDto } from './dto/create-organismo.dto';
-import { UpdateOrganismoDto } from './dto/update-organismo.dto';
+import { CreateReingresoDto } from './dto/create-reingreso.dto';
+import { UpdateReingresoDto } from './dto/update-reingreso.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Organismo } from './entities/organismo.entity';
+import { Reingreso } from './entities/reingreso.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class OrganismosService {
+export class ReingresoService {
+  
   constructor(
-    @InjectRepository(Organismo)
-    private readonly organismoRepository: Repository<Organismo>
+    @InjectRepository(Reingreso)
+    private readonly reingresoRepository: Repository<Reingreso>
   ){}
 
-  async create(data: CreateOrganismoDto): Promise<Organismo> {
+  async create(data: CreateReingresoDto): Promise<Reingreso> {
 
     try {
       
-      const nuevo = await this.organismoRepository.create(data);
-      return await this.organismoRepository.save(nuevo);
+      const nuevo = await this.reingresoRepository.create(data);
+      return await this.reingresoRepository.save(nuevo);
     }catch (error) {
 
       this.handleDBErrors(error);  
@@ -25,10 +26,10 @@ export class OrganismosService {
   }
 
   async findAll() {
-    return await this.organismoRepository.find(
+    return await this.reingresoRepository.find(
       {
           order:{
-              organismo: "ASC"
+              reingreso: "ASC"
           }
       }
     );
@@ -37,16 +38,16 @@ export class OrganismosService {
   //BUSCAR  XID
   async findOne(id: number) {
 
-    const respuesta = await this.organismoRepository.findOneBy({id_organismo: id});
+    const respuesta = await this.reingresoRepository.findOneBy({id_reingreso: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateOrganismoDto) {
+  async update(id: number, data: UpdateReingresoDto) {
 
     try{
-      const respuesta = await this.organismoRepository.update(id, data);
+      const respuesta = await this.reingresoRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
       } 

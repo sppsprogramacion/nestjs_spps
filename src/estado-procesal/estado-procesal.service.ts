@@ -1,23 +1,24 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateOrganismoDto } from './dto/create-organismo.dto';
-import { UpdateOrganismoDto } from './dto/update-organismo.dto';
+import { CreateEstadoProcesalDto } from './dto/create-estado-procesal.dto';
+import { UpdateEstadoProcesalDto } from './dto/update-estado-procesal.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Organismo } from './entities/organismo.entity';
+import { EstadoProcesal } from './entities/estado-procesal.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class OrganismosService {
+export class EstadoProcesalService {
+  
   constructor(
-    @InjectRepository(Organismo)
-    private readonly organismoRepository: Repository<Organismo>
+    @InjectRepository(EstadoProcesal)
+    private readonly estadoProcesalRepository: Repository<EstadoProcesal>
   ){}
 
-  async create(data: CreateOrganismoDto): Promise<Organismo> {
+  async create(data: CreateEstadoProcesalDto): Promise<EstadoProcesal> {
 
     try {
       
-      const nuevo = await this.organismoRepository.create(data);
-      return await this.organismoRepository.save(nuevo);
+      const nuevo = await this.estadoProcesalRepository.create(data);
+      return await this.estadoProcesalRepository.save(nuevo);
     }catch (error) {
 
       this.handleDBErrors(error);  
@@ -25,10 +26,10 @@ export class OrganismosService {
   }
 
   async findAll() {
-    return await this.organismoRepository.find(
+    return await this.estadoProcesalRepository.find(
       {
           order:{
-              organismo: "ASC"
+              estado_procesal: "ASC"
           }
       }
     );
@@ -37,16 +38,16 @@ export class OrganismosService {
   //BUSCAR  XID
   async findOne(id: number) {
 
-    const respuesta = await this.organismoRepository.findOneBy({id_organismo: id});
+    const respuesta = await this.estadoProcesalRepository.findOneBy({id_estado_procesal: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateOrganismoDto) {
+  async update(id: number, data: UpdateEstadoProcesalDto) {
 
     try{
-      const respuesta = await this.organismoRepository.update(id, data);
+      const respuesta = await this.estadoProcesalRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
       } 

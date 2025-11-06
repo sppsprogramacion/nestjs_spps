@@ -52,6 +52,11 @@ import { PielModule } from './piel/piel.module';
 import { ParentescosMenoresModule } from './parentescos-menores/parentescos-menores.module';
 import { ZonaResidenciaModule } from './zona-residencia/zona-residencia.module';
 import { ListasGeneralesTablasModule } from './listas-generales-tablas/listas-generales-tablas.module';
+import { OrganismosExternosModule } from './organismos-externos/organismos-externos.module';
+import { JurisdiccionModule } from './jurisdiccion/jurisdiccion.module';
+import { EstadoProcesalModule } from './estado-procesal/estado-procesal.module';
+import { ReingresoModule } from './reingreso/reingreso.module';
+import { IngresosInternoModule } from './ingresos-interno/ingresos-interno.module';
 
 @Module({
   imports: [
@@ -111,6 +116,11 @@ import { ListasGeneralesTablasModule } from './listas-generales-tablas/listas-ge
     ParentescosMenoresModule,
     ZonaResidenciaModule,
     ListasGeneralesTablasModule,
+    OrganismosExternosModule,
+    JurisdiccionModule,
+    EstadoProcesalModule,
+    ReingresoModule,
+    IngresosInternoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -38,10 +38,5 @@ export class OrganismosController {
 
     return this.organismosService.update(+id, dataDto);
   }
-
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: string) {
-    
-    return this.organismosService.remove(+id);
-  }
+  
 }
