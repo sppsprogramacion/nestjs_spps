@@ -3,6 +3,7 @@ import { Interno } from "src/internos/entities/interno.entity";
 import { Jurisdiccion } from "src/jurisdiccion/entities/jurisdiccion.entity";
 import { OrganismoExterno } from "src/organismos-externos/entities/organismos-externo.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { Reingreso } from "src/reingreso/entities/reingreso.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -27,6 +28,7 @@ export class IngresoInterno {
     interno: Interno;
     //FIN INTERNO
         
+    
 
     //ORGANISMO EXTERNO
     @Column({
@@ -114,81 +116,83 @@ export class IngresoInterno {
     jurisdiccion: Jurisdiccion;
     //FIN JURISDICCION  
 
-
-    @Column({
-        type: "boolean",
-        default: true
-    })
-    vigente: boolean;
-
-    @Column({
-        type: "boolean",
-        default: false
-    })
-    anulado: boolean;
-
-    @Column({
-        type: "boolean",
-        default: false
-    })
-    prohibido: boolean;
-
-    
-
-    @Column({
-        type: 'date',
-        nullable: true        
-    })
-    fecha_inicio: Date;
-
-    @Column({
-        type: 'date',
-        nullable: true        
-    })
-    fecha_fin: Date;
-
-    @Column({
-        type: 'varchar',
-        length: 2000,
-        nullable: true
-    })
-    detalles_prohibicion: string;
-
-    @Column({
-        type: 'date',
-        nullable: false        
-    })
-    fecha_alta: Date;
-
-    //ORGANISMO
+    //REINGRESO
     @Column({
         type: 'int',
         nullable: false,
         default: 1
     })
-    organismo_id: number;
+    reingreso_id: number;
+
+    @ManyToOne(type => Reingreso, {eager: true} )
+    @JoinColumn({
+        name: 'reingreso_id',
+        referencedColumnName: 'id_reingreso'
+    })
+    reingreso: Jurisdiccion;
+    //FIN REINGRESO  
+
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 0
+    })
+    numero_reingreso: number;
+
+    @Column({
+        type:'varchar',
+        length: 50,
+        nullable: false
+    })
+    prontuario_policial: string;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    esta_liberado: boolean;
+
+    @Column({
+        type: 'date',
+        nullable: false        
+    })
+    fecha_carga: Date;
+
+    //ORGANISMO CARGA
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    organismo_carga_id: number;
 
     @ManyToOne(type => Organismo, {eager: true} )
     @JoinColumn({
-        name: 'organismo_id',
+        name: 'organismo_carga_id',
         referencedColumnName: 'id_organismo'
     })
-    organismo: Organismo;
-    //FIN ORGANISMO
+    organismo_carga: Organismo;
+    //FIN ORGANISMO CARGA
 
-    //USUARIO
+    //USUARIO CARGA
     @Column({
         type: 'int',
         nullable: false,
         default: 2
     })
-    usuario_id: number;
+    usuario_carga_id: number;
 
     @ManyToOne(type => Usuario, {eager: true} )
     @JoinColumn({
-        name: 'usuario_id',
+        name: 'usuario_carga_id',
         referencedColumnName: 'id_usuario'
     })
-    usuario: Usuario;
-    //FIN USUARIO
+    usuario_carga: Usuario;
+    //FIN USUARIO CARGA
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    eliminado: boolean;
 }
