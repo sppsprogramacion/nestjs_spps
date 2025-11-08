@@ -17,8 +17,9 @@ export class JurisdiccionService {
   
       try {
         
-        const nuevo = await this.jurisdiccionRepository.create(data);
-        return await this.jurisdiccionRepository.save(nuevo);
+        await this.jurisdiccionRepository.insert(data);
+        return data;
+
       }catch (error) {
   
         this.handleDBErrors(error);  
@@ -36,7 +37,7 @@ export class JurisdiccionService {
     }
   
     //BUSCAR  XID
-    async findOne(id: number) {
+    async findOne(id: string) {
   
       const respuesta = await this.jurisdiccionRepository.findOneBy({id_jurisdiccion: id});
       if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
@@ -44,7 +45,7 @@ export class JurisdiccionService {
     }
     //FIN BUSCAR  XID..................................................................
   
-    async update(id: number, data: UpdateJurisdiccionDto) {
+    async update(id: string, data: UpdateJurisdiccionDto) {
   
       try{
         const respuesta = await this.jurisdiccionRepository.update(id, data);

@@ -17,8 +17,9 @@ export class EstadoProcesalService {
 
     try {
       
-      const nuevo = await this.estadoProcesalRepository.create(data);
-      return await this.estadoProcesalRepository.save(nuevo);
+      await this.estadoProcesalRepository.insert(data);
+      return data;
+
     }catch (error) {
 
       this.handleDBErrors(error);  
@@ -36,7 +37,7 @@ export class EstadoProcesalService {
   }
 
   //BUSCAR  XID
-  async findOne(id: number) {
+  async findOne(id: string) {
 
     const respuesta = await this.estadoProcesalRepository.findOneBy({id_estado_procesal: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
@@ -44,7 +45,7 @@ export class EstadoProcesalService {
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateEstadoProcesalDto) {
+  async update(id: string, data: UpdateEstadoProcesalDto) {
 
     try{
       const respuesta = await this.estadoProcesalRepository.update(id, data);

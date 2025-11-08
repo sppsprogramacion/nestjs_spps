@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
 import { ReingresoService } from './reingreso.service';
 import { CreateReingresoDto } from './dto/create-reingreso.dto';
 import { UpdateReingresoDto } from './dto/update-reingreso.dto';
@@ -30,7 +30,7 @@ export class ReingresoController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: string, 
     @Body() dataDto: UpdateReingresoDto
@@ -39,3 +39,4 @@ export class ReingresoController {
     return this.reingresoService.update(+id, dataDto);
   }
 }
+

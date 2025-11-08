@@ -27,8 +27,6 @@ export class IngresoInterno {
     })
     interno: Interno;
     //FIN INTERNO
-        
-    
 
     //ORGANISMO EXTERNO
     @Column({
@@ -86,11 +84,12 @@ export class IngresoInterno {
 
     //ESTADO PROCESAL
     @Column({
-        type: 'int',
+        type: 'varchar',
+        length: 10,
         nullable: false,
-        default: 1
+        default: 'P'
     })
-    estado_procesal_id: number;
+    estado_procesal_id: string;
 
     @ManyToOne(type => EstadoProcesal, {eager: true} )
     @JoinColumn({
@@ -102,11 +101,12 @@ export class IngresoInterno {
 
     //JURISDICCION
     @Column({
-        type: 'int',
+        type: 'varchar',
+        length: 10,
         nullable: false,
-        default: 1
+        default: 'P'
     })
-    jurisdiccion_id: number;
+    jurisdiccion_id: string;
 
     @ManyToOne(type => Jurisdiccion, {eager: true} )
     @JoinColumn({
@@ -114,6 +114,23 @@ export class IngresoInterno {
         referencedColumnName: 'id_jurisdiccion'
     })
     jurisdiccion: Jurisdiccion;
+    //FIN JURISDICCION  
+
+    //JURISDICCION
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: 'P'
+    })
+    otra_jurisdiccion_id: string;
+
+    @ManyToOne(type => Jurisdiccion, {eager: true} )
+    @JoinColumn({
+        name: 'otra_jurisdiccion_id',
+        referencedColumnName: 'id_jurisdiccion'
+    })
+    otra_jurisdiccion: Jurisdiccion;
     //FIN JURISDICCION  
 
     //REINGRESO

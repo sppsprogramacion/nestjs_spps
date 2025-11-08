@@ -22,11 +22,14 @@ export class CreateIngresosInternoDto {
     @Transform(({ value }) => value.split('T')[0])
     fecha_alojamiento: Date;
    
-    @IsInt({message: "estado_procesal_id debe ser un número entero."})
-    estado_procesal_id: number;
+    @Length(1,10,{message: "estado_procesal_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    estado_procesal_id: string;
 
-    @IsInt({message: "jurisdiccion_id debe ser un número entero."})
-    jurisdiccion_id: number;
+    @Length(1,10,{message: "jurisdiccion_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    jurisdiccion_id: string;
+
+    @Length(1,10,{message: "otra_jurisdiccion_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    otra_jurisdiccion_id: string;
         
     @IsInt({message: "reingreso_id debe ser un número entero."})
     reingreso_id: number;

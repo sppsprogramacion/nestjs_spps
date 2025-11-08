@@ -1,10 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('estado_procesal')
 export class EstadoProcesal {
 
-    @PrimaryGeneratedColumn()
-    id_estado_procesal: number;
+    @PrimaryColumn({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        unique: true
+    })
+    id_estado_procesal: string;
     
     @Column({
         type: 'varchar',

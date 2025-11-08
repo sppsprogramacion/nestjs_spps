@@ -10,7 +10,7 @@ export class OrganismoExterno {
         type: 'varchar',
         length: 100,
         nullable: false,
-        unique:  false
+        unique:  true
     })
     organismo_externo: string
     

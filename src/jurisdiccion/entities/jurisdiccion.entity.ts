@@ -1,16 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('jurisdiccion')
 export class Jurisdiccion {
 
-    @PrimaryGeneratedColumn()
-    id_jurisdiccion: number;
+    @PrimaryColumn({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        unique: true
+    })
+    id_jurisdiccion: string;
     
     @Column({
         type: 'varchar',
         length: 100,
         nullable: false,
-        unique:  false
+        unique: true
     })
     jurisdiccion: string
 }

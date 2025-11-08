@@ -19,9 +19,9 @@ export class JurisdiccionController {
     }
   
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: string) {    
+    findOne(@Param('id') id: string) {    
       
-      return this.jurisdiccionService.findOne(+id);
+      return this.jurisdiccionService.findOne(id);
     }
   
     //PARA RUTA NO DEFINIDA
@@ -33,11 +33,11 @@ export class JurisdiccionController {
   
     @Patch(':id')
     update(
-      @Param('id', ParseIntPipe) id: string, 
+      @Param('id') id: string, 
       @Body() dataDto: UpdateJurisdiccionDto
     ) {
   
-      return this.jurisdiccionService.update(+id, dataDto);
+      return this.jurisdiccionService.update(id, dataDto);
     }
   
 }

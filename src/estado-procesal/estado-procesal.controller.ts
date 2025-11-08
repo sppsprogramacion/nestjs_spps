@@ -18,9 +18,9 @@ export class EstadoProcesalController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: string) {    
+  findOne(@Param('id') id: string) {    
     
-    return this.estadoProcesalService.findOne(+id);
+    return this.estadoProcesalService.findOne(id);
   }
 
   //PARA RUTA NO DEFINIDA
@@ -32,10 +32,10 @@ export class EstadoProcesalController {
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: string, 
+    @Param('id') id: string, 
     @Body() dataDto: UpdateEstadoProcesalDto
   ) {
 
-    return this.estadoProcesalService.update(+id, dataDto);
+    return this.estadoProcesalService.update(id, dataDto);
   }
 }
