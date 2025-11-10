@@ -6,6 +6,7 @@ import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-proh
 import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('prohibiciones-visita')
 export class ProhibicionesVisitaController {

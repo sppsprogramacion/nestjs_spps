@@ -46,7 +46,17 @@ export class JwtStrategy extends PassportStrategy( Strategy) {
         const { id_usuario } = payload;
         const { sistema } = payload;
 
-        const usuario = await this.usuarioRepository.findOneBy ({id_usuario});
+        //const usuario = await this.usuarioRepository.findOneBy ({id_usuario});
+
+        //obtengo el usuario y sus roles y es lo que obtiene el user-role.guard
+        const usuario = await this.usuarioRepository.findOne(
+          {
+            relations: ['roles'],
+            where: {id_usuario: id_usuario}
+          }
+        );
+
+        //console.log("roles", usuario.roles);
 
         if (!usuario) 
             throw new UnauthorizedException('Token no es valido.')

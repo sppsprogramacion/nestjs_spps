@@ -29,13 +29,24 @@ export class UserRoleGuard implements CanActivate {
 
     //obtener usuario de la request
     const req = context.switchToHttp().getRequest();
-    const user = req.user as Usuario;
+    //let user = req.user as Usuario; no uso Usuario para no limitar a su estructura, sino no puedo usar user.roles
+    
+    let user = req.user
 
+    // Normalizar, reasigno el valor de user.usuario, que es quien tiene al usuario y roles
+    if (user.usuario) {
+      user = user.usuario;
+    }
+    
     if ( !user )
       throw new BadRequestException ("Usuario no encontrado");
 
+    //const rolesUsuario = user.roles.map((rolUsuario) => rolUsuario.rol.id_rol)
+
+    const rolesUsuario = user.roles || [];
+    
     //validacion si el rol del usuario es parte de los roles establecidos como validos para la ruta
-    for (const rol of user.roles){
+    for (const rol of rolesUsuario){
       if(validRoles.includes( rol.rol_id )){        
         return true;
       }

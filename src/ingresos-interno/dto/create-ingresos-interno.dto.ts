@@ -9,6 +9,10 @@ export class CreateIngresosInternoDto {
     @IsInt({message: "interno_id debe ser un número entero."})
     interno_id: number;
 
+    @IsDateString()
+    @Transform(({ value }) => value.split('T')[0])
+    fecha_primer_ingreso: Date;
+
     @IsInt({message: "organismo_externo_id debe ser un número entero."})
     organismo_externo_id: number;
     
@@ -42,6 +46,8 @@ export class CreateIngresosInternoDto {
     
     esta_liberado: boolean;
     
+    fecha_egreso: Date;
+
     fecha_carga: Date;
     
     organismo_carga_id: number;

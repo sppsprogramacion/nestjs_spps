@@ -28,6 +28,12 @@ export class IngresoInterno {
     interno: Interno;
     //FIN INTERNO
 
+    @Column({
+        type: 'date',
+        nullable: false        
+    })
+    fecha_primer_ingreso: Date;
+
     //ORGANISMO EXTERNO
     @Column({
         type: 'int',
@@ -168,6 +174,12 @@ export class IngresoInterno {
         default: false
     })
     esta_liberado: boolean;
+
+    @Column({
+        type: 'date',
+        nullable: true        
+    })
+    fecha_egreso: Date;
 
     @Column({
         type: 'date',
