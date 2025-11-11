@@ -19,7 +19,7 @@ export class CreateIngresosInternoDto {
     @IsInt({message: "organismo_procedencia_id debe ser un número entero."})
     organismo_procedencia_id: number;
     
-    @IsInt({message: "organismo_alojamiento_id debe ser un número entero."})
+    
     organismo_alojamiento_id: number;
     
     @IsDateString()

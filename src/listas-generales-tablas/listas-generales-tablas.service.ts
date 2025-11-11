@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateListasGeneralesTablaDto } from './dto/create-listas-generales-tabla.dto';
 import { UpdateListasGeneralesTablaDto } from './dto/update-listas-generales-tabla.dto';
 import { DataSource } from 'typeorm';
+import { Jurisdiccion } from '../jurisdiccion/entities/jurisdiccion.entity';
 
 @Injectable()
 export class ListasGeneralesTablasService {
@@ -111,10 +112,39 @@ export class ListasGeneralesTablasService {
         id_zona_residencia: r.id,
         zona_residencia: r.descripcion
       }));
-    
-    
 
     return { estado_civil, nacionalidad, zona_residencia };
+  
+  }
+
+  async obtenerTablasParaIngresoInterno() {    
+
+    const organismos_externos = await this.dataSource.query(`
+      SELECT id_organismo_externo, organismo_externo FROM organismos_externos
+      
+    `);
+
+    const organismos_spps = await this.dataSource.query(`
+      SELECT id_organismo, organismo FROM organismos WHERE es_unidad_carcelaria = true
+      
+    `);
+
+    const jurisdiccion = await this.dataSource.query(`
+      SELECT id_jurisdiccion, jurisdiccion FROM jurisdiccion
+      
+    `);
+
+    const estado_procesal = await this.dataSource.query(`
+      SELECT id_estado_procesal, estado_procesal FROM estado_procesal
+      
+    `);
+
+    const reingreso = await this.dataSource.query(`
+      SELECT id_reingreso, reingreso FROM reingreso
+      
+    `);
+      
+    return { organismos_externos, organismos_spps, jurisdiccion, estado_procesal, reingreso};
   
   }
 }

@@ -14,4 +14,9 @@ export class ListasGeneralesTablasController {
   async obtenerDatosFiliatorios() {
     return await this.listasGeneralesTablasService.obtenerTablasFiliarotiosTodas();
   }
+
+  @Get('tablas-ingreso-interno')
+  async obtenerTablasIngresoInterno() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaIngresoInterno();
+  }
 }

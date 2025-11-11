@@ -12,4 +12,10 @@ export class Organismo {
         unique:  false
     })
     organismo: string
+
+    @Column({
+        type: "boolean",
+        default: true
+    })
+    es_unidad_carcelaria: boolean;
 }
