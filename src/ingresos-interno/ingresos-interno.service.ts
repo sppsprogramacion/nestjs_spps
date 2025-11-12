@@ -18,8 +18,24 @@ export class IngresosInternoService {
   //NUEVO
   async create(data: CreateIngresosInternoDto, usuario: Usuario): Promise<IngresoInterno> {
     
-    let fecha_actual: any = new Date().toISOString().split('T')[0];               
+    let fecha_actual: any = new Date().toISOString().split('T')[0];     
     
+    //buscar ingreso antes de crear uno nuevo
+    const ingresoVigente = await this.ingresossInternoRepository.findOne(
+      {        
+        where: {
+          interno_id: data.interno_id,
+          eliminado: false,
+          esta_liberado: false
+        }
+      }
+    ); 
+    
+    //verificar si hay un ingreso vifente para este interno
+    if(ingresoVigente) 
+      throw new NotFoundException("El interno tiene un ingreso vigente actualmente.");
+    
+        
     //cargar datos por defecto
     data.fecha_carga = fecha_actual;
     data.organismo_alojamiento_id = usuario.organismo_id;
@@ -53,7 +69,7 @@ export class IngresosInternoService {
 
   //BUSCAR  XINTERNO
   async findXInterno(id_internox: number) { 
-      const prohibiciiones = await this.ingresossInternoRepository.find(
+      const ingresos = await this.ingresossInternoRepository.find(
         {        
           where: {
             interno_id: id_internox,
@@ -66,7 +82,7 @@ export class IngresosInternoService {
         }
       );   
           
-      return prohibiciiones;
+      return ingresos;
     
   }
   //FIN BUSCAR  XINTERNO..................................................................

@@ -152,7 +152,7 @@ export class IngresoInterno {
         name: 'reingreso_id',
         referencedColumnName: 'id_reingreso'
     })
-    reingreso: Jurisdiccion;
+    reingreso: Reingreso;
     //FIN REINGRESO  
 
     @Column({
