@@ -22,7 +22,7 @@ export class InternosService {
     //obtener numero de interno
     const num_interno_max = await this.internoRepository.createQueryBuilder('internos')
     .select('COUNT(internos.codigo)','num_max')
-    .where('internos.organismo_id = :organismo_id', {organismo_id: usuariox.organismo_id})
+    .where('internos.organismo_carga_id = :organismo_id', {organismo_id: usuariox.organismo_id})
     .getRawOne();
    
     if(!num_interno_max) {

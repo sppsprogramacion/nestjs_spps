@@ -83,7 +83,7 @@ export class Interno {
         type:'decimal',
         nullable: false
     })
-    talla: number;
+    talla: string;
 
     //OJOS COLOR
     @Column({

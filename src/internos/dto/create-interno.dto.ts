@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsDateString, IsInt, IsOptional, Length } from "class-validator";
+import { IsDateString, IsDecimal, IsInt, IsOptional, Length } from "class-validator";
 
 
 export class CreateInternoDto {
@@ -26,8 +26,8 @@ export class CreateInternoDto {
     @IsInt({message: "sexo_id debe ser un número entero"})
     sexo_id: number;    
     
-    @IsInt({message: "talla debe ser un número entero"})
-    talla: number;
+    @IsDecimal({ decimal_digits: '1,2' },{ message: 'talla debe ser un decimal con 1 o 2 decimales' })
+    talla: string;
     
     @Length(1,10,{message: "ojos_color_id debe tener entre $constraint1 y $constraint2 caracteres."})
     ojos_color_id: string;
