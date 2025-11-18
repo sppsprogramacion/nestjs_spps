@@ -286,9 +286,11 @@ export class VisitasInternosService {
   async updateProhibicionParentesco(id: number, dataRequest: UpdateProhibirParentescoDto, usuariox: Usuario) {
     
     let fecha_actual: any = new Date().toISOString().split('T')[0];
+    const fechaInicio = new Date(dataRequest.fecha_inicio);
+    const fechaFin = new Date(dataRequest.fecha_fin);
     
     //controlar si la fecha de inicio es menor o ihgual que la fecha de fin
-    if(dataRequest.fecha_fin.toISOString().split('T')[0] < dataRequest.fecha_inicio.toISOString().split('T')[0]) throw new ConflictException("No se realizó la prohibición. La fecha de finalizacion no puede ser anterior a la fecha de inicio.")
+    if(fechaFin.toISOString().split('T')[0] < fechaInicio.toISOString().split('T')[0]) throw new ConflictException("No se realizó la prohibición. La fecha de finalizacion no puede ser anterior a la fecha de inicio.")
 
     //buscar y controlar si existe el vinculo entre visita e interno
     let dataVisitaInternoActual = await this.findOne(id);
@@ -317,7 +319,7 @@ export class VisitasInternosService {
         dataNovedad.novedad = "PROHIBICION DE PARENTESCO";
         dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
             + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
-            + " - Desde: " + dataRequest.fecha_inicio.toISOString().split('T')[0] + " hasta " + dataRequest.fecha_fin.toISOString().split('T')[0] + " - OBS: " + dataRequest.detalles_prohibicion;
+            + " - Desde: " + fechaInicio.toISOString().split('T')[0] + " hasta " + fechaFin.toISOString().split('T')[0] + " - OBS: " + dataRequest.detalles_prohibicion;
         dataNovedad.organismo_id = usuariox.organismo_id;
         dataNovedad.usuario_id = usuariox.id_usuario;
         dataNovedad.fecha_novedad = fecha_actual;
@@ -338,7 +340,8 @@ export class VisitasInternosService {
   async updateLevantarProhibicionParentesco(id: number, dataRequest: UpdateLevantarProhibicionParentescoDto, usuariox: Usuario) {
        
     let fecha_actual: any = new Date().toISOString().split('T')[0];
-    
+    const fechaFin = new Date(dataRequest.fecha_fin);
+
     //buscar 
     let dataVisitaInternoActual = await this.findOne(id);
     //controlar si existe el vinculo entre visita e interno
@@ -352,10 +355,10 @@ export class VisitasInternosService {
     if(!dataVisitaInternoActual.prohibido) throw new ConflictException("No es posible realizar el cambio. El parentesco no se encontraba prohibido.")
     
     //controlar si la fecha_fin es mayor a la fecha actual
-    if(dataRequest.fecha_fin.toISOString().split('T')[0] > fecha_actual) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser posterior a la fecha actual.")
+    if(fechaFin.toISOString().split('T')[0] > fecha_actual) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser posterior a la fecha actual.")
     
     //controlar si la fecha fin es menor que la fecha inicial
-    if(dataRequest.fecha_fin.toISOString().split('T')[0] < dataVisitaInternoActual.fecha_inicio.toString()) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser anterior a la fecha de inicio de la prohibicion.")
+    if(fechaFin.toISOString().split('T')[0] < dataVisitaInternoActual.fecha_inicio.toString()) throw new ConflictException("No es posible realizar el cambio. La fecha de finalizacion no puede ser anterior a la fecha de inicio de la prohibicion.")
     
     //carga en objeto para actualizar el levantamiento
     let dataVisitaInterno: UpdateProhibirParentescoDto = new UpdateProhibirParentescoDto;
@@ -378,7 +381,7 @@ export class VisitasInternosService {
         dataNovedad.novedad = "LEVANTAMIEMTO PROHIBICION DE PARENTESCO";
         dataNovedad.novedad_detalle = "Con interno: " + dataVisitaInternoActual.interno.apellido
             + " " + dataVisitaInternoActual.interno.nombre + " - Parentesco: " + dataVisitaInternoActual.parentesco.parentesco 
-            + " - Desde: " + dataVisitaInternoActual.fecha_inicio + " hasta " + dataRequest.fecha_fin.toISOString().split('T')[0] + " - OBS: " + dataRequest.detalle_levantamiento;
+            + " - Desde: " + dataVisitaInternoActual.fecha_inicio + " hasta " + fechaFin.toISOString().split('T')[0] + " - OBS: " + dataRequest.detalle_levantamiento;
         dataNovedad.organismo_id = usuariox.organismo_id;
         dataNovedad.usuario_id = usuariox.id_usuario;
         dataNovedad.fecha_novedad = fecha_actual;
