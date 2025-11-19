@@ -82,6 +82,12 @@ export class ExcepcionIngresoVisita {
     anulado: boolean;
 
     @Column({
+        type: "boolean",
+        default: false
+    })
+    es_visita_ordinaria: boolean;
+
+    @Column({
         type: 'date',
         nullable: false
         

@@ -6,6 +6,7 @@ import { CreateExcepcionIngresoVisitaDto } from './dto/create-excepciones-ingres
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { AnularExepcionDto } from './dto/anular-exepcion-visita.dto';
 import { CumplimentarExepcionDto } from './dto/cumplimentar-exepcion-visita.dto';
+import { InternosService } from 'src/internos/internos.service';
 
 
 @Injectable()
@@ -13,7 +14,9 @@ export class ExcepcionesIngresoVisitaService {
 
   constructor(
     @InjectRepository(ExcepcionIngresoVisita)
-    private readonly excepcionIngresoVisitaRepository: Repository<ExcepcionIngresoVisita>
+    private readonly excepcionIngresoVisitaRepository: Repository<ExcepcionIngresoVisita>,
+
+    private readonly internoService: InternosService,
 
   ){}
 
@@ -30,6 +33,12 @@ export class ExcepcionesIngresoVisitaService {
     dataDto.usuario_carga_id = usuario.id_usuario;
     dataDto.organismo_id = usuario.organismo_id;
     
+    //verificar la unidad del interno coincide con la unidad del usuario
+    let dataInterno = await this.internoService.findOne(dataDto.interno_id);
+    if(!dataInterno) throw new NotFoundException("El interno seleccionado no se encuentra registrado.");
+    if(dataInterno.organismo_id != usuario.organismo_id) throw new ConflictException("No es posible realizar cambios en internos alojados en otros organismos o unidades.");
+
+
     try {
       
       const nuevo = await this.excepcionIngresoVisitaRepository.create(dataDto);

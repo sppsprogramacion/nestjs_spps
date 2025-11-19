@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsDate, IsDateString, IsInt, Length } from "class-validator";
+import { IsBoolean, IsDate, IsDateString, IsInt, Length } from "class-validator";
 
 
 export class CreateExcepcionIngresoVisitaDto {
@@ -22,6 +22,9 @@ export class CreateExcepcionIngresoVisitaDto {
     @IsDateString()
     @Transform(({ value }) => value.split('T')[0])
     fecha_excepcion: Date;
+    
+    @IsBoolean()
+    es_visita_ordinaria: boolean;
 
     cumplimentado: boolean;
 
