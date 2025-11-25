@@ -58,6 +58,7 @@ export class ExcepcionesIngresoVisitaService {
       {        
         where: {
           ciudadano_id: id_ciudanox,
+          anulado: false,
         },
         order:{
           id_excepcion_ingreso_visita: "DESC"
