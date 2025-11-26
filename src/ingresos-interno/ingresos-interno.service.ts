@@ -69,20 +69,17 @@ export class IngresosInternoService {
 
   //BUSCAR  XINTERNO
   async findXInterno(id_internox: number) { 
-      const ingresos = await this.ingresossInternoRepository.find(
+      const ingreso = await this.ingresossInternoRepository.findOne(
         {        
           where: {
             interno_id: id_internox,
             eliminado: false,
             esta_liberado: false
-          },
-          order:{
-            id_ingreso_interno: "DESC"
           }
         }
       );   
           
-      return ingresos;
+      return ingreso;
     
   }
   //FIN BUSCAR  XINTERNO..................................................................
