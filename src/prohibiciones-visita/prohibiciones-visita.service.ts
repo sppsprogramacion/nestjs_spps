@@ -89,7 +89,6 @@ export class ProhibicionesVisitaService {
       );   
           
       return prohibiciiones;
-    
   }
   //FIN BUSCAR  XORGANISMO..................................................................
 

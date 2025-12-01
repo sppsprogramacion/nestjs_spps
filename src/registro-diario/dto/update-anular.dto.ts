@@ -6,7 +6,7 @@ export class UpdateAnularDto{
 
     anulado: boolean;
     
-    @MaxLength(2000,{message: "El detalle_anulado debe tener hasta $constraint1 caracteres."})
+    @MaxLength(1500,{message: "El detalle_anulado debe tener hasta $constraint1 caracteres."})
     detalle_anulado: string;
     
 }

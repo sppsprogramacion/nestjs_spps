@@ -31,7 +31,7 @@ export class IngresosInternoService {
       }
     ); 
     
-    //verificar si hay un ingreso vifente para este interno
+    //verificar si hay un ingreso vigente para este interno
     if(ingresoVigente) 
       throw new NotFoundException("El interno tiene un ingreso vigente actualmente.");
     
@@ -106,7 +106,7 @@ export class IngresosInternoService {
   async findOne(id: number) {
 
     const respuesta = await this.ingresossInternoRepository.findOneBy({id_ingreso_interno: id});
-    if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
+    if (!respuesta) throw new NotFoundException("El ingreso solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................

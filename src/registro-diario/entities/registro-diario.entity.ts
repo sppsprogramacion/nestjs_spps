@@ -129,7 +129,7 @@ export class RegistroDiario {
 
     @Column({
         type: 'varchar',
-        length: 2000,
+        length: 1600,
         nullable: true
     })
     detalle_anulado: string;

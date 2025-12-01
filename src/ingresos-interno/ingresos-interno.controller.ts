@@ -21,6 +21,7 @@ export class IngresosInternoController {
     }  
   
     @Get('todos')
+    @Auth(ValidRoles.superadmin)
     findAll() {
       return this.ingresosInternoService.findAll();
     }
@@ -28,7 +29,7 @@ export class IngresosInternoController {
     //BUSCAR  XID INTERNO
     @Get('buscar-xinterno')  
     @Auth()
-    async findXCiudadano(
+    async findXInterno(
       @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
       @Query('id_interno', ParseIntPipe) id_interno: string
       
@@ -54,7 +55,7 @@ export class IngresosInternoController {
   
   
     @Put(':id')
-    @Auth()
+    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
     update(
       @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
       @Param('id', ParseIntPipe) id: string, 
