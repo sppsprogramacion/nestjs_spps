@@ -3,7 +3,7 @@ import { CreateTrasladosInternoDto } from './dto/create-traslados-interno.dto';
 import { UpdateTrasladosInternoDto } from './dto/update-traslados-interno.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TrasladoInterno } from './entities/traslados-interno.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { IngresosInternoService } from 'src/ingresos-interno/ingresos-interno.service';
 import { UpdateProcesarTrasladoDto } from './dto/update-procesar-traslado.dto';
@@ -100,9 +100,33 @@ export class TrasladosInternoService {
   }
   //FIN BUSCAR  XINGRESO..................................................................
 
+  //BUSCAR  XORGANISMO
+  async findXMiOrganismo(id_organismox: number) {    
+    
+      const traslados = await this.trasladoInternoRepository.find(
+        {        
+          where: [
+            { 
+              organismo_origen_id: id_organismox,
+              estado_traslado: Not("Anulado")
+            },
+            { 
+              organismo_destino_id: id_organismox,
+              estado_traslado: Not("Anulado")
+            }
+          ] ,     
+          order:{
+            id_traslado_interno: "DESC"
+          }
+        }
+      );   
+          
+      return traslados;
+  }
+  //FIN BUSCAR  XORGANISMO.................................................................
+
   //BUSCAR  PENDIENTES XORGANISMO
   async findPendientesXOrganismo(id_organismox: number) {    
-    //const respuesta = await this.usuariosCentroRepository.findOneBy({id_usuario_centro: id});
     
       const traslados = await this.trasladoInternoRepository.find(
         {        
@@ -124,7 +148,7 @@ export class TrasladosInternoService {
           
       return traslados;
   }
-  //FIN BUSCAR  XORGANISMO.................................................................
+  //FIN BUSCAR PENDIENTES XORGANISMO.................................................................
   
   //BUSCAR  XID
   async findOne(id: number) {
@@ -196,7 +220,7 @@ export class TrasladosInternoService {
         dataTraslado.fecha_ingreso_destino = fecha_actual;
       }
       
-      if(nuevo_estado_traslado == "rechaar")
+      if(nuevo_estado_traslado == "rechazar")
         dataTraslado.estado_traslado = "Rechazado";
       
       dataTraslado.obs_traslado = dataTraslado.estado_traslado.toLocaleUpperCase() + ": " + data.obs_traslado + " - (Usuario: " + usuario. apellido + " " + usuario.nombre + " - " + fecha_actual + " " + hora_actual + ")"; 

@@ -36,7 +36,7 @@ export class TrasladosInternoController {
   //BUSCAR  XID INGRESO
   @Get('buscar-xingreso')  
   @Auth()
-  async findXCiudadano(
+  async findXIngreso(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ingreso', ParseIntPipe) id_ingreso: string
     
@@ -45,6 +45,18 @@ export class TrasladosInternoController {
     return this.trasladosInternoService.findXIngreso(+id_ingreso);
   }
   //FIN BUSCAR  XID INGRESO....................................................
+
+  //BUSCAR X MI ORGANISMO
+  @Get('buscar-miorganismo')  
+  @Auth()
+  async findMiOrganismo(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    
+  ) {    
+    
+    return this.trasladosInternoService.findXMiOrganismo(+user.organismo_id);
+  }  
+  //FIN BUSCAR  X MI ORGANISMO....................................................
 
   //BUSCAR  PENDIENTES X MI ORGANISMO
   @Get('buscar-pendientes-miorganismo')  
@@ -58,7 +70,7 @@ export class TrasladosInternoController {
   }  
   //FIN BUSCAR  X MI ORGANISMO....................................................
 
-  //BUSCAR  X ORGANISMO
+  //BUSCAR  PENDIENTES X ORGANISMO
   @Get('buscar-pendientes-xorganismo')  
   @Auth()
   async findPendientesXOrganismo(
