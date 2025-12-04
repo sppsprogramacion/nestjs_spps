@@ -6,6 +6,8 @@ import { Interno } from './entities/interno.entity';
 import { Repository } from 'typeorm';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { CreateInternoUnidadDto } from './dto/create-interno-unidad.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class InternosService {
@@ -16,9 +18,19 @@ export class InternosService {
     private readonly driveImagenesService: DriveImagenesService,
   ){}
   
-  async create(createDto: CreateInternoDto, usuariox: Usuario) {
+  async create(createDto: CreateInternoUnidadDto, usuariox: Usuario) {
     let num_tramite_nuevo:number = 0;
-    
+    // Convertir y excluir propiedades no deseadas
+    // const createDto = plainToInstance(CreateInternoDto, createUnidadDto, {
+    //   excludeExtraneousValues: true, // Solo incluye propiedades decoradas en CreateInternoDto
+    // });
+
+    // if(usuariox.organismo.es_alcaidia){
+    //   createDto.prontuario == null;
+    // }
+    // else{
+    //   createDto.num_oc == null;
+    // }
     //obtener numero de interno
     const num_interno_max = await this.internoRepository.createQueryBuilder('internos')
     .select('COUNT(internos.codigo)','num_max')
@@ -34,10 +46,11 @@ export class InternosService {
     createDto.codigo = usuariox.organismo_id + "-" + num_tramite_nuevo;
     createDto.organismo_id = usuariox.organismo_id;
     createDto.organismo_carga_id = usuariox.organismo_id;
+    
 
     try {
 
-      const nuevo: Interno = await this.internoRepository.create(createDto );
+      const nuevo: Interno = await this.internoRepository.create(createDto);
 
       return await this.internoRepository.save(nuevo);
 

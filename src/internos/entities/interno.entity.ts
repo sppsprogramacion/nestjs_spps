@@ -31,11 +31,20 @@ export class Interno {
 
     @Column({
         type: 'int',
-        nullable: false,
-        unique: true
+        nullable: true,
+        unique: true,
+        default:null
     })
     prontuario: number;
     
+    @Column({
+        type: 'int',
+        nullable: true,
+        unique: true,
+        default: null
+    })
+    num_oc: number;
+
     @Column({
         type: 'int',
         nullable: false,

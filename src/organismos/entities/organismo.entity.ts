@@ -18,4 +18,10 @@ export class Organismo {
         default: true
     })
     es_unidad_carcelaria: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    es_alcaidia: boolean;
 }

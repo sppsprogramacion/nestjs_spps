@@ -2,7 +2,7 @@ import { Transform } from "class-transformer";
 import { IsDateString, IsDecimal, IsInt, IsOptional, Length } from "class-validator";
 
 
-export class CreateInternoDto {
+export class CreateInternoUnidadDto {
     
     codigo: string;
 
@@ -11,8 +11,6 @@ export class CreateInternoDto {
 
     @IsInt({message: "El prontuario debe ser un número entero."})
     prontuario: number;
-    
-    num_oc: number;
 
     @Length(1,300,{message: "El apellido debe tener entre $constraint1 y $constraint2 caracteres."})
     apellido: string;

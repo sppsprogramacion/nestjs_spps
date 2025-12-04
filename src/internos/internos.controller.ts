@@ -7,6 +7,7 @@ import { CreateInternoDto } from './dto/create-interno.dto';
 import { InternosService } from './internos.service';
 import { UpdateInternoDto } from './dto/update-interno.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { CreateInternoUnidadDto } from './dto/create-interno-unidad.dto';
 
 @Controller('internos')
 export class InternosController {
@@ -37,7 +38,7 @@ export class InternosController {
   @Auth()
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-    @Body() createDto: CreateInternoDto) {
+    @Body() createDto: CreateInternoUnidadDto) {
 
     //cargar datos por defecto
     let fecha_actual: any = new Date().toISOString().split('T')[0];    
