@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsDateString, IsInt, Length } from "class-validator";
+import { IsDateString, IsInt, IsOptional, Length } from "class-validator";
 
 
 export class CreateIngresosInternoDto {
@@ -17,8 +17,7 @@ export class CreateIngresosInternoDto {
     organismo_externo_id: number;
     
     @IsInt({message: "organismo_procedencia_id debe ser un número entero."})
-    organismo_procedencia_id: number;
-    
+    organismo_procedencia_id: number;    
     
     organismo_alojamiento_id: number;
     
@@ -44,6 +43,14 @@ export class CreateIngresosInternoDto {
     @Length(1,50,{message: "prontuario_policial debe tener entre $constraint1 y $constraint2 caracteres."})
     prontuario_policial: string;
     
+    @IsInt({message: "tipo_defensor_id debe ser un número entero."})
+    tipo_defensor_id: number;
+
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
+    @Length(1,200,{message: "abogado debe tener entre $constraint1 y $constraint2 caracteres."})
+    abogado: string;
+
     esta_liberado: boolean;
     
     fecha_egreso: Date;

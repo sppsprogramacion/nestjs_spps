@@ -4,6 +4,7 @@ import { Jurisdiccion } from "src/jurisdiccion/entities/jurisdiccion.entity";
 import { OrganismoExterno } from "src/organismos-externos/entities/organismos-externo.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Reingreso } from "src/reingreso/entities/reingreso.entity";
+import { TipoDefensor } from "src/tipos-defensor/entities/tipos-defensor.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -168,6 +169,29 @@ export class IngresoInterno {
         nullable: false
     })
     prontuario_policial: string;
+
+    //TIPO DEFENSOR
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    tipo_defensor_id: number;
+
+    @ManyToOne(type => TipoDefensor, {eager: true} )
+    @JoinColumn({
+        name: 'tipo_defensor_id',
+        referencedColumnName: 'id_tipo_defensor'
+    })
+    tipo_defensor: TipoDefensor;
+    //FIN TIPO DEFENSOR    
+
+    @Column({
+        type:'varchar',
+        length: 200,
+        nullable: true
+    })
+    abogado: string;
 
     @Column({
         type: "boolean",

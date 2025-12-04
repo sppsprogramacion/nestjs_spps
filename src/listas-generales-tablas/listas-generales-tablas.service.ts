@@ -143,8 +143,13 @@ export class ListasGeneralesTablasService {
       SELECT id_reingreso, reingreso FROM reingreso
       
     `);
+
+    const tipos_defensor = await this.dataSource.query(`
+      SELECT id_tipo_defensor, tipo_defensor FROM tipos_defensor
       
-    return { organismos_externos, organismos_spps, jurisdiccion, estado_procesal, reingreso};
+    `);
+      
+    return { organismos_externos, organismos_spps, jurisdiccion, estado_procesal, reingreso, tipos_defensor};
   
   }
 }
