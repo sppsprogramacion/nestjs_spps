@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 import { Departamento } from "src/departamentos/entities/departamento.entity";
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
@@ -14,6 +14,7 @@ import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Tamanio } from "src/tamanio/entities/tamanio.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { ZonaResidencia } from "src/zona-residencia/entities/zona-residencia.entity";
+import { IngresoInterno } from "src/ingresos-interno/entities/ingresos-interno.entity";
 
 @Entity('internos')
 export class Interno {
@@ -394,5 +395,8 @@ export class Interno {
     })
     organismo_carga: Organismo;
     //FIN ORGANISMO
+
+    @OneToMany(() => IngresoInterno, ingreso => ingreso.interno)
+    ingresos: IngresoInterno[];
 
 }

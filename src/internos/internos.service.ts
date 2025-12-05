@@ -97,8 +97,13 @@ export class InternosService {
       .createQueryBuilder('interno')
       .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
+      .leftJoin('interno.ingresos', 'ingresos')
       .where('interno.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
-      .andWhere('interno.organismo_id = :id_organismo', {id_organismo: id_organismox})
+      .andWhere('ingresos.organismo_alojamiento_id = :idOrg', {
+        idOrg: id_organismox,
+      })
+      .andWhere('ingresos.esta_liberado = :liberado', { liberado: false })
+      //.andWhere('interno.organismo_id = :id_organismo', {id_organismo: id_organismox})
       .orderBy('interno.apellido', 'ASC')
       .getMany();
   }
