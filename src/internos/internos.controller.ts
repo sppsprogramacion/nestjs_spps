@@ -8,6 +8,7 @@ import { InternosService } from './internos.service';
 import { UpdateInternoDto } from './dto/update-interno.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { CreateInternoUnidadDto } from './dto/create-interno-unidad.dto';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('internos')
 export class InternosController {
@@ -35,7 +36,7 @@ export class InternosController {
   }
 
   @Post()
-  @Auth()
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() createDto: CreateInternoUnidadDto) {
@@ -49,13 +50,18 @@ export class InternosController {
   }
 
   @Get('todos')
-  findAll() {
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  findAll(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {
     return this.internosService.findAll();
   }
 
   //BUSCAR X PRONTUARIO
   @Get('buscar-xprontuario')  
+  @Auth()
   async findInternoXProntuario(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('prontuario', ParseIntPipe) prontuario: string, 
   ) {    
     
@@ -65,7 +71,9 @@ export class InternosController {
 
   //BUSCAR X CODIGO
   @Get('buscar-xcodigo')  
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   async findInternoXCodigo(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('codigo') codigo: string, 
   ) {    
     
@@ -76,7 +84,9 @@ export class InternosController {
 
   //BUSCAR LISTA X PRONTUARIO
   @Get('buscarlista-xprontuario')  
+  @Auth()
   async findListaXDni(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('prontuario', ParseIntPipe) prontuario: string, 
   ) {    
     
@@ -114,7 +124,12 @@ export class InternosController {
   //FIN BUSCAR LISTA X APELLIDO...........................................
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: string) {
+  @Auth()  
+  findOne(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id', ParseIntPipe
+  ) id: string) {
+    
     return this.internosService.findOne(+id);
   }
 
@@ -126,7 +141,13 @@ export class InternosController {
   //FIN PARA RUTA NO DEFINIDA...........
 
   @Put(':codigo')
-  update(@Param('codigo') codigo: string, @Body() UpdateInternoDto: UpdateInternoDto) {
+  @Auth()
+  update(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('codigo') codigo: string, 
+    @Body() UpdateInternoDto: UpdateInternoDto
+  ) {
+    
     return this.internosService.updateXCodigo(codigo, UpdateInternoDto);
   }
 

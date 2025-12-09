@@ -23,8 +23,8 @@ export class TrasladosInternoController {
   //FIN NUEVO......................................................
 
   //TODOS
-  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   @Get('todos')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   findAll(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {
