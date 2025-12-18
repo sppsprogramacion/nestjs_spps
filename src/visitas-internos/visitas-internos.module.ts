@@ -9,10 +9,12 @@ import { AuthModule } from 'src/auth/auth.module';
 import { InternosService } from 'src/internos/internos.service';
 import { Interno } from 'src/internos/entities/interno.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { InternosModule } from 'src/internos/internos.module';
 
 @Module({
   imports: [
     AuthModule,
+    InternosModule,
     TypeOrmModule.forFeature([
       VisitaInterno,
       Interno,
@@ -20,6 +22,6 @@ import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service'
     ])
   ],
   controllers: [VisitasInternosController],
-  providers: [VisitasInternosService, DriveImagenesService, InternosService, NovedadesCiudadanoService]
+  providers: [VisitasInternosService, DriveImagenesService, NovedadesCiudadanoService]
 })
 export class VisitasInternosModule {}

@@ -9,6 +9,9 @@ import { UpdateInternoDto } from './dto/update-interno.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { CreateInternoUnidadDto } from './dto/create-interno-unidad.dto';
 import { ValidRoles } from 'src/auth/interfaces';
+import { UpdateInternoDatosPersonalesDto } from './dto/update-interno-datospersonales.dto';
+import { UpdateInternoCaracteristicasPersonalesDto } from './dto/update-interno-caracteristicaspersonales.dto';
+import { UpdateInternoDatosFiliatoriosDto } from './dto/update-interno-datosfiliatorios.dto';
 
 @Controller('internos')
 export class InternosController {
@@ -140,15 +143,64 @@ export class InternosController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Put(':codigo')
+
+  //MODIFICAR DATOS PERSONALES
+  @Put('update-datos-personales')
   @Auth()
+  updateDatosPersonales(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_interno', ParseIntPipe) id_interno: string ,
+    @Body() dataDto: UpdateInternoDatosPersonalesDto
+  ) {
+
+    //domicilio: para que solo se modifiquen los datos de domicilio e identificar
+    //que se guarde en tabla domicilios_ciudadano
+    return this.internosService.update(+id_interno, dataDto, user);
+  }
+  //FIN MODIFICAR DATOS PERSONALES...........................................
+
+  //MODIFICAR CARACTERISTICAS PERSONALES
+  @Put('update-caracteristicas-personales')
+  @Auth()
+  updateCaracteristicasPersonales(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_interno', ParseIntPipe) id_interno: string ,
+    @Body() dataDto: UpdateInternoCaracteristicasPersonalesDto
+  ) {
+
+    //domicilio: para que solo se modifiquen los datos de domicilio e identificar
+    //que se guarde en tabla domicilios_ciudadano
+    return this.internosService.update(+id_interno, dataDto, user);
+  }
+  //FIN MODIFICAR CARACTERISTICAS PERSONALES...........................................
+
+  //MODIFICAR DATOS FILIATORIOS
+  @Put('update-datos-filiatorios')
+  @Auth()
+  updateDatosFiliatorios(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_interno', ParseIntPipe) id_interno: string ,
+    @Body() dataDto: UpdateInternoDatosFiliatoriosDto
+  ) {
+
+    //domicilio: para que solo se modifiquen los datos de domicilio e identificar
+    //que se guarde en tabla domicilios_ciudadano
+    return this.internosService.update(+id_interno, dataDto, user);
+  }
+  //FIN MODIFICAR DATOS FILIATORIOS...........................................
+  
+
+  //EDITAR
+  @Put(':id')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   update(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-    @Param('codigo') codigo: string, 
+    @Param('id', ParseIntPipe) id: string,  
     @Body() UpdateInternoDto: UpdateInternoDto
   ) {
     
-    return this.internosService.updateXCodigo(codigo, UpdateInternoDto);
+    return this.internosService.update(+id, UpdateInternoDto,user);
   }
+  //FIN EDITAR........................................................
 
 }

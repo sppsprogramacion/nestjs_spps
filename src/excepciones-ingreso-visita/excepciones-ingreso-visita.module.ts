@@ -7,16 +7,18 @@ import { ExcepcionIngresoVisita } from './entities/excepciones-ingreso-visita.en
 import { InternosService } from 'src/internos/internos.service';
 import { Interno } from 'src/internos/entities/interno.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { InternosModule } from 'src/internos/internos.module';
 
 @Module({
   imports: [
     AuthModule,
+    InternosModule,
     TypeOrmModule.forFeature([
       ExcepcionIngresoVisita,
       Interno
     ])
   ],
   controllers: [ExcepcionesIngresoVisitaController],
-  providers: [ExcepcionesIngresoVisitaService, DriveImagenesService, InternosService]
+  providers: [ExcepcionesIngresoVisitaService, DriveImagenesService]
 })
 export class ExcepcionesIngresoVisitaModule {}
