@@ -58,6 +58,7 @@ import { EstadoProcesalModule } from './estado-procesal/estado-procesal.module';
 import { ReingresoModule } from './reingreso/reingreso.module';
 import { IngresosInternoModule } from './ingresos-interno/ingresos-interno.module';
 import { TrasladosInternoModule } from './traslados-interno/traslados-interno.module';
+import { EntradasSalidasModule } from './entradas-salidas/entradas-salidas.module';
 
 @Module({
   imports: [
@@ -123,6 +124,7 @@ import { TrasladosInternoModule } from './traslados-interno/traslados-interno.mo
     ReingresoModule,
     IngresosInternoModule,
     TrasladosInternoModule,
+    EntradasSalidasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
