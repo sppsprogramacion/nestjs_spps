@@ -1,7 +1,6 @@
 import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { Interno } from "src/internos/entities/interno.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
-import { OrganismoDestino } from "src/organismos_destino/entities/organismos_destino.entity";
 import { Parentesco } from "src/parentescos/entities/parentesco.entity";
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
@@ -64,13 +63,6 @@ export class EntradasSalida {
     })
     edad: number;
 
-    @Column({
-        type: 'varchar',
-        length: 20,
-        nullable: false,
-    })
-    categoria: string
-
     //SEXO
     @Column({
         type: 'int',
@@ -98,46 +90,155 @@ export class EntradasSalida {
         name: 'parentesco_id',
         referencedColumnName: 'id_parentesco'
     })
-    tipo_acceso: Parentesco;
+    parentesco: Parentesco;
     //FIN PARENTESCO
+
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+    })
+    categoria: string
+
+    //CIUDADANO TUTOR
+    @Column({
+        type: 'int',
+        nullable: true
+    })
+    ciudadano_tutor_id?: number;
+    
+    @ManyToOne(() => Ciudadano, {
+      eager: true,
+      nullable: true,
+      onDelete: 'SET NULL',
+    })
+    @JoinColumn({
+      name: 'ciudadano_tutor_id',
+      referencedColumnName: 'id_ciudadano',
+    })
+    ciudadano_tutor?: Ciudadano;
+    //FIN CIUDADANO TUTOR
   
+    //ingreso principal
     @Column({
         type: 'date',
         nullable: false
     })
-    fecha_ingreso: Date;
+    fecha_ingreso_principal: Date;
 
     @Column({
         type: 'time',
         nullable: false,
     })
-    hora_ingreso: string;
+    hora_ingreso_principal: string;
 
     @Column({
         type: 'time',
         nullable: true,
     })
-    hora_egreso: string;
+    hora_egreso_principal: string;
+    //fin ingreso principal
+
+    //control interno
+    @Column({
+        type: 'date',
+        nullable: true
+    })
+    fecha_ingreso_control_interno: Date;
+
+    @Column({
+        type: 'time',
+        nullable: true,
+    })
+    hora_ingreso_control_interno: string;
+
+    @Column({
+        type: 'time',
+        nullable: true,
+    })
+    hora_egreso_control_interno: string;
+    //fin control interno
+
+    //mesa de control
+    @Column({
+        type: 'date',
+        nullable: true
+    })
+    fecha_ingreso_mesa_control: Date;
+
+    @Column({
+        type: 'time',
+        nullable: true,
+    })
+    hora_ingreso_mesa_control: string;
+
+    @Column({
+        type: 'time',
+        nullable: true,
+    })
+    hora_egreso_mesa_control: string;
+    //fin mesa de control
+
+    //acceso 4
+    @Column({
+        type: 'date',
+        nullable: true
+    })
+    fecha_ingreso_acceso_4: Date;
+
+    @Column({
+        type: 'time',
+        nullable: true,
+    })
+    hora_ingreso_acceso_4: string;
+
+    @Column({
+        type: 'time',
+        nullable: true,
+    })
+    hora_egreso_acceso_4: string;
+    //fin acceso 4
 
     @Column({
         type: 'varchar',
-        length: 2000,
+        length: 1000,
         nullable: true
     })
-    observaciones: string;
+    menores: string;
 
+    @Column({
+        type: 'varchar',
+        length: 20,
+        nullable: true
+    })
+    pabellon: string;
+
+    @Column({
+        type: 'varchar',
+        length: 200,
+        nullable: true
+    })
+    casillero: string;
+
+    @Column({
+        type: 'varchar',
+        length: 1000,
+        nullable: true
+    })
+    observaciones_usuarios: string;
+    
     @Column({
         type: "boolean",
         default: false
     })
-    anulado: boolean;
+    cancelado: boolean;
 
     @Column({
         type: 'varchar',
-        length: 1600,
+        length: 250,
         nullable: true
     })
-    detalle_anulado: string;
+    detalle_cancelado: string;
 
     //ORGANISMO
     @Column({
