@@ -12,7 +12,21 @@ export class EntradasSalida {
 
     @PrimaryGeneratedColumn()
     id_entrada_salida: number; 
+
+    @Column({
+        type: 'varchar',
+        length: 15,
+        unique: true,
+        nullable: false,
+    })
+    numero_ficha: string
     
+    @Column({
+        type: 'int',
+        nullable: false
+    })
+    numero_aux: number;
+
     //INTERNO
     @Column({
         type: 'int',
@@ -31,7 +45,7 @@ export class EntradasSalida {
     @Column({
         type: 'varchar',
         length: 200,
-        nullable: true,
+        nullable: false,
     })
     nombre_interno: string
     
@@ -53,7 +67,7 @@ export class EntradasSalida {
     @Column({
         type: 'varchar',
         length: 200,
-        nullable: true,
+        nullable: false,
     })
     nombre_visita: string
 

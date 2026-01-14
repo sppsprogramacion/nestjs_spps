@@ -52,15 +52,20 @@ export class AuthService {
     const { dni, clave } = loginUsuarioDto;    
     const usuario = await this.usuarioRepository.createQueryBuilder('usuario')
     .where('usuario.dni = :dni', { dni: dni })
-    .select(['usuario.dni', 'usuario.clave', 'usuario.id_usuario'])
+    .select(['usuario.dni', 'usuario.clave', 'usuario.id_usuario', 'usuario.activo'])
     .getOne();
 
     if(!usuario)
       throw new UnauthorizedException ("Los datos de login no son válidos");
 
+    
     if( !bcrypt.compareSync(clave, usuario.clave) )
       throw new UnauthorizedException ("Los datos de login no son válidos");
     
+    if(!usuario.activo)
+      throw new UnauthorizedException ("El usuario no esta habilitado");
+    
+
     const usuario2 = await this.usuarioRepository.findOne(
       {
         relations: ['roles'],
@@ -69,7 +74,9 @@ export class AuthService {
     );
     
     //control de autorizacion del usuario en el sistema indicado
-    const sistemasRoles = usuario2.roles.map((rolUsuario) => rolUsuario.rol.sistema_id) 
+    const sistemasRoles = usuario2.roles
+      .filter(rolUsuario => rolUsuario.activo === true)
+      .map((rolUsuario) => rolUsuario.rol.sistema_id) 
        
     if(!sistemasRoles.includes( sistema )){        
       throw new UnauthorizedException ("No está autorizado en este sistema");

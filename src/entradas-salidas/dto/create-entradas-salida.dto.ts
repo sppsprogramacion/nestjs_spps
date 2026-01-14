@@ -2,34 +2,38 @@ import { IsInt, IsOptional, Length } from "class-validator";
 
 export class CreateEntradasSalidaDto {
     
-    id_entrada_salida: number;     
+    id_entrada_salida: number;   
+    
+    numero_ficha: string
+
+    numero_aux: number;
     
     @IsInt({message: "interno_id debe ser un número entero."})
     interno_id: number;
     
-    @Length(1,300,{message: "nombre_interno debe tener entre $constraint1 y $constraint2 caracteres."})
+    //@Length(1,300,{message: "nombre_interno debe tener entre $constraint1 y $constraint2 caracteres."})
     nombre_interno: string    
     
     @IsInt({message: "ciudadano_id debe ser un número entero."})
     ciudadano_id: number;    
     
-    @Length(1,300,{message: "nombre_visita debe tener entre $constraint1 y $constraint2 caracteres."})
+    //@Length(1,300,{message: "nombre_visita debe tener entre $constraint1 y $constraint2 caracteres."})
     nombre_visita: string
     
-    @IsInt({message: "edad debe ser un número entero."})
+    //@IsInt({message: "edad debe ser un número entero."})
     edad: number;
     
-    @IsInt({message: "sexo_id debe ser un número entero."})
+    //@IsInt({message: "sexo_id debe ser un número entero."})
     sexo_id: number;    
     
-    @IsOptional()
-    @IsInt({message: "parentesco_id debe ser un número entero."})
+    // @IsOptional()
+    // @IsInt({message: "parentesco_id debe ser un número entero."})
     parentesco_id: number;    
     
-    @Length(1,20,{message: "nombre_visita debe tener entre $constraint1 y $constraint2 caracteres."})
+    //@Length(1,20,{message: "nombre_visita debe tener entre $constraint1 y $constraint2 caracteres."})
     categoria: string
 
-    @IsInt({message: "El ciudadano_id debe ser un número entero."})
+    //@IsInt({message: "El ciudadano_id debe ser un número entero."})
     ciudadano_tutor_id?: number;       
     
     //ingreso principal    
@@ -63,8 +67,8 @@ export class CreateEntradasSalidaDto {
     hora_egreso_acceso_4: string;
     //fin acceso 4
     
-    @IsOptional()
-    @Length(1,1000,{message: "menores debe tener entre $constraint1 y $constraint2 caracteres."})
+    // @IsOptional()
+    // @Length(1,1000,{message: "menores debe tener entre $constraint1 y $constraint2 caracteres."})
     menores: string;
     
     @IsOptional()
