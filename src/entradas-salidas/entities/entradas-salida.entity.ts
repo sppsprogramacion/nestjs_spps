@@ -93,19 +93,19 @@ export class EntradasSalida {
     //FIN SEXO
 
     //PARENTESCO
-    @Column({
-        type: 'varchar',
-        length: 20,
-        nullable: false,
-    })
-    parentesco_id: string;
+    // @Column({
+    //     type: 'varchar',
+    //     length: 20,
+    //     nullable: false,
+    // })
+    // parentesco_id: string;
     
-    @ManyToOne(type => Parentesco, {eager: true} )
-    @JoinColumn({
-        name: 'parentesco_id',
-        referencedColumnName: 'id_parentesco'
-    })
-    parentesco: Parentesco;
+    // @ManyToOne(type => Parentesco, {eager: true} )
+    // @JoinColumn({
+    //     name: 'parentesco_id',
+    //     referencedColumnName: 'id_parentesco'
+    // })
+    // parentesco: Parentesco;
     //FIN PARENTESCO
 
     @Column({
