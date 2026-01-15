@@ -28,7 +28,7 @@ export class CreateEntradasSalidaDto {
     
     // @IsOptional()
     // @IsInt({message: "parentesco_id debe ser un número entero."})
-    parentesco_id: number;    
+    parentesco_id: string;  
     
     //@Length(1,20,{message: "nombre_visita debe tener entre $constraint1 y $constraint2 caracteres."})
     categoria: string

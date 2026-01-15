@@ -94,10 +94,11 @@ export class EntradasSalida {
 
     //PARENTESCO
     @Column({
-        type: 'int',
-        nullable: false
+        type: 'varchar',
+        length: 20,
+        nullable: false,
     })
-    parentesco_id: number;
+    parentesco_id: string;
     
     @ManyToOne(type => Parentesco, {eager: true} )
     @JoinColumn({
