@@ -15,9 +15,19 @@ export class CreateIngresosInternoDto {
 
     @IsInt({message: "organismo_externo_id debe ser un número entero."})
     organismo_externo_id: number;
+
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
+    @Length(1,200,{message: "obs_organismo_externo debe tener entre $constraint1 y $constraint2 caracteres."})
+    obs_organismo_externo: string;
     
     @IsInt({message: "organismo_procedencia_id debe ser un número entero."})
     organismo_procedencia_id: number;    
+
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
+    @Length(1,200,{message: "obs_organismo_procedencia debe tener entre $constraint1 y $constraint2 caracteres."})
+    obs_organismo_procedencia: string;
     
     organismo_alojamiento_id: number;
     

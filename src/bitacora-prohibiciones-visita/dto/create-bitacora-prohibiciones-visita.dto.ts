@@ -21,7 +21,9 @@ export class CreateBitacoraProhibicionesVisitaDto {
     motivo: string;
         
     detalle_motivo: string;
-   
+    
+    organismo_id: number;
+
     usuario_id: number;
 
     fecha_cambio: Date;

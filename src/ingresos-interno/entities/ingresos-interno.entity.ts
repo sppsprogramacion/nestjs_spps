@@ -51,6 +51,13 @@ export class IngresoInterno {
     organismo_externo: OrganismoExterno;
     //FIN ORGANISMO EXTERNO    
 
+    @Column({
+        type:'varchar',
+        length: 200,
+        nullable: true
+    })
+    obs_organismo_externo: string;
+
     //ORGANISMO PROCEDENCIA
     @Column({
         type: 'int',
@@ -65,7 +72,14 @@ export class IngresoInterno {
         referencedColumnName: 'id_organismo'
     })
     organismo_procedencia: Organismo;
-    //FIN ORGANISMO PROCEDENCIA    
+    //FIN ORGANISMO PROCEDENCIA   
+    
+    @Column({
+        type:'varchar',
+        length: 200,
+        nullable: true
+    })
+    obs_organismo_procedencia: string;
 
     //ORGANISMO ALOJAMIENTO
     @Column({

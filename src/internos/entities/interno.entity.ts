@@ -90,8 +90,11 @@ export class Interno {
     //FIN SEXO
 
     @Column({
-        type:'decimal',
-        nullable: false
+        type: 'decimal',
+      precision: 4,
+      scale: 2,
+      nullable: false, 
+      default: 0
     })
     talla: string;
 
@@ -265,6 +268,14 @@ export class Interno {
     })
     departamento_nacimiento: Departamento;
     //FIN DEPARTAMENTO NACIMIENTO
+
+    @Column({
+        type:'varchar',
+        length: 100,
+        nullable: false,
+        default: "sin especificar"
+    })
+    ciudad: string;
 
     @Column({
         type: 'date',

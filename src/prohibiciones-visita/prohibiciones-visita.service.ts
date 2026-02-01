@@ -266,6 +266,8 @@ export class ProhibicionesVisitaService {
       dataBitacora.anulado = dataProhibicion.anulado;
       dataBitacora.motivo = "MODIFICACION PROHIBICION";
       dataBitacora.detalle_motivo = detalle_motivo;
+
+      dataBitacora.organismo_id = usuario.organismo_id;
       dataBitacora.usuario_id = usuario.id_usuario;
       dataBitacora.fecha_cambio = fecha_actual;
 

@@ -163,7 +163,7 @@ export class InternosService {
   }
 
   async update(id_interno: number, updateDto: UpdateInternoDto, usuario:Usuario) {
-    
+    console.log("talla: " + updateDto.talla); 
     //buscar ingreso del interno antes de modificar
     //let dataIngreso = await this.findOne(id);
     const dataIngreso = await this.ingresossInternoRepository.findOne(
@@ -186,7 +186,7 @@ export class InternosService {
     if(dataIngreso.esta_liberado) 
       throw new NotFoundException("No se puede modificar los datos. El interno esta liberado.");
 
-        
+    console.log("talla: " + updateDto.talla);    
     try{
       const respuesta = await this.internoRepository.update(id_interno, updateDto);
       if((await respuesta).affected == 0){

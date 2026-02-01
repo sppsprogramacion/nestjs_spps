@@ -58,6 +58,9 @@ export class CreateInternoUnidadDto {
     
     @IsInt({message: "departamento_nacimiento_id debe ser un número entero"})
     departamento_nacimiento_id: number;
+
+    @Length(1,100,{message: "ciudad debe tener entre $constraint1 y $constraint2 caracteres."})
+    ciudad: string;
     
     @IsDateString()
     @Transform(({ value }) => value.split('T')[0])
