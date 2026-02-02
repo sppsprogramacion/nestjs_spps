@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateTrasladosInternoDto } from './dto/create-traslados-interno.dto';
 import { UpdateTrasladosInternoDto } from './dto/update-traslados-interno.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +13,7 @@ export class TrasladosInternoService {
   constructor(
     @InjectRepository(TrasladoInterno)
     private readonly trasladoInternoRepository: Repository<TrasladoInterno>,
+    @Inject(forwardRef(() => IngresosInternoService))
     private readonly ingresoInternoService: IngresosInternoService
   ){}
   
@@ -99,6 +100,26 @@ export class TrasladosInternoService {
     return traslados;    
   }
   //FIN BUSCAR  XINGRESO..................................................................
+  
+  //BUSCAR ULTIMO TRASLADO X INGRESO
+  async findUltimoTraladoXIngreso(id_ingreso_x: number) {
+  return await this.trasladoInternoRepository.findOne({
+    where: [
+      {
+        ingreso_interno_id: id_ingreso_x,
+        estado_traslado: "Pendiente",
+      },
+      {
+        ingreso_interno_id: id_ingreso_x,
+        estado_traslado: "Aceptado",
+      }
+    ],
+    order: {
+      id_traslado_interno: "DESC",
+    },
+  });
+}
+  //FIN BUSCAR ULTIMO TRASLADO X INGRESO
 
   //BUSCAR  XORGANISMO
   async findXMiOrganismo(id_organismox: number) {    

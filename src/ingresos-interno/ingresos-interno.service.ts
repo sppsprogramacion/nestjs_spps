@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateIngresosInternoDto } from './dto/create-ingresos-interno.dto';
 import { UpdateIngresosInternoDto } from './dto/update-ingresos-interno.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IngresoInterno } from './entities/ingresos-interno.entity';
 import { Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
+import { TrasladosInternoService } from 'src/traslados-interno/traslados-interno.service';
 
 @Injectable()
 export class IngresosInternoService {
@@ -12,6 +14,8 @@ export class IngresosInternoService {
   constructor(
     @InjectRepository(IngresoInterno)
     private readonly ingresossInternoRepository: Repository<IngresoInterno>,
+    @Inject(forwardRef(() => TrasladosInternoService))
+    private readonly trasladosInternoService: TrasladosInternoService
     //private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService
   ){}
 
@@ -110,18 +114,58 @@ export class IngresosInternoService {
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
-
-
-  async update(id: number, data: UpdateIngresosInternoDto, usuario:Usuario) {
-    
-    
+  
+  //INGRESAR DESDE OTRA UNIDAD
+  async updateIngresarDesdeOtraUnidad(id: number, data: UpdateIngresoOtraUnidadDto, usuario:Usuario) {
+        
     try{
-      //buscar prohibicion antes de modificar
+      //buscar ingreso antes de modificar
       let dataIngreso = await this.findOne(id);
       
       //verificar si el organismo del ingreso corresponde al organismo del usuario
       if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
         throw new NotFoundException("No tiene acceso a modificar este registro. No coincide el organismo al que pertece el usuario con el organismo de alojamiento.");
+      
+      //verificar si el ingreso esta como liberado, solo se modifican ingresos vigentes
+      if(dataIngreso.esta_liberado) 
+        throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
+
+      //verificar si el ingreso esta eliminado, solo se modifican ingresos vigentes
+      if(!dataIngreso.eliminado) 
+        throw new NotFoundException("No se puede modificar un ingreso eliminado");
+    
+      //actualiza los datos de ingreso
+      const respuesta = await this.ingresossInternoRepository.update(id, data);
+      
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN INGRESAR DESDE OTRA UNIDAD
+
+  async update(id: number, data: UpdateIngresosInternoDto, usuario:Usuario) {
+        
+    try{
+      //buscar ingreso antes de modificar
+      let dataIngreso = await this.findOne(id);
+      
+      //verificar si el organismo del ingreso corresponde al organismo del usuario
+      if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) {
+        //throw new NotFoundException("No tiene acceso a modificar este registro. No coincide el organismo al que pertece el usuario con el organismo de alojamiento.");
+        let dataTraslado = await this.trasladosInternoService.findUltimoTraladoXIngreso(dataIngreso.id_ingreso_interno);
+        
+      //verificar si el organismo destino del traslado corresponde al organismo del usuario
+      if(dataTraslado.organismo_destino_id != usuario.organismo_id) 
+        throw new NotFoundException("El interno no tiene un traslado a esta unidad.");
+      
+      //verificar si el traslado esta pendiente para poder aceptar o rechazar
+      if(dataTraslado.estado_traslado != "Aceptado") 
+        throw new NotFoundException("El traslado debe ser aceptado para poder dar ingreso al interno.");
+     
+      }
       
       //verificar si el ingreso esta vigente, solo se modifican ingresos vigentes
       if(dataIngreso.esta_liberado) 
@@ -131,10 +175,8 @@ export class IngresosInternoService {
       if(!dataIngreso.eliminado) 
         throw new NotFoundException("No se puede modificar un ingreso eliminado");
     
-
       //actualiza los datos de ingreso
       const respuesta = await this.ingresossInternoRepository.update(id, data);
-
       
       return respuesta;
     }
