@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, forwardRef, HttpException, HttpStatus, Inject, Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateIngresosInternoDto } from './dto/create-ingresos-interno.dto';
 import { UpdateIngresosInternoDto } from './dto/update-ingresos-interno.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -118,39 +118,43 @@ export class IngresosInternoService {
   //INGRESAR DESDE OTRA UNIDAD
   async updateIngresarDesdeOtraUnidad(id: number, data: UpdateIngresoOtraUnidadDto, usuario:Usuario) {
         
-    try{
-      //buscar ingreso antes de modificar
-      let dataIngreso = await this.findOne(id);
-      
-      //verificar si el ingreso esta como liberado, solo se modifican ingresos vigentes
-      if(dataIngreso.esta_liberado) 
-        throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
-
-      //verificar si el ingreso esta eliminado, solo se modifican ingresos vigentes
-      if(dataIngreso.eliminado) 
-        throw new NotFoundException("No se puede modificar un ingreso eliminado");
-
-      //verificar si el organismo del ingreso corresponde al organismo del usuario
-      if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) {     
-        //buscar ultimo traslado del interno   
-        let dataTraslado = await this.trasladosInternoService.findUltimoTraladoXIngreso(dataIngreso.id_ingreso_interno);
-        
-        if(!dataTraslado) 
-          throw new NotFoundException("El interno no tiene un traslado efectuado.");
-
-        //verificar si el organismo destino del traslado corresponde al organismo del usuario
-        if(dataTraslado.organismo_destino_id != usuario.organismo_id) 
-          throw new NotFoundException("El interno no tiene un traslado a esta unidad.");
-        
-        //verificar si el traslado esta pendiente para poder aceptar o rechazar
-        if(dataTraslado.estado_traslado != "Aceptado") 
-          throw new NotFoundException("El traslado debe ser aceptado para poder dar ingreso al interno.");
-        
-        data.organismo_procedencia_id = dataIngreso.organismo_alojamiento_id;
-        data.organismo_alojamiento_id = usuario.organismo_id;
-
-      }
     
+    //buscar ingreso antes de modificar
+    let dataIngreso = await this.findOne(id);
+    
+    //verificar si el ingreso esta como liberado, solo se modifican ingresos vigentes
+    if(dataIngreso.esta_liberado) 
+      throw new UnprocessableEntityException("No se puede modificar los datos de ingreso. El interno esta liberado.");
+
+    //verificar si el ingreso esta eliminado, solo se modifican ingresos vigentes
+    if(dataIngreso.eliminado) 
+      throw new UnprocessableEntityException("No se puede modificar un ingreso eliminado");
+
+    //verificar si el organismo del ingreso corresponde al organismo del usuario
+    if(dataIngreso.organismo_alojamiento_id == usuario.organismo_id)
+      throw new UnprocessableEntityException("El interno ya se encuentra alojado en esta unidad.");
+    
+    //verificar si el organismo del ingreso corresponde al organismo del usuario
+    if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) {     
+      //buscar ultimo traslado del interno   
+      let dataTraslado = await this.trasladosInternoService.findUltimoTraladoXIngreso(dataIngreso.id_ingreso_interno);
+      
+      if(!dataTraslado) 
+        throw new NotFoundException("El interno no tiene un traslado efectuado.");
+
+      //verificar si el organismo destino del traslado corresponde al organismo del usuario
+      if(dataTraslado.organismo_destino_id != usuario.organismo_id) 
+        throw new NotFoundException("El interno no tiene un traslado a esta unidad.");
+      
+      //verificar si el traslado esta pendiente para poder aceptar o rechazar
+      if(dataTraslado.estado_traslado == "Pendiente") 
+        throw new UnprocessableEntityException("El traslado debe ser aceptado para poder dar ingreso al interno.");
+      
+      data.organismo_procedencia_id = dataIngreso.organismo_alojamiento_id;
+      data.organismo_alojamiento_id = usuario.organismo_id;
+    }
+
+    try{
       //actualiza los datos de ingreso
       const respuesta = await this.ingresossInternoRepository.update(id, data);
       
