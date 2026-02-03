@@ -5,6 +5,7 @@ import { UpdateIngresosInternoDto } from './dto/update-ingresos-interno.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { ValidRoles } from 'src/auth/interfaces';
+import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -52,7 +53,16 @@ export class IngresosInternoController {
     }
     //FIN PARA RUTA NO DEFINIDA...............................
   
-  
+    @Put('ingresar-desde-otra-unidad')
+    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+    updateIngresarDesdeOtraUnidad(
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+      @Body() dataDto: UpdateIngresoOtraUnidadDto
+    ) {
+      
+      return this.ingresosInternoService.updateIngresarDesdeOtraUnidad(+id_ingreso, dataDto, user);
+    }
   
     @Put(':id')
     @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
