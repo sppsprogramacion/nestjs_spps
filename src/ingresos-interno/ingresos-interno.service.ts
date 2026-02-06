@@ -182,7 +182,7 @@ export class IngresosInternoService {
         throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
 
       //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
-      if(!dataIngreso.eliminado) 
+      if(dataIngreso.eliminado) 
         throw new NotFoundException("No se puede modificar un ingreso eliminado");
     
       //actualiza los datos de ingreso
