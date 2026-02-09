@@ -3,12 +3,13 @@ import { JuzgadosService } from './juzgados.service';
 import { JuzgadosController } from './juzgados.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Juzgado } from './entities/juzgado.entity';
 
 @Module({
   imports: [
     AuthModule,
     TypeOrmModule.forFeature([
-      JuzgadosModule
+      Juzgado
     ])
   ],
   controllers: [JuzgadosController],
