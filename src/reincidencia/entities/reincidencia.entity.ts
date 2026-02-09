@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
-@Entity('estado_procesal')
-export class EstadoProcesal {
+@Entity('reincidencia')
+export class Reincidencia {
 
     @PrimaryColumn({
         type: 'varchar',
@@ -9,7 +9,7 @@ export class EstadoProcesal {
         nullable: false,
         unique: true
     })
-    id_estado_procesal: string;
+    id_reincidencia: string;
     
     @Column({
         type: 'varchar',
@@ -17,5 +17,5 @@ export class EstadoProcesal {
         nullable: false,
         unique:  true
     })
-    estado_procesal: string
+    reincidencia: string
 }

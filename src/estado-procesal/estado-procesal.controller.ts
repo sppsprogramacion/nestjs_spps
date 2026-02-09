@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
 import { EstadoProcesalService } from './estado-procesal.service';
 import { CreateEstadoProcesalDto } from './dto/create-estado-procesal.dto';
 import { UpdateEstadoProcesalDto } from './dto/update-estado-procesal.dto';
@@ -30,7 +30,7 @@ export class EstadoProcesalController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string, 
     @Body() dataDto: UpdateEstadoProcesalDto

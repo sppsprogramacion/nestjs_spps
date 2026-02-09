@@ -109,6 +109,7 @@ export class InternosService {
       .andWhere('ingresos.esta_liberado = :liberado', { liberado: false })
       //.andWhere('interno.organismo_id = :id_organismo', {id_organismo: id_organismox})
       .orderBy('interno.apellido', 'ASC')
+      .addOrderBy('interno.nombre', 'ASC') // 2º criterio
       .getMany();
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................
@@ -122,6 +123,7 @@ export class InternosService {
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
       .where('interno.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
       .orderBy('interno.apellido', 'ASC')
+      .addOrderBy('interno.nombre', 'ASC') // 2º criterio
       .getMany();
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................

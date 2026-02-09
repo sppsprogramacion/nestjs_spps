@@ -1,9 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('reingreso')
-export class Reingreso {
+@Entity('tipos_delito')
+export class TipoDelito {
+
     @PrimaryGeneratedColumn()
-    id_reingreso: number;
+    id_tipo_delito: number;
     
     @Column({
         type: 'varchar',
@@ -11,5 +12,5 @@ export class Reingreso {
         nullable: false,
         unique:  true
     })
-    reingreso: string
+    tipo_delito: string
 }

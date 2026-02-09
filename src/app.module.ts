@@ -59,6 +59,11 @@ import { ReingresoModule } from './reingreso/reingreso.module';
 import { IngresosInternoModule } from './ingresos-interno/ingresos-interno.module';
 import { TrasladosInternoModule } from './traslados-interno/traslados-interno.module';
 import { EntradasSalidasModule } from './entradas-salidas/entradas-salidas.module';
+import { CausasModule } from './causas/causas.module';
+import { PrisionReclusionModule } from './prision-reclusion/prision-reclusion.module';
+import { TipoDelitoModule } from './tipo-delito/tipo-delito.module';
+import { JuzgadosModule } from './juzgados/juzgados.module';
+import { ReincidenciaModule } from './reincidencia/reincidencia.module';
 
 @Module({
   imports: [
@@ -125,6 +130,11 @@ import { EntradasSalidasModule } from './entradas-salidas/entradas-salidas.modul
     IngresosInternoModule,
     TrasladosInternoModule,
     EntradasSalidasModule,
+    CausasModule,
+    PrisionReclusionModule,
+    TipoDelitoModule,
+    JuzgadosModule,
+    ReincidenciaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -190,14 +190,18 @@ export class TrasladosInternoService {
       //buscar traslado antes de modificar los datos 
       dataTraslado = await this.findOne(id);
       
-      //verificar si el organismo creador del traslado corresponde al organismo del usuario
-      if(dataTraslado.organismo_origen_id != usuario.organismo_id) 
-        throw new NotFoundException("No tiene acceso a modificar este traslado. No coincide el organismo al que pertece el usuario con el organismo origen de este traslado.");
-      
+      //verificar si el traslado esta anulado
+      if(dataTraslado.estado_traslado == "Anulado") 
+        throw new NotFoundException("No se puede anular. Este traslado ya se encuentra anulado.");
+
       //verificar si el traslado esta cumplimentado
       if(dataTraslado.estado_traslado != "Pendiente") 
         throw new NotFoundException("No se puede anular. Solo se pueden anular traslados Pendientes.");
-     
+
+      //verificar si el organismo creador del traslado corresponde al organismo del usuario
+      if(dataTraslado.organismo_origen_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a anular este traslado. Solo lo puede anular el organismo que originó este traslado.");
+      
       //actualiza la prohibicion para anular
       let fecha_actual: any = new Date().toISOString().split('T')[0];    
       let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
@@ -216,7 +220,7 @@ export class TrasladosInternoService {
   //FIN ANULAR TRASLADO.....................................................
 
   //CUMPLIMENTAR TRASLADO se acepta o rechaza el traslado (nuevo_estado_traslado = aceptar o rechazar)
-    async cumplimentarTraslado(id: number, data: UpdateProcesarTrasladoDto, nuevo_estado_traslado: string, usuario: Usuario) {
+  async cumplimentarTraslado(id: number, data: UpdateProcesarTrasladoDto, nuevo_estado_traslado: string, usuario: Usuario) {
       
     let dataTraslado: CreateTrasladosInternoDto = new CreateTrasladosInternoDto;
     
@@ -226,7 +230,7 @@ export class TrasladosInternoService {
 
       //verificar si el organismo destino del traslado corresponde al organismo del usuario
       if(dataTraslado.organismo_destino_id != usuario.organismo_id) 
-        throw new NotFoundException("No tiene acceso a modificar este traslado. No coincide el organismo destino del traslado con el organismo del usuario que recibe.");
+        throw new NotFoundException("No tiene acceso a aceptar o rechazar este traslado. Solo lo puede hacer el organismo de destino del traslado.");
       
       //verificar si el traslado esta pendiente para poder aceptar o rechazar
       if(dataTraslado.estado_traslado != "Pendiente") 
