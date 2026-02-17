@@ -84,6 +84,7 @@ export class CiudadanosService {
     .leftJoinAndSelect('ciudadano.sexo', 'sexo') // Relación
     .where('ciudadano.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
     .orderBy('ciudadano.apellido', 'ASC')
+    .addOrderBy('ciudadano.nombre', 'ASC') // 2º criterio
     .getMany();
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................

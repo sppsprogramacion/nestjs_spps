@@ -86,6 +86,7 @@ export class ProhibicionesAnticipadasService {
     .leftJoinAndSelect('prohibiciones_anticipadas.sexo', 'sexo') // Relación
     .where('prohibiciones_anticipadas.apellido_visita LIKE :apellido', {apellido: `%${apellidox}%`})
     .orderBy('prohibiciones_anticipadas.apellido_visita', 'ASC')
+    .addOrderBy('prohibiciones_anticipadas.nombre_visita', 'ASC') // 2º criteri
     .getMany();
   }
   //FIN BUSCAR LISTA POR APELLIDO....................................
