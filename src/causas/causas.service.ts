@@ -1,40 +1,53 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateCausaDto } from './dto/create-causa.dto';
 import { UpdateCausaDto } from './dto/update-causa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Causa } from './entities/causa.entity';
 import { Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { IngresosInternoService } from 'src/ingresos-interno/ingresos-interno.service';
 
 @Injectable()
 export class CausasService {
 
   constructor(
     @InjectRepository(Causa)
-    private readonly causaRepository: Repository<Causa>
+    private readonly causaRepository: Repository<Causa>,
+    @Inject(forwardRef(() => IngresosInternoService))
+    private readonly ingresoInternoService: IngresosInternoService
   ){}
 
   //NUEVO
   async create(data: CreateCausaDto, usuario: Usuario): Promise<Causa> {
 
-      let fecha_actual: any = new Date().toISOString().split('T')[0];               
+    let fecha_actual: any = new Date().toISOString().split('T')[0];               
+    
+    //cargar datos por defecto
+    data.fecha_carga = fecha_actual;
+    data.usuario_carga_id = usuario.id_usuario;
+    data.organismo_carga_id = usuario.organismo_id;
+
+    //controlar ingreso del nterno
+    const ingresoInterno = await this.ingresoInternoService.findOne(data.ingreso_interno_id); 
+    if (!ingresoInterno) throw new NotFoundException("El ingreso del interno no existe.");
+    if (ingresoInterno.eliminado) throw new NotFoundException("El ingreso del interno no es válido o no existe.");
+    if (ingresoInterno.esta_liberado) throw new NotFoundException("El interno se encuentra liberado en este ingreso.");
+
+    if(ingresoInterno.organismo_alojamiento_id != usuario.organismo_id) 
+      throw new NotFoundException("El interno no se encuentra alojado en la unidad del usuario");
+    
+    //guardar traslado
+    try {
       
-      //cargar datos por defecto
-      data.fecha_carga = fecha_actual;
-      data.usuario_carga_id = usuario.id_usuario;
-      data.organismo_carga_id = usuario.organismo_id;
+      const nuevo = await this.causaRepository.create(data);
+      let respuesta = await this.causaRepository.save(nuevo);
       
-      try {
-        
-        const nuevo = await this.causaRepository.create(data);
-        let respuesta = await this.causaRepository.save(nuevo);
-        
-        return respuesta;
-      }catch (error) {
-        
-        this.handleDBErrors(error);  
-      }     
-    }
+      return respuesta;
+    }catch (error) {
+      
+      this.handleDBErrors(error);  
+    }     
+  }
   //FIN NUEVO........................................
 
   //BUSCAR TODOS
@@ -69,7 +82,7 @@ export class CausasService {
         let dataCausa = await this.findOne(id);
         
         //verificar si el organismo de la prohibicion corresponde al organismo del usuario
-        if(dataCausa.organismo_carga_id != usuario.organismo_id) 
+        if(dataCausa.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
           throw new NotFoundException("No tiene acceso a modificar esta prohibición. No coincide el organismo al que pertece el usuario con el organismo que creo esta prohibición.");
         
         //verificar si la prohibicion esta anulado, solo se modifican prohibiciones vigentes
