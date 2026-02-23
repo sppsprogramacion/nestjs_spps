@@ -5,6 +5,7 @@ import { UpdateCausaDto } from './dto/update-causa.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UpdateEstablecerCondenaDto } from './dto/update-establecer-condena.dto';
 
 @Controller('causas')
 export class CausasController {
@@ -28,7 +29,7 @@ export class CausasController {
 
   //BUSCAR  XID INGRESO
     @Get('buscar-xingreso')  
-    @Auth()
+    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
     async findXIngreso(
       @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
       @Query('id_ingreso', ParseIntPipe) id_ingreso: string
@@ -40,6 +41,7 @@ export class CausasController {
   //FIN BUSCAR  XID INGRESO....................................................
 
   @Get(':id')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   findOne(@Param('id') id: string) {
     return this.causasService.findOne(+id);
   }
@@ -51,6 +53,18 @@ export class CausasController {
   }
   //FIN PARA RUTA NO DEFINIDA...............................
   
+  //ESTABLECER CONDENA
+    @Put('establecer-condena')
+    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+    updateRechazar(
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('id_causa', ParseIntPipe) id_causa: string ,
+      @Body() dataDto: UpdateEstablecerCondenaDto
+    ) {
+      
+      return this.causasService.establecerCondena(+id_causa, dataDto, user);
+    }
+    //FIN ESTABLECER CONDENA.................................
 
   @Put(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)

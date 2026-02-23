@@ -91,6 +91,40 @@ export class CausasService {
   }
   //FIN BUSCAR  XID..................................................................
 
+  //ESTABLECER CONDENA
+  async establecerCondena(idCausa: number, dataUpdate: UpdateCausaDto, usuario: Usuario) {
+            
+    try{
+      //buscar traslado antes de modificar los datos 
+      let dataCausaActual = await this.findOne(idCausa);
+
+      //verificar si el organismo destino del traslado corresponde al organismo del usuario
+      if(dataCausaActual.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar la causa. Solo lo puede hacer el organismo donde esta alojado el interno.");
+      
+      //verificar si la causa esta eliminado, solo se modifican causas vigentes
+      if(dataCausaActual.eliminado) 
+        throw new NotFoundException("No se puede modificar una causa eliminada.");
+
+      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      if(!dataCausaActual.vigente) 
+        throw new NotFoundException("No se puede modificar una causa que no este vigente");
+      
+      //actualiza datos del traslado
+      let fecha_actual: any = new Date().toISOString().split('T')[0];    
+      let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
+      
+      const respuesta = await this.causaRepository.update(idCausa, dataUpdate);
+            
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN ESTABLECER CONDENA..............................................................
+
   async update(id: number, dataUpdate: UpdateCausaDto, usuario:Usuario) {
       //et dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
           
@@ -101,17 +135,17 @@ export class CausasService {
         //buscar prohibicion antes de modificar
         let dataCausa = await this.findOne(id);
         
-        //verificar si el organismo de la prohibicion corresponde al organismo del usuario
+        //verificar si el organismo de la causa corresponde al organismo del usuario
         if(dataCausa.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
-          throw new NotFoundException("No tiene acceso a modificar esta prohibición. No coincide el organismo al que pertece el usuario con el organismo que creo esta prohibición.");
+          throw new NotFoundException("No tiene acceso a modificar la causa. Solo lo puede hacer el organismo donde esta alojado el interno..");
         
-        //verificar si la prohibicion esta anulado, solo se modifican prohibiciones vigentes
+        //verificar si la causa esta eliminado, solo se modifican causas vigentes
         if(dataCausa.eliminado) 
-          throw new NotFoundException("No se puede modificar una prohibicion eliminada.");
+          throw new NotFoundException("No se puede modificar una causa eliminada.");
   
         //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
         if(!dataCausa.vigente) 
-          throw new NotFoundException("No se puede modificar una prohibicion que no este vigente");
+          throw new NotFoundException("No se puede modificar una causa que no este vigente");
       
   
         //preparar datos para la bitacora      

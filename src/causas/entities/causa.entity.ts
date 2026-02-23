@@ -181,7 +181,8 @@ export class Causa {
     @Column({
         type: 'varchar',
         length: 10,
-        nullable: true
+        nullable: false,
+        default: "0SINESP"
     })
     tribunal_condena_id: string;
 
