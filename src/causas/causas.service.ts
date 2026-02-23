@@ -62,6 +62,26 @@ export class CausasService {
   }
   //FIN BUSCAR TODOS...........................................
 
+  //BUSCAR  X INGRESO
+  async findXIngreso(id_ingreso_x: number) { 
+    const causas = await this.causaRepository.find(
+      {        
+        where: [
+          {
+            ingreso_interno_id: id_ingreso_x,
+            eliminado: false
+          }
+        ],
+        order:{
+          id_causa: "ASC"
+        }
+      }
+    );
+
+    return causas;   
+  }
+  //fin BUSCAR POR INGRESO................................................
+
   //BUSCAR  XID
   async findOne(id: number) {
 

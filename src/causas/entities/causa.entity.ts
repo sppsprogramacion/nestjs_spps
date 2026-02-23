@@ -212,7 +212,7 @@ export class Causa {
         nullable: false,
         default: 0
     })
-    pena_dias: number;
+    pena_dias: number;   
     
     @Column({
         type: 'date',

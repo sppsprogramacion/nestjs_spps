@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, ParseIntPipe, NotFoundException, Query } from '@nestjs/common';
 import { CausasService } from './causas.service';
 import { CreateCausaDto } from './dto/create-causa.dto';
 import { UpdateCausaDto } from './dto/update-causa.dto';
@@ -25,6 +25,19 @@ export class CausasController {
   findAll() {
     return this.causasService.findAll();
   }
+
+  //BUSCAR  XID INGRESO
+    @Get('buscar-xingreso')  
+    @Auth()
+    async findXIngreso(
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('id_ingreso', ParseIntPipe) id_ingreso: string
+      
+    ) {    
+      
+    return this.causasService.findXIngreso(+id_ingreso);
+  }
+  //FIN BUSCAR  XID INGRESO....................................................
 
   @Get(':id')
   findOne(@Param('id') id: string) {

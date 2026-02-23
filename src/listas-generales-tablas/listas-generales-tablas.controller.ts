@@ -19,4 +19,9 @@ export class ListasGeneralesTablasController {
   async obtenerTablasIngresoInterno() {
     return await this.listasGeneralesTablasService.obtenerTablasParaIngresoInterno();
   }
+
+  @Get('tablas-causa')
+  async obtenerTablasCausa() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaCausa();
+  }
 }

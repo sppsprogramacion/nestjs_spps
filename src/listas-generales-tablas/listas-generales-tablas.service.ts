@@ -152,4 +152,45 @@ export class ListasGeneralesTablasService {
     return { organismos_externos, organismos_spps, jurisdiccion, estado_procesal, reingreso, tipos_defensor};
   
   }
+
+  async obtenerTablasParaCausa() {    
+
+    const prision_reclusion = await this.dataSource.query(`
+      SELECT id_prision_reclusion, prision_reclusion FROM prision_reclusion
+      
+    `);
+
+    const tipos_delito = await this.dataSource.query(`
+      SELECT id_tipo_delito, tipo_delito FROM tipos_delito
+      
+    `);
+
+     const estado_procesal = await this.dataSource.query(`
+      SELECT id_estado_procesal, estado_procesal FROM estado_procesal
+      
+    `);
+
+    const jurisdiccion = await this.dataSource.query(`
+      SELECT id_jurisdiccion, jurisdiccion FROM jurisdiccion
+      
+    `);
+
+   const juzgados = await this.dataSource.query(`
+      SELECT id_juzgado, juzgado FROM juzgados
+      
+    `);
+
+    const reincidencia = await this.dataSource.query(`
+      SELECT id_reincidencia, reincidencia FROM reincidencia
+      
+    `);
+
+    const tipos_defensor = await this.dataSource.query(`
+      SELECT id_tipo_defensor, tipo_defensor FROM tipos_defensor
+      
+    `);
+      
+    return { prision_reclusion, tipos_delito, estado_procesal, jurisdiccion, juzgados, reincidencia, tipos_defensor};
+  
+  }
 }
