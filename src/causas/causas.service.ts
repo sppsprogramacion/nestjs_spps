@@ -113,7 +113,7 @@ export class CausasService {
       //actualiza datos del traslado
       let fecha_actual: any = new Date().toISOString().split('T')[0];    
       let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
-      
+      dataUpdate.estado_procesal_id = "P";
       const respuesta = await this.causaRepository.update(idCausa, dataUpdate);
             
       return respuesta;

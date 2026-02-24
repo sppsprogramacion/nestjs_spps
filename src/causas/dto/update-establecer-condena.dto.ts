@@ -6,6 +6,8 @@ import { IsNull } from 'typeorm';
 
 export class UpdateEstablecerCondenaDto{
     
+    estado_procesal_id: string;
+
     @IsBoolean({message: "tiene_computo debe ser verdadero o falso"})
     tiene_computo: boolean;
 
