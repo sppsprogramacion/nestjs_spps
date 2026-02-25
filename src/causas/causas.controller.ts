@@ -6,6 +6,7 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateEstablecerCondenaDto } from './dto/update-establecer-condena.dto';
+import { UpdateQuitarCondenaDto } from './dto/update-quitar-condena.dto';
 
 @Controller('causas')
 export class CausasController {
@@ -56,10 +57,23 @@ export class CausasController {
   //ESTABLECER CONDENA
     @Put('establecer-condena')
     @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
-    updateRechazar(
+    updateEstablecerCondena(
       @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
       @Query('id_causa', ParseIntPipe) id_causa: string ,
       @Body() dataDto: UpdateEstablecerCondenaDto
+    ) {
+      
+      return this.causasService.establecerCondena(+id_causa, dataDto, user);
+    }
+    //FIN ESTABLECER CONDENA.................................
+
+    //ESTABLECER CONDENA
+    @Put('quitar-condena')
+    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+    updateQuitarCondena(
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('id_causa', ParseIntPipe) id_causa: string ,
+      @Body() dataDto: UpdateQuitarCondenaDto
     ) {
       
       return this.causasService.establecerCondena(+id_causa, dataDto, user);

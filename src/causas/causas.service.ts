@@ -6,6 +6,8 @@ import { Causa } from './entities/causa.entity';
 import { Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { IngresosInternoService } from 'src/ingresos-interno/ingresos-interno.service';
+import { UpdateEstablecerCondenaDto } from './dto/update-establecer-condena.dto';
+import { UpdateQuitarCondenaDto } from './dto/update-quitar-condena.dto';
 
 @Injectable()
 export class CausasService {
@@ -92,13 +94,13 @@ export class CausasService {
   //FIN BUSCAR  XID..................................................................
 
   //ESTABLECER CONDENA
-  async establecerCondena(idCausa: number, dataUpdate: UpdateCausaDto, usuario: Usuario) {
+  async establecerCondena(idCausa: number, dataUpdate: UpdateEstablecerCondenaDto, usuario: Usuario) {
             
     try{
-      //buscar traslado antes de modificar los datos 
+      //buscar causa antes de modificar los datos 
       let dataCausaActual = await this.findOne(idCausa);
 
-      //verificar si el organismo destino del traslado corresponde al organismo del usuario
+      //verificar si el organismo de alojamiento corresponde al organismo del usuario
       if(dataCausaActual.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
         throw new NotFoundException("No tiene acceso a modificar la causa. Solo lo puede hacer el organismo donde esta alojado el interno.");
       
@@ -106,14 +108,62 @@ export class CausasService {
       if(dataCausaActual.eliminado) 
         throw new NotFoundException("No se puede modificar una causa eliminada.");
 
-      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      //verificar si la causa esta vigente, solo se modifican prohibiciones vigentes
       if(!dataCausaActual.vigente) 
         throw new NotFoundException("No se puede modificar una causa que no este vigente");
       
       //actualiza datos del traslado
       let fecha_actual: any = new Date().toISOString().split('T')[0];    
       let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
+
+      dataUpdate.tiene_computo = true;
       dataUpdate.estado_procesal_id = "P";
+      const respuesta = await this.causaRepository.update(idCausa, dataUpdate);
+            
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN ESTABLECER CONDENA..............................................................
+
+  //ESTABLECER CONDENA
+  async quitarCondena(idCausa: number, dataUpdate: UpdateQuitarCondenaDto, usuario: Usuario) {
+            
+    try{
+      //buscar causa antes de modificar los datos 
+      let dataCausaActual = await this.findOne(idCausa);
+
+      //verificar si el organismo de alojamiento corresponde al organismo del usuario
+      if(dataCausaActual.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar la causa. Solo lo puede hacer el organismo donde esta alojado el interno.");
+      
+      //verificar si la causa esta eliminado, solo se modifican causas vigentes
+      if(dataCausaActual.eliminado) 
+        throw new NotFoundException("No se puede modificar una causa eliminada.");
+
+      //verificar si la causa esta vigente, solo se modifican prohibiciones vigentes
+      if(!dataCausaActual.vigente) 
+        throw new NotFoundException("No se puede modificar una causa que no este vigente");
+
+      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      if(!dataCausaActual.tiene_computo) 
+        throw new NotFoundException("No se puede quitar los datos de condena porque la causa no tiene computo y datos de condena cargados");
+      
+      //actualiza datos del traslado
+      let fecha_actual: any = new Date().toISOString().split('T')[0];    
+      let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
+
+      dataUpdate.tiene_computo = false;
+      dataUpdate.fecha_condena = null;
+      dataUpdate.tribunal_condena_id = "0SINESP";
+      dataUpdate.fecha_cumple_pena = null;
+      dataUpdate.pena_anios = 0;
+      dataUpdate.pena_meses = 0;
+      dataUpdate.pena_dias = 0;
+
       const respuesta = await this.causaRepository.update(idCausa, dataUpdate);
             
       return respuesta;
@@ -135,7 +185,7 @@ export class CausasService {
         //buscar prohibicion antes de modificar
         let dataCausa = await this.findOne(id);
         
-        //verificar si el organismo de la causa corresponde al organismo del usuario
+        //verificar si el organismo de alojamiento corresponde al organismo del usuario
         if(dataCausa.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
           throw new NotFoundException("No tiene acceso a modificar la causa. Solo lo puede hacer el organismo donde esta alojado el interno..");
         
