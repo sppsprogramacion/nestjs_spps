@@ -76,7 +76,7 @@ export class CausasController {
       @Body() dataDto: UpdateQuitarCondenaDto
     ) {
       
-      return this.causasService.establecerCondena(+id_causa, dataDto, user);
+      return this.causasService.quitarCondena(+id_causa, dataDto, user);
     }
     //FIN ESTABLECER CONDENA.................................
 
