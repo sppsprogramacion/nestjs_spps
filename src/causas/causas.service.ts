@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateCausaDto } from './dto/create-causa.dto';
 import { UpdateCausaDto } from './dto/update-causa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,6 +21,8 @@ export class CausasService {
 
   //NUEVO
   async create(data: CreateCausaDto, usuario: Usuario): Promise<Causa> {
+    
+    if(data.juzgado_id == "0SINESP") throw new ConflictException("Debe seleccionar un juzgado.");
 
     let fecha_actual: any = new Date().toISOString().split('T')[0];               
     
