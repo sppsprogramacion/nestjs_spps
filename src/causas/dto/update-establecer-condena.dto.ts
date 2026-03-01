@@ -1,14 +1,19 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCausaDto } from './create-causa.dto';
-import { IsBoolean, IsDateString, IsInt, IsNotEmpty, Length } from 'class-validator';
+
+import { IsDateString, IsInt, Length } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { IsNull } from 'typeorm';
 
 export class UpdateEstablecerCondenaDto{
     
     tiene_computo: boolean;
   
     estado_procesal_id: string;
+
+    @IsDateString()
+    @Transform(({ value }) => {
+      if (typeof value !== 'string') return value;
+      return value.split('T')[0];
+    })
+    fecha_ultima_detencion: Date;
 
     @IsDateString()
     @Transform(({ value }) => {
