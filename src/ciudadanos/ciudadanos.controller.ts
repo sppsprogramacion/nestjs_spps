@@ -9,7 +9,6 @@ import { UpdateDatosPersonalesCiudadanoDto } from './dto/update-datos-personales
 import { UpdateDomicilioCiudadanoDto } from './dto/update-domicilio-ciudadano.dto';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
-import { Ciudadano } from './entities/ciudadano.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('ciudadanos')

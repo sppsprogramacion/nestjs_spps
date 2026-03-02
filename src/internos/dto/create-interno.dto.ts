@@ -93,6 +93,10 @@ export class CreateInternoDto {
     
     foto: string;     
     
+    fotoPI: string;
+    
+    fotoPD: string;
+        
     fecha_carga: Date;
    
     usuario_carga_id: number;

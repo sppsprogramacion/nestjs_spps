@@ -368,6 +368,22 @@ export class Interno {
         default: "foto-interno-0.jpg"
     })
     foto: string; 
+
+    @Column({
+        type: 'varchar',
+        length: 500,
+        nullable: true,
+        default: "foto-interno-PI-0.jpg"
+    })
+    fotoPI: string; 
+
+    @Column({
+        type: 'varchar',
+        length: 500,
+        nullable: true,
+        default: "foto-interno-PD-0.jpg"
+    })
+    fotoPD: string; 
     
     @Column({
         type: 'date',

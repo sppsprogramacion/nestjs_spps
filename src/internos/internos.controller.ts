@@ -12,6 +12,7 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { UpdateInternoDatosPersonalesDto } from './dto/update-interno-datospersonales.dto';
 import { UpdateInternoCaracteristicasPersonalesDto } from './dto/update-interno-caracteristicaspersonales.dto';
 import { UpdateInternoDatosFiliatoriosDto } from './dto/update-interno-datosfiliatorios.dto';
+import { isNotEmpty } from 'class-validator';
 
 @Controller('internos')
 export class InternosController {
@@ -20,23 +21,87 @@ export class InternosController {
     private readonly driveImagenesService: DriveImagenesService
   ) {}
 
-  @Post('upload-img-interno')
-  @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
-  async uploadFileInterno(
-    @UploadedFile() file: Express.Multer.File,
-    @Query('id_interno', ParseIntPipe) id_interno: string
-  ) {
-    if (!file) {
-      throw new BadRequestException('No se recibió ningún archivo');
-    }
+  // @Post('upload-img-interno')
+  // @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+  // async uploadFileInterno(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Query('id_interno', ParseIntPipe) id_interno: string
+  // ) {
+  //   if (!file) {
+  //     throw new BadRequestException('No se recibió ningún archivo');
+  //   }
 
-    const uploadedFile = await this.driveImagenesService.uploadFile(file, "interno", +id_interno);
-    return {
-      message: 'Archivo subido con éxito',
-      fileId: uploadedFile.id,
-      link: uploadedFile.webViewLink,
-    };
-  }
+  //   const uploadedFile = await this.driveImagenesService.uploadFile(file, "interno", +id_interno);
+  //   return {
+  //     message: 'Archivo subido con éxito',
+  //     fileId: uploadedFile.id,
+  //     link: uploadedFile.webViewLink,
+  //   };
+  // }
+
+  @Post('upload-img-interno')
+    @Auth()
+    @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+    async uploadFile(
+      @UploadedFile() file: Express.Multer.File,
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('id_interno', ParseIntPipe) id_interno: string,
+      @Query('tipo_perfil') tipo_perfil: string,
+    ) {
+  
+      if (!file) {
+        throw new BadRequestException('No se recibió ningún archivo');
+      }
+
+      if(!isNotEmpty(tipo_perfil)){
+        throw new NotFoundException("Debe ingresar un valor valido <<FF,FPD o FPI>>.");
+      }
+
+      if(tipo_perfil != "FF" && tipo_perfil != "FPD" && tipo_perfil != "FPI"){
+        throw new NotFoundException("El valor enviado debe ser valido <<FF,FPD o FPI>>.");
+      }
+  
+      let internoImagen: UpdateInternoDto= new UpdateInternoDto;
+      //controlar si exite el ciudadano
+      let interno = await this.internosService.findOne(+id_interno);
+      
+      let foto_nombre ="";
+      //Controlar si tiene o no imagen cargada
+      if(tipo_perfil == "FF"){
+        foto_nombre = "foto-interno-" + id_interno + ".jpg";
+      }
+      else{
+        foto_nombre = "foto-interno-" + id_interno+ "-" + tipo_perfil + ".jpg";
+      }
+
+      let existeFile: boolean = await this.driveImagenesService.existeFileByName(foto_nombre, "interno");
+      if(existeFile) throw new NotFoundException("El interno tiene una imagen cargada para " + tipo_perfil);
+      
+      //guardar imagen
+      const uploadedFile = await this.driveImagenesService.uploadFileInterno(file, "interno", foto_nombre, +id_interno);
+      
+      //modificar nombre de la imagen en el ciudadano
+      if(uploadedFile){
+        if(tipo_perfil == "FF"){
+          internoImagen.foto = foto_nombre;
+        }
+        if(tipo_perfil == "FPI"){
+          internoImagen.fotoPI = foto_nombre;
+        }
+        if(tipo_perfil == "FPD"){
+          internoImagen.fotoPD = foto_nombre;
+        }
+
+        await this.internosService.update(+id_interno,internoImagen,user);
+      }
+      
+  
+      return {
+        message: 'Archivo subido con éxito',
+        fileId: uploadedFile.id,
+        link: uploadedFile.webViewLink,
+      };
+    }
 
   @Post()
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
