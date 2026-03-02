@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
 import { TrasladosInternoService } from 'src/traslados-interno/traslados-interno.service';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Injectable()
 export class IngresosInternoService {
@@ -15,7 +16,8 @@ export class IngresosInternoService {
     @InjectRepository(IngresoInterno)
     private readonly ingresossInternoRepository: Repository<IngresoInterno>,
     @Inject(forwardRef(() => TrasladosInternoService))
-    private readonly trasladosInternoService: TrasladosInternoService
+    private readonly trasladosInternoService: TrasladosInternoService,    
+    private readonly driveImagenesService: DriveImagenesService,
     //private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService
   ){}
 
@@ -82,9 +84,21 @@ export class IngresosInternoService {
           }
         }
       );   
-          
-      return ingreso;
-    
+      
+      if(ingreso){
+        
+        //obtener url de la imagen en drive y agregado en la respuesta
+        const fileFotoFrente = await this.driveImagenesService.getFileByName(ingreso.interno.foto, "interno");        
+        ingreso.interno.foto = await fileFotoFrente.webContentLink;
+
+        const fileFotoPI = await this.driveImagenesService.getFileByName(ingreso.interno.fotoPI, "interno");        
+        ingreso.interno.fotoPI = await fileFotoPI.webContentLink;
+
+        const fileFotoPD = await this.driveImagenesService.getFileByName(ingreso.interno.fotoPD, "interno");        
+        ingreso.interno.fotoPD = await fileFotoPD.webContentLink;
+      }
+
+      return ingreso;    
   }
   //FIN BUSCAR  XINTERNO..................................................................
 

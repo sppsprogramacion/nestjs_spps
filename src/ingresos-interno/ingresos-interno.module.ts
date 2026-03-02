@@ -6,6 +6,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TrasladoInterno } from 'src/traslados-interno/entities/traslados-interno.entity';
 import { TrasladosInternoModule } from 'src/traslados-interno/traslados-interno.module';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { TrasladosInternoModule } from 'src/traslados-interno/traslados-interno.
     ])
   ],
   controllers: [IngresosInternoController],
-  providers: [IngresosInternoService],
+  providers: [IngresosInternoService, DriveImagenesService],
   exports: [IngresosInternoService]
 })
 export class IngresosInternoModule {}

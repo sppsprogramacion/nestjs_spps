@@ -137,7 +137,7 @@ export class DriveImagenesService {
 
     if(carpeta == "interno"){      
       folderId= this.internoFolderId;
-      imagenDefecto = "foto-interno-0.jpg";
+      //imagenDefecto = "foto-interno-0.jpg";
     }
 
     //buscar foto
