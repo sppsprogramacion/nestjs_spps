@@ -30,7 +30,7 @@ export class DriveImagenesService {
     });
   }
 
-  //SUBIR IMAGEN
+  //SUBIR IMAGEN CIUDADANO
   async uploadFile(file: Express.Multer.File, carpeta: string, id: number) {
 
     if (!file) {
@@ -78,6 +78,7 @@ export class DriveImagenesService {
 
     return response.data;
   }
+  //FIN SUBIR IMAGEN CIUDADANO............................................................
 
   //SUBIR IMAGEN iNTERNO
   async uploadFileInterno(file: Express.Multer.File, carpeta: string, foto_nombrex: string, id: number) {
@@ -123,6 +124,55 @@ export class DriveImagenesService {
 
     return response.data;
   }
+  //FIN SUBIR IMAGEN iNTERNO............................................................
+
+  //SUBIR IMAGEN defecto
+  async uploadFileDefecto(file: Express.Multer.File, carpeta: string,foto_nombrex: string) {
+
+    if (!file) {
+      throw new BadRequestException('No se recibió ningún archivo');
+    }
+
+    //establecer carpeta de google drive
+    let folderId: string;
+    let nombreImagen: string = foto_nombrex;
+
+    if(carpeta == "ciudadano"){      
+      folderId= this.ciudadanoFolderId;
+    }
+    if(carpeta == "interno"){      
+      folderId= this.internoFolderId;
+    }
+
+    // Convertir buffer a Stream
+    const bufferStream = new Readable();
+    bufferStream.push(file.buffer);
+    bufferStream.push(null); // Indica el final del stream
+
+    const fileMetadata = {
+      //name: file.originalname,
+      name: nombreImagen,
+      parents: [folderId], // Reemplaza con el ID de tu carpeta en Google Drive
+    };
+
+    const media = {
+      mimeType: file.mimetype,
+      body: bufferStream, // ⚠️ Ahora sí es un Stream
+    };
+
+    //guardar el archivo
+    const response = await this.driveClient.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink',
+    });
+
+    // Hacer público el archivo después de subirlo
+    await this.makeFilePublic(response.data.id);
+
+    return response.data;
+  }
+  //FIN SUBIR IMAGEN DEFECTO............................................................
 
   //BUSCAR IMAGEN EN CARPETA - carpeta puede ser de ciudadano o interno
   async getFileByName(fileName: string, carpeta: string) {
