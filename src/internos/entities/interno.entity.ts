@@ -365,7 +365,7 @@ export class Interno {
         type: 'varchar',
         length: 500,
         nullable: true,
-        default: "foto-interno-0.jpg"
+        default: "foto-interno-FF-0.jpg"
     })
     foto: string; 
 

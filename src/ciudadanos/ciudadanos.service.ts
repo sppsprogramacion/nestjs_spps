@@ -147,9 +147,13 @@ export class CiudadanosService {
     
     //obtener url de la imagen en drive y agregado en la respuesta
     const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
-    
-    imgUrl = await file.webContentLink;
-    respuesta.foto = imgUrl;
+    if(file){
+      imgUrl = await file.webContentLink;
+      respuesta.foto = imgUrl;
+    }
+    else{
+      respuesta.foto = null;
+    }
 
     // Calcular la edad sin moment    
     let edad = null;

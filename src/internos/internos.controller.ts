@@ -65,15 +65,10 @@ export class InternosController {
     //controlar si exite el ciudadano
     let interno = await this.internosService.findOne(+id_interno);
     
-    let foto_nombre ="";
     //Controlar si tiene o no imagen cargada
-    if(tipo_perfil == "FF"){
-      foto_nombre = "foto-interno-" + id_interno + ".jpg";
-    }
-    else{
-      foto_nombre = "foto-interno-" + id_interno+ "-" + tipo_perfil + ".jpg";
-    }
-
+    let foto_nombre ="";
+    foto_nombre = "foto-interno-" + id_interno+ "-" + tipo_perfil + ".jpg";
+    
     let existeFile: boolean = await this.driveImagenesService.existeFileByName(foto_nombre, "interno");
     if(existeFile) throw new NotFoundException("El interno tiene una imagen cargada para " + tipo_perfil);
     

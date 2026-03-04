@@ -152,14 +152,32 @@ export class InternosService {
   async findOne(id: number) {
     const respuesta = await this.internoRepository.findOneBy({id_interno: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.", "verificque el id del ciudadano");
-    let imgUrl: string = "";
-    let foto_nombre = respuesta.foto;
-
-    //obtener url de la imagen en drive y agregado en la respuesta
-    const file = await this.driveImagenesService.getFileByName(foto_nombre, "interno");
     
-    imgUrl = await file.webContentLink;
-    respuesta.foto = imgUrl;
+    if(respuesta){
+        
+      //obtener url de la imagen en drive y agregado en la respuesta
+      const fileFotoFrente = await this.driveImagenesService.getFileByName(respuesta.foto, "interno");        
+      if(fileFotoFrente){
+        respuesta.foto = await fileFotoFrente.webContentLink;
+      } else{
+        respuesta.foto = null;
+      }
+      
+      const fileFotoPI = await this.driveImagenesService.getFileByName(respuesta.fotoPI, "interno");        
+      if(fileFotoPI){
+        respuesta.fotoPI = await fileFotoPI.webContentLink;
+      } else{
+        respuesta.fotoPI = null;
+      }
+
+      const fileFotoPD = await this.driveImagenesService.getFileByName(respuesta.fotoPD, "interno");        
+      if(fileFotoPD){
+        respuesta.fotoPD = await fileFotoPD.webContentLink;
+      } else{
+        respuesta.fotoPD = null;
+      }
+      
+    }
 
     return respuesta;
   }

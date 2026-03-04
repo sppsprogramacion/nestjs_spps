@@ -88,21 +88,13 @@ export class DriveImagenesController {
       foto_nombre = "foto-ciudadano-0.jpg";
       carpeta = "ciudadano";
     }
-    if(tipo_perfil == "FF"){
-      foto_nombre = "foto-interno-0.jpg";
-      carpeta = "interno";
-    }
-    if(tipo_perfil == "FPD"){
-      foto_nombre = "foto-interno-PD-0.jpg";
-      carpeta = "interno";
-    }
-    if(tipo_perfil == "FF"){
-      foto_nombre = "foto-interno-PI-0.jpg";
+    else{
+      foto_nombre = "foto-interno-"+ tipo_perfil +"-0.jpg";
       carpeta = "interno";
     }
 
     let existeFile: boolean = await this.driveImagenesService.existeFileByName(foto_nombre, carpeta);
-    if(existeFile) throw new NotFoundException("El "+ carpeta +" tiene una imagen cargada para " + tipo_perfil);
+    if(existeFile) throw new NotFoundException("En "+ carpeta +" ya se tiene una imagen cargada para este tipo: " + tipo_perfil);
     
     //guardar imagen
     const uploadedFile = await this.driveImagenesService.uploadFileDefecto(file, carpeta, foto_nombre);

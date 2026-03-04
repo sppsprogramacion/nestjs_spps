@@ -89,13 +89,26 @@ export class IngresosInternoService {
         
         //obtener url de la imagen en drive y agregado en la respuesta
         const fileFotoFrente = await this.driveImagenesService.getFileByName(ingreso.interno.foto, "interno");        
-        ingreso.interno.foto = await fileFotoFrente.webContentLink;
-
+        if(fileFotoFrente){
+          ingreso.interno.foto = await fileFotoFrente.webContentLink;
+        } else{
+          ingreso.interno.foto = null;
+        }
+        
         const fileFotoPI = await this.driveImagenesService.getFileByName(ingreso.interno.fotoPI, "interno");        
-        ingreso.interno.fotoPI = await fileFotoPI.webContentLink;
+        if(fileFotoPI){
+          ingreso.interno.fotoPI = await fileFotoPI.webContentLink;
+        } else{
+          ingreso.interno.fotoPI = null;
+        }
 
         const fileFotoPD = await this.driveImagenesService.getFileByName(ingreso.interno.fotoPD, "interno");        
-        ingreso.interno.fotoPD = await fileFotoPD.webContentLink;
+        if(fileFotoPD){
+          ingreso.interno.fotoPD = await fileFotoPD.webContentLink;
+        } else{
+          ingreso.interno.fotoPD = null;
+        }
+        
       }
 
       return ingreso;    
