@@ -182,7 +182,7 @@ export class InternosService {
     return respuesta;
   }
 
-  async update(id_interno: number, updateDto: UpdateInternoDto, usuario:Usuario) {
+  async update(id_interno: number, updateDto: UpdateInternoDto, usuario:Usuario, motivo_nodificacion: string) {
    
     //buscar ingreso del interno antes de modificar
     //let dataIngreso = await this.findOne(id);

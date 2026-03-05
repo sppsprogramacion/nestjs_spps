@@ -75,7 +75,7 @@ export class InternosController {
     //guardar imagen
     const uploadedFile = await this.driveImagenesService.uploadFileInterno(file, "interno", foto_nombre, +id_interno);
     
-    //modificar nombre de la imagen en el ciudadano
+    //modificar nombre de la imagen en el interno
     if(uploadedFile){
       if(tipo_perfil == "FF"){
         internoImagen.foto = foto_nombre;
@@ -87,7 +87,7 @@ export class InternosController {
         internoImagen.fotoPD = foto_nombre;
       }
 
-      await this.internosService.update(+id_interno,internoImagen,user);
+      await this.internosService.update(+id_interno,internoImagen,user,"NUEVA FOTO " + tipo_perfil);
     }
     
 
@@ -215,7 +215,7 @@ export class InternosController {
 
     //domicilio: para que solo se modifiquen los datos de domicilio e identificar
     //que se guarde en tabla domicilios_ciudadano
-    return this.internosService.update(+id_interno, dataDto, user);
+    return this.internosService.update(+id_interno, dataDto, user, "ACTUALIZACION DATOS PERSONALES");
   }
   //FIN MODIFICAR DATOS PERSONALES...........................................
 
@@ -230,7 +230,7 @@ export class InternosController {
 
     //domicilio: para que solo se modifiquen los datos de domicilio e identificar
     //que se guarde en tabla domicilios_ciudadano
-    return this.internosService.update(+id_interno, dataDto, user);
+    return this.internosService.update(+id_interno, dataDto, user, "ACTUALIZACION CARACTERISTICAS PERSONALES");
   }
   //FIN MODIFICAR CARACTERISTICAS PERSONALES...........................................
 
@@ -245,11 +245,10 @@ export class InternosController {
 
     //domicilio: para que solo se modifiquen los datos de domicilio e identificar
     //que se guarde en tabla domicilios_ciudadano
-    return this.internosService.update(+id_interno, dataDto, user);
+    return this.internosService.update(+id_interno, dataDto, user, "ACTUALIZACION DATOS FILIATORIOS");
   }
   //FIN MODIFICAR DATOS FILIATORIOS...........................................
   
-
   //EDITAR
   @Put(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
@@ -259,8 +258,53 @@ export class InternosController {
     @Body() UpdateInternoDto: UpdateInternoDto
   ) {
     
-    return this.internosService.update(+id, UpdateInternoDto,user);
+    return this.internosService.update(+id, UpdateInternoDto,user, "EDICION DE DATOS");
   }
   //FIN EDITAR........................................................
+
+  //QUITAR IMAGEN
+  @Delete('quitar-imagen')
+  @Auth()
+  async deleteImagenes(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_interno', ParseIntPipe) id_interno: string,    
+    @Query('tipo_perfil') tipo_perfil: string,
+  ) {
+
+    if(!isNotEmpty(tipo_perfil)){
+      throw new NotFoundException("Debe ingresar un valor valido <<FF,FPD o FPI>>.");
+    }
+
+    if(tipo_perfil != "FF" && tipo_perfil != "FPD" && tipo_perfil != "FPI"){
+      throw new NotFoundException("El valor enviado debe ser valido <<FF,FPD o FPI>>.");
+    }
+
+    
+    let fileName = "foto-interno-" + id_interno + "-" + tipo_perfil + ".jpg";;
+
+    let eliminadoFile: boolean = await this.driveImagenesService.deleteAllFilesByName(fileName, "interno");
+    if(!eliminadoFile) throw new NotFoundException("La imagen no se elimino correctamente");
+    
+    //modificar nombre de la imagen en el interno
+    if(eliminadoFile){
+      let internoImagen: UpdateInternoDto= new UpdateInternoDto;
+      if(tipo_perfil == "FF"){
+        internoImagen.foto = "foto-interno-FF-0.jpg";
+      }
+      if(tipo_perfil == "FPI"){
+        internoImagen.fotoPI = "foto-interno-PI-0.jpg";
+      }
+      if(tipo_perfil == "FPD"){
+        internoImagen.fotoPD = "foto-interno-PD-0.jpg";
+      }
+
+      await this.internosService.update(+id_interno,internoImagen,user, "QUITAR FOTO " + tipo_perfil);
+    }
+
+    return {
+      message: 'Imagen eliminada correctamente',
+      eliminado: true,
+    };
+  }
 
 }
