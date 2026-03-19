@@ -40,7 +40,7 @@ export class CausasService {
     if(ingresoInterno.organismo_alojamiento_id != usuario.organismo_id) 
       throw new NotFoundException("El interno no se encuentra alojado en la unidad del usuario");
     
-    //guardar traslado
+    //guardar causa
     try {
       
       const nuevo = await this.causaRepository.create(data);
@@ -157,7 +157,7 @@ export class CausasService {
       //actualiza datos del traslado
       let fecha_actual: any = new Date().toISOString().split('T')[0];    
       let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
-
+      
       dataUpdate.tiene_computo = false;
       dataUpdate.fecha_condena = null;
       dataUpdate.tribunal_condena_id = "0SINESP";

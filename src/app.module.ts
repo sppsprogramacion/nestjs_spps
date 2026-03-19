@@ -64,6 +64,7 @@ import { PrisionReclusionModule } from './prision-reclusion/prision-reclusion.mo
 import { TipoDelitoModule } from './tipo-delito/tipo-delito.module';
 import { JuzgadosModule } from './juzgados/juzgados.module';
 import { ReincidenciaModule } from './reincidencia/reincidencia.module';
+import { HistorialProcesalModule } from './historial-procesal/historial-procesal.module';
 
 @Module({
   imports: [
@@ -135,6 +136,7 @@ import { ReincidenciaModule } from './reincidencia/reincidencia.module';
     TipoDelitoModule,
     JuzgadosModule,
     ReincidenciaModule,
+    HistorialProcesalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
