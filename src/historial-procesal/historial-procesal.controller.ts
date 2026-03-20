@@ -4,13 +4,14 @@ import { CreateHistorialProcesalDto } from './dto/create-historial-procesal.dto'
 import { UpdateHistorialProcesalDto } from './dto/update-historial-procesal.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('historial-procesal')
 export class HistorialProcesalController {
   constructor(private readonly historialProcesalService: HistorialProcesalService) {}
 
   @Post()
-  @Auth()
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateHistorialProcesalDto
@@ -21,7 +22,9 @@ export class HistorialProcesalController {
 
   //BUSCAR  XID INGRESO
   @Get('lista-xingreso')  
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   async findXCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ingreso', ParseIntPipe) id_ingreso: string    
   ) {    
     
@@ -30,7 +33,11 @@ export class HistorialProcesalController {
   //FIN BUSCAR  XID INGRESO....................................................
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  findOne(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id') id: string
+  ) {
     return this.historialProcesalService.findOne(+id);
   }
   

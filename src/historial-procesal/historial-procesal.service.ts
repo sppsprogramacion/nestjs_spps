@@ -35,6 +35,7 @@ export class HistorialProcesalService {
     dataHistorialDto.organismo_id = usuario.organismo_id;
     dataHistorialDto.usuario_id = usuario.id_usuario;
     dataHistorialDto.fecha_carga = fecha_actual;
+    dataHistorialDto.motivo = "HISTORIAL GENERAL";
 
     //controlar ingreso del nterno
     const ingresoInterno = await this.ingresoInternoService.findOne(dataHistorialDto.ingreso_interno_id); 
