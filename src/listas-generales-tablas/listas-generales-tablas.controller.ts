@@ -24,4 +24,9 @@ export class ListasGeneralesTablasController {
   async obtenerTablasCausa() {
     return await this.listasGeneralesTablasService.obtenerTablasParaCausa();
   }
+
+  @Get('tablas-historial-procesal')
+  async obtenerTablasHistorialProcesal() {
+    return await this.listasGeneralesTablasService.obtenerTablasHistorialProcesalTodas();
+  }
 }

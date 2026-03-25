@@ -65,6 +65,7 @@ import { TipoDelitoModule } from './tipo-delito/tipo-delito.module';
 import { JuzgadosModule } from './juzgados/juzgados.module';
 import { ReincidenciaModule } from './reincidencia/reincidencia.module';
 import { HistorialProcesalModule } from './historial-procesal/historial-procesal.module';
+import { TiposHistorialPocesalModule } from './tipos-historial-pocesal/tipos-historial-pocesal.module';
 
 @Module({
   imports: [
@@ -137,6 +138,7 @@ import { HistorialProcesalModule } from './historial-procesal/historial-procesal
     JuzgadosModule,
     ReincidenciaModule,
     HistorialProcesalModule,
+    TiposHistorialPocesalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,7 @@ export class ListasGeneralesTablasService {
 
   constructor(private dataSource: DataSource) {}
   
+  //TABLAS CARACTERISTICAS PERSONALES
   async obtenerCaracteristicasPersonalesTodas() {    
 
     const resultados = await this.dataSource.query(`
@@ -79,8 +80,9 @@ export class ListasGeneralesTablasService {
     return { ojos_color, nariz_forma, pelo_tipo, pelo_color, piel, tamanio, sexo };
   
   }
+  //FIN TABLAS CARACTERISTICAS PERSONALES.............................................
 
-
+  //TABLAS DATOS FILIATORIOS
   async obtenerTablasFiliarotiosTodas() {    
 
     const resultados = await this.dataSource.query(`
@@ -116,7 +118,9 @@ export class ListasGeneralesTablasService {
     return { estado_civil, nacionalidad, zona_residencia };
   
   }
+  //FIN TABLAS DATOS FILIATORIOS...........................................
 
+  //TABLAS PARA INGRESO INTERNO
   async obtenerTablasParaIngresoInterno() {    
 
     const organismos_externos = await this.dataSource.query(`
@@ -152,7 +156,9 @@ export class ListasGeneralesTablasService {
     return { organismos_externos, organismos_spps, jurisdiccion, estado_procesal, reingreso, tipos_defensor};
   
   }
+  //FIN TABLAS PARA INGRESO INTERNO.......................................................
 
+  //TABLAS PARA CAUSA
   async obtenerTablasParaCausa() {    
 
     const prision_reclusion = await this.dataSource.query(`
@@ -193,4 +199,19 @@ export class ListasGeneralesTablasService {
     return { prision_reclusion, tipos_delito, estado_procesal, jurisdiccion, juzgados, reincidencia, tipos_defensor};
   
   }
+  //FIN TABLAS PARA CAUSA................................................................................
+  
+  //TABLAS HISTORIAL PROCESAL
+  async obtenerTablasHistorialProcesalTodas() {    
+
+    const tipos_historial_procesal = await this.dataSource.query(`
+      SELECT id_tipo_historial_procesal, tipo_historial_procesal FROM tipos_historial_procesal
+      
+    `);
+          
+    return { tipos_historial_procesal};
+  
+  }
+  //FIN TABLAS HISTORIAL PROCESAL...........................................
+
 }

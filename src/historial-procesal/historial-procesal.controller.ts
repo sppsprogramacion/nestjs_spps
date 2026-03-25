@@ -17,18 +17,31 @@ export class HistorialProcesalController {
     @Body() data: CreateHistorialProcesalDto
   ) {
     
-    return this.historialProcesalService.createDesdeController(data, user);
+    return this.historialProcesalService.createDesdeController(data,"SISTEMA JUDICIALES", user);
   }  
 
   //BUSCAR  XID INGRESO
   @Get('lista-xingreso')  
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
-  async findXCiudadano(
+  async findXIngreso(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ingreso', ParseIntPipe) id_ingreso: string    
   ) {    
     
     return this.historialProcesalService.findXIngreso(+id_ingreso);
+  }
+  //FIN BUSCAR  XID INGRESO....................................................
+
+  //BUSCAR  XID INGRESO
+  @Get('lista-xingreso-xtipohistorial')  
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  async findXIngresoXTipoHistorialProcesal(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string,
+    @Query('id_tipo_historial', ParseIntPipe) id_tipo_historial: string    
+  ) {    
+    
+    return this.historialProcesalService.findXIngresoXTipoHistorial(+id_ingreso, +id_tipo_historial);
   }
   //FIN BUSCAR  XID INGRESO....................................................
 

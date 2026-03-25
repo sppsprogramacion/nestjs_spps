@@ -28,14 +28,14 @@ export class HistorialProcesalService {
     }     
   }
 
-  async createDesdeController(dataHistorialDto: CreateHistorialProcesalDto, usuario: Usuario): Promise<HistorialProcesal> {
+  async createDesdeController(dataHistorialDto: CreateHistorialProcesalDto, motivo: string, usuario: Usuario): Promise<HistorialProcesal> {
     let fecha_actual: any = new Date().toISOString().split('T')[0];
     
     //cargar datos por defecto
     dataHistorialDto.organismo_id = usuario.organismo_id;
     dataHistorialDto.usuario_id = usuario.id_usuario;
     dataHistorialDto.fecha_carga = fecha_actual;
-    dataHistorialDto.motivo = "HISTORIAL GENERAL";
+    dataHistorialDto.motivo = motivo;
 
     //controlar ingreso del nterno
     const ingresoInterno = await this.ingresoInternoService.findOne(dataHistorialDto.ingreso_interno_id); 
@@ -77,13 +77,31 @@ export class HistorialProcesalService {
             ingreso_interno_id: idIngreso
           },
           order:{
-            id_historial_procesal: "ASC"
+            fecha: "ASC"
           }
         }
       );   
           
-      return historial;
+      return historial;    
+  }
+  //FIN BUSCAR X INGRESO..................................................................
+
+  //BUSCAR  X INGRESO
+  async findXIngresoXTipoHistorial(idIngreso: number, idTipoHistorialProcesal: number) {    
     
+    const historial = await this.historialProcesalRepository.find(
+      {        
+        where: {
+          ingreso_interno_id: idIngreso,
+          tipo_historial_procesal_id: idTipoHistorialProcesal
+        },
+        order:{
+          fecha: "ASC"
+        }
+      }
+    );   
+        
+    return historial;    
   }
   //FIN BUSCAR X INGRESO..................................................................
 

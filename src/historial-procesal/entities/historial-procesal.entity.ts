@@ -1,5 +1,6 @@
 import { IngresoInterno } from "src/ingresos-interno/entities/ingresos-interno.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { TipoHistorialPocesal } from "src/tipos-historial-pocesal/entities/tipos-historial-pocesal.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -22,6 +23,22 @@ export class HistorialProcesal {
     })
     ingreso_interno: IngresoInterno;
     //FIN INGRESO
+
+    //TIPO HISTORIAL
+    @Column({
+        type: 'int',
+        default: 1,
+        nullable: false
+    })
+    tipo_historial_procesal_id: number;
+
+    @ManyToOne(type => TipoHistorialPocesal, {eager: true} )
+    @JoinColumn({
+        name: 'tipo_historial_procesal_id',
+        referencedColumnName: 'id_tipo_historial_procesal'
+    })
+    tipo_historial_procesal: TipoHistorialPocesal;
+    //FIN TIPO HISTORIAL
 
     @Column({
         type: 'date',

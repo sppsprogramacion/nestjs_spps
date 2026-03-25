@@ -1,14 +1,13 @@
 import { Transform } from "class-transformer";
 import { IsDateString, IsInt, Length } from "class-validator";
 
-export class CreateHistorialProcesalDto {
+export class CreateSancionSumarioDto {
 
     id_historial_procesal: number;
     
     @IsInt({message: "ingreso_interno_id debe ser un número entero."})
     ingreso_interno_id: number;
-
-    @IsInt({message: "tipo_historial_procesal_id debe ser un número entero."})
+    
     tipo_historial_procesal_id: number;
 
     @IsDateString()
