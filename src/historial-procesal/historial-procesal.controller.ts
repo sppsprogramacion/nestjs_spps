@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Put } from '@nestjs/common';
 import { HistorialProcesalService } from './historial-procesal.service';
 import { CreateHistorialProcesalDto } from './dto/create-historial-procesal.dto';
 import { UpdateHistorialProcesalDto } from './dto/update-historial-procesal.dto';
@@ -52,6 +52,17 @@ export class HistorialProcesalController {
     @Param('id') id: string
   ) {
     return this.historialProcesalService.findOne(+id);
+  }
+  
+  @Put(':id')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  update(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataDto: UpdateHistorialProcesalDto
+  ) {
+    
+    return this.historialProcesalService.update(+id, dataDto, user);
   }
   
 }

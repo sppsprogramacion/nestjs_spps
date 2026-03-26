@@ -114,19 +114,50 @@ export class HistorialProcesalService {
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateHistorialProcesalDto) {
-
+  async update(id: number, data: UpdateHistorialProcesalDto, usuario: Usuario) {
     try{
+      //buscar causa antes de modificar
+      let dataHistorial = await this.findOne(id);
+      
+      //verificar si el organismo de alojamiento corresponde al organismo del usuario
+      if(dataHistorial.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar el historial. Solo lo puede hacer el organismo donde esta alojado el interno.");
+      
+      //verificar si el historial esta eliminado
+      if(dataHistorial.is_eliminado) 
+        throw new NotFoundException("No se puede modificar una historial eliminado.");
+
+
+      //preparar datos para la bitacora      
+      let fecha_actual: any = new Date().toISOString().split('T')[0];        
+      // dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
+      // dataBitacora.disposicion = dataProhibicion.disposicion;
+      // dataBitacora.detalle = dataProhibicion.detalle;
+      // dataBitacora.fecha_inicio = dataProhibicion.fecha_inicio;
+      // dataBitacora.fecha_fin = dataProhibicion.fecha_fin;
+      // dataBitacora.vigente = dataProhibicion.vigente;
+      // dataBitacora.anulado = dataProhibicion.anulado;
+      // dataBitacora.motivo = "MODIFICACION PROHIBICION";
+      // dataBitacora.detalle_motivo = detalle_motivo;
+
+      // dataBitacora.organismo_id = usuario.organismo_id;
+      // dataBitacora.usuario_id = usuario.id_usuario;
+      // dataBitacora.fecha_cambio = fecha_actual;
+
+      //actualiza la prohibicion
       const respuesta = await this.historialProcesalRepository.update(id, data);
-      if((await respuesta).affected == 0){
-        await this.findOne(id);
-      } 
+
+      //guardar bitacora de prohibicion
+      // if((await respuesta).affected == 1){
+                
+      //   await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
+      // } 
       return respuesta;
     }
     catch(error){
       
       this.handleDBErrors(error); 
-    }   
+    }      
   }  
 
   //MANEJO DE ERRORES

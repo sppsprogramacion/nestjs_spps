@@ -55,30 +55,30 @@ export class CausasController {
   //FIN PARA RUTA NO DEFINIDA...............................
   
   //ESTABLECER CONDENA
-    @Put('establecer-condena')
-    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
-    updateEstablecerCondena(
-      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-      @Query('id_causa', ParseIntPipe) id_causa: string ,
-      @Body() dataDto: UpdateEstablecerCondenaDto
-    ) {
-      
-      return this.causasService.establecerCondena(+id_causa, dataDto, user);
-    }
-    //FIN ESTABLECER CONDENA.................................
+  @Put('establecer-condena')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerCondena(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_causa', ParseIntPipe) id_causa: string ,
+    @Body() dataDto: UpdateEstablecerCondenaDto
+  ) {
+    
+    return this.causasService.establecerCondena(+id_causa, dataDto, user);
+  }
+  //FIN ESTABLECER CONDENA.................................
 
-    //ESTABLECER CONDENA
-    @Put('quitar-condena')
-    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
-    updateQuitarCondena(
-      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-      @Query('id_causa', ParseIntPipe) id_causa: string ,
-      @Body() dataDto: UpdateQuitarCondenaDto
-    ) {
-      
-      return this.causasService.quitarCondena(+id_causa, dataDto, user);
-    }
-    //FIN ESTABLECER CONDENA.................................
+  //ESTABLECER CONDENA
+  @Put('quitar-condena')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateQuitarCondena(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_causa', ParseIntPipe) id_causa: string ,
+    @Body() dataDto: UpdateQuitarCondenaDto
+  ) {
+    
+    return this.causasService.quitarCondena(+id_causa, dataDto, user);
+  }
+  //FIN ESTABLECER CONDENA.................................
 
   @Put(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)

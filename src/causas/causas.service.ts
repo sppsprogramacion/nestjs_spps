@@ -184,7 +184,7 @@ export class CausasService {
       //const { detalle_motivo, ...nuevaData } = data;
       
       try{
-        //buscar prohibicion antes de modificar
+        //buscar causa antes de modificar
         let dataCausa = await this.findOne(id);
         
         //verificar si el organismo de alojamiento corresponde al organismo del usuario

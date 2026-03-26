@@ -20,7 +20,7 @@ export class CreateHistorialProcesalDto {
     
     motivo: string;
 
-    @Length(1,1000,{message: "motivo debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,1000,{message: "detalle debe tener entre $constraint1 y $constraint2 caracteres."})
     detalle: string;
         
     is_eliminado: boolean;
