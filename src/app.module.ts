@@ -66,6 +66,7 @@ import { JuzgadosModule } from './juzgados/juzgados.module';
 import { ReincidenciaModule } from './reincidencia/reincidencia.module';
 import { HistorialProcesalModule } from './historial-procesal/historial-procesal.module';
 import { TiposHistorialPocesalModule } from './tipos-historial-pocesal/tipos-historial-pocesal.module';
+import { NivelesEducacionModule } from './niveles-educacion/niveles-educacion.module';
 
 @Module({
   imports: [
@@ -139,6 +140,7 @@ import { TiposHistorialPocesalModule } from './tipos-historial-pocesal/tipos-his
     ReincidenciaModule,
     HistorialProcesalModule,
     TiposHistorialPocesalModule,
+    NivelesEducacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
