@@ -69,9 +69,18 @@ export class CreateInternoUnidadDto {
     @IsInt({message: "estado_civil_id debe ser un número entero"})
     estado_civil_id: number;
     
-    @Length(1,10,{message: "zona_residencia_id debe tener entre $constraint1 y $constraint2 caracteres."})
-    zona_residencia_id: string;
+    @IsInt({message: "nivel_educacion_id debe ser un número entero"})
+    nivel_educacion_id: string;
+
+    @IsInt({message: "religion_id debe ser un número entero"})
+    religion_id: string;
+
+    @IsInt({message: "ocupacion_id debe ser un número entero"})
+    ocupacion_id: string;
     
+    @Length(1,100,{message: "profesion debe tener entre $constraint1 y $constraint2 caracteres."})
+    profesion: string;    
+
     @Transform(({ value }) => value === '' ? undefined : value)
     @IsOptional()
     @Length(1,200,{message: "padre debe tener entre $constraint1 y $constraint2 caracteres."})
@@ -87,8 +96,7 @@ export class CreateInternoUnidadDto {
     @Length(1,500,{message: "parientes debe tener entre $constraint1 y $constraint2 caracteres."})
     parientes: string;    
         
-    @Length(1,100,{message: "El teléfono debe tener entre $constraint1 y $constraint2 caracteres."})
-    telefono: string;    
+    
 
     organismo_id: number;
     

@@ -15,6 +15,9 @@ import { Tamanio } from "src/tamanio/entities/tamanio.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { ZonaResidencia } from "src/zona-residencia/entities/zona-residencia.entity";
 import { IngresoInterno } from "src/ingresos-interno/entities/ingresos-interno.entity";
+import { NivelEducacion } from "src/niveles-educacion/entities/niveles-educacion.entity";
+import { Religion } from "src/religiones/entities/religione.entity";
+import { Ocupacion } from "src/ocupaciones/entities/ocupacione.entity";
 
 @Entity('internos')
 export class Interno {
@@ -335,6 +338,61 @@ export class Interno {
     })
     parientes: string;
     
+    //EDUCACION
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    nivel_educacion_id: string;
+
+    @ManyToOne(type => NivelEducacion, {eager: true} )
+    @JoinColumn({
+        name: 'nivel_educacion_id',
+        referencedColumnName: 'id_nivel_educacion'
+    })
+    nivel_educacion: NivelEducacion;
+    //FIN EDUCACION
+
+    //RELIGION
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    religion_id: string;
+
+    @ManyToOne(type => Religion, {eager: true} )
+    @JoinColumn({
+        name: 'religion_id',
+        referencedColumnName: 'id_religion'
+    })
+    religion: Religion;
+    //FIN RELIGION
+
+    //OCUPACION
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    ocupacion_id: string;
+
+    @ManyToOne(type => Ocupacion, {eager: true} )
+    @JoinColumn({
+        name: 'ocupacion_id',
+        referencedColumnName: 'id_ocupacion'
+    })
+    ocupacion: Ocupacion;
+    //FIN OCUPACION
+    
+    @Column({
+        type:'varchar',
+        length: 100,
+        nullable: true
+    })
+    profesion: string;
+
     //FIN DATOS FILIATORIOS......................................................
 
     @Column({

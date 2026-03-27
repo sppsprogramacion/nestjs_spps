@@ -89,9 +89,7 @@ export class ListasGeneralesTablasService {
       SELECT id_estado_civil AS id, estado_civil AS descripcion, tipo_caracteristica FROM estado_civil
       UNION ALL
       SELECT id_nacionalidad AS id, nacionalidad AS descripcion, tipo_caracteristica FROM nacionalidades
-      UNION ALL
-      SELECT id_zona_residencia AS id, zona_residencia AS descripcion, tipo_caracteristica FROM zona_residencia
-      
+            
     `);
 
     const estado_civil = resultados
@@ -107,15 +105,25 @@ export class ListasGeneralesTablasService {
         id_nacionalidad: r.id,
         nacionalidad: r.descripcion
       }));
+    
+    
+    const niveles_educacion = await this.dataSource.query(`
+      SELECT id_nivel_educacion, nivel_educacion FROM niveles_educacion
+      
+    `);
 
-    const zona_residencia = resultados
-      .filter(r => r.tipo_caracteristica === 'zona_residencia')
-      .map(r => ({
-        id_zona_residencia: r.id,
-        zona_residencia: r.descripcion
-      }));
+    const religiones = await this.dataSource.query(`
+      SELECT id_religion, religion FROM religiones
+      
+    `);
 
-    return { estado_civil, nacionalidad, zona_residencia };
+    const ocupaciones = await this.dataSource.query(`
+      SELECT id_ocupacion, ocupacion FROM ocupaciones
+      
+    `);
+   
+
+    return { estado_civil, nacionalidad,niveles_educacion, religiones, ocupaciones };
   
   }
   //FIN TABLAS DATOS FILIATORIOS...........................................
@@ -210,6 +218,19 @@ export class ListasGeneralesTablasService {
     `);
           
     return { tipos_historial_procesal};
+  
+  }
+  //FIN TABLAS HISTORIAL PROCESAL...........................................
+
+  //TABLAS HISTORIAL PROCESAL
+  async obtenerTablasDomicilioInternoTodas() {    
+
+    const zona_residencia = await this.dataSource.query(`
+      SELECT id_zona_residencia, zona_residencia FROM zona_residencia
+      
+    `);
+          
+    return { zona_residencia};
   
   }
   //FIN TABLAS HISTORIAL PROCESAL...........................................
