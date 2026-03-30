@@ -301,22 +301,7 @@ export class Interno {
     estado_civil: EstadoCivil;
     //FIN ESTADO CIVIL
 
-    //ZONA RESIDENCIA
-    @Column({
-        type: 'varchar',
-        length: 10,
-        default: "U"
-    })
-    zona_residencia_id: string;
-
-    @ManyToOne(type => ZonaResidencia, {eager: true} )
-    @JoinColumn({
-        name: 'zona_residencia_id',
-        referencedColumnName: 'id_zona_residencia'
-    })
-    zona_residencia: ZonaResidencia;
-    //FIN ZONA RESIDENCIA
-
+    
     @Column({
         type:'varchar',
         length: 200,
@@ -394,13 +379,6 @@ export class Interno {
     profesion: string;
 
     //FIN DATOS FILIATORIOS......................................................
-
-    @Column({
-        type: 'varchar',
-        length: 100,
-        nullable: true
-    })
-    telefono: string;    
 
     //ORGANISMO
     @Column({

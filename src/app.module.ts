@@ -69,6 +69,7 @@ import { TiposHistorialPocesalModule } from './tipos-historial-pocesal/tipos-his
 import { NivelesEducacionModule } from './niveles-educacion/niveles-educacion.module';
 import { ReligionesModule } from './religiones/religiones.module';
 import { OcupacionesModule } from './ocupaciones/ocupaciones.module';
+import { DomiciliosInternoModule } from './domicilios-interno/domicilios-interno.module';
 
 @Module({
   imports: [
@@ -145,6 +146,7 @@ import { OcupacionesModule } from './ocupaciones/ocupaciones.module';
     NivelesEducacionModule,
     ReligionesModule,
     OcupacionesModule,
+    DomiciliosInternoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
