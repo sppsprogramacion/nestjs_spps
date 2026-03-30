@@ -124,6 +124,25 @@ export class DomicilioInterno {
     numero_dom: number;
 
     @Column({
+        type: "boolean",
+        default: true
+    })
+    vigente: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    is_eliminado: boolean;
+
+    @Column({
+        type: 'varchar',
+        length: 400,
+        nullable: true
+    })
+    detalle_eliminado: string;
+
+    @Column({
         type: 'date',
         nullable: false
     })

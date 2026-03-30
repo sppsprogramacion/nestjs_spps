@@ -33,7 +33,7 @@ export class CausasService {
 
     //controlar ingreso del nterno
     const ingresoInterno = await this.ingresoInternoService.findOne(data.ingreso_interno_id); 
-    if (!ingresoInterno) throw new NotFoundException("El ingreso del interno no existe.");
+    if (!ingresoInterno) throw new NotFoundException("El interno no tiene un ingreso actual en una dependencia.");
     if (ingresoInterno.eliminado) throw new NotFoundException("El ingreso del interno no es válido o no existe.");
     if (ingresoInterno.esta_liberado) throw new NotFoundException("El interno se encuentra liberado en este ingreso.");
 

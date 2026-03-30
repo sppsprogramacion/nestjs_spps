@@ -32,6 +32,12 @@ export class CreateDomiciliosInternoDto {
     @IsInt({message: "numero_dom debe ser un número entero"})
     numero_dom: number;
 
+    vigente: boolean;
+
+    is_eliminado: boolean;
+   
+    detalle_eliminado: string;
+
     fecha_carga: Date;
     
     organismo_id: number;

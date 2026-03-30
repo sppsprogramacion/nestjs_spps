@@ -1,34 +1,67 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, ParseIntPipe } from '@nestjs/common';
 import { DomiciliosInternoService } from './domicilios-interno.service';
 import { CreateDomiciliosInternoDto } from './dto/create-domicilios-interno.dto';
 import { UpdateDomiciliosInternoDto } from './dto/update-domicilios-interno.dto';
+import { Auth, GetUser } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/interfaces';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('domicilios-interno')
 export class DomiciliosInternoController {
   constructor(private readonly domiciliosInternoService: DomiciliosInternoService) {}
 
+  //NUEVO
   @Post()
-  create(@Body() createDomiciliosInternoDto: CreateDomiciliosInternoDto) {
-    return this.domiciliosInternoService.create(createDomiciliosInternoDto);
-  }
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateDomiciliosInternoDto
+  ) {
+        
+    return this.domiciliosInternoService.create(data, user);
+  }  
+  //FIN NUEVO......................................................
+
 
   @Get()
-  findAll() {
+  @Auth()
+  findAll(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    
+  ) {
     return this.domiciliosInternoService.findAll();
   }
 
+  //BUSCAR  XID CIUDADANO
+  @Get('buscar-xinterno')  
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  async findXInterno(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_interno', ParseIntPipe) id_interno: string    
+  ) {    
+    
+    return this.domiciliosInternoService.findXInterno(+id_interno);
+  }
+  //FIN BUSCAR  XID CIUDADANO....................................................
+
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Auth()  
+  findOne(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id') id: string
+  ) {
     return this.domiciliosInternoService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDomiciliosInternoDto: UpdateDomiciliosInternoDto) {
-    return this.domiciliosInternoService.update(+id, updateDomiciliosInternoDto);
+  @Put(':id')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  update(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id') id: string, 
+    @Body() updateDomiciliosInternoDto: UpdateDomiciliosInternoDto
+  ) {
+    return this.domiciliosInternoService.update(+id, updateDomiciliosInternoDto, user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.domiciliosInternoService.remove(+id);
-  }
 }
