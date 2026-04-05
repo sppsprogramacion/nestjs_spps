@@ -32,6 +32,8 @@ export class DomiciliosInternoService {
 
     if(ingresoInterno.organismo_alojamiento_id != usuario.organismo_id) 
       throw new NotFoundException("El interno no se encuentra alojado en la unidad del usuario");
+    
+    this.deshabilitarDomicilios(data.interno_id);
 
     try {
       
@@ -84,7 +86,7 @@ export class DomiciliosInternoService {
   //FIN BUSCAR  XID..................................................................
 
   //DESHABILITAR TODOS LOS DOMICILIOS DE UN INTERNO
-  async deshabilitarDomicilios(idInternoX: number, idUsuarioX: number) {
+  async deshabilitarDomicilios(idInternoX: number) {
     
     try{
       const respuesta = await this.domicilioInternoRepository.createQueryBuilder('domicilios_interno')
