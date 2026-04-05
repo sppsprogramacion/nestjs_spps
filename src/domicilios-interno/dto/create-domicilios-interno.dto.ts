@@ -32,6 +32,12 @@ export class CreateDomiciliosInternoDto {
     @IsInt({message: "numero_dom debe ser un número entero"})
     numero_dom: number;
 
+    @Length(1,30,{message: "teléfono debe tener entre $constraint1 y $constraint2 caracteres."})
+    telefono: string;    
+
+    @Length(1,10,{message: "zona_residencia_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    zona_residencia_id: string;
+
     vigente: boolean;
 
     is_eliminado: boolean;

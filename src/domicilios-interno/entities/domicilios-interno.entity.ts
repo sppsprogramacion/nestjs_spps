@@ -5,6 +5,7 @@ import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Pais } from "src/paises/entities/pais.entity";
 import { Provincia } from "src/provincias/entities/provincia.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
+import { ZonaResidencia } from "src/zona-residencia/entities/zona-residencia.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('domicilios_interno')
@@ -122,6 +123,30 @@ export class DomicilioInterno {
         default: 0
     })
     numero_dom: number;
+
+    @Column({
+        type:'varchar',
+        length: 30,
+        nullable: false,
+        default: '0'
+    })
+    telefono: string;
+
+    //ZONA RESIDENCIA
+    @Column({
+        type: 'varchar',
+        length: 10,
+        default: 'U'
+    })
+    zona_residencia_id: string;
+
+    @ManyToOne(type => ZonaResidencia, {eager: true} )
+    @JoinColumn({
+        name: 'zona_residencia_id',
+        referencedColumnName: 'id_zona_residencia'
+    })
+    zona_residencia: ZonaResidencia;
+    //FIN ZONA RESIDENCIA
 
     @Column({
         type: "boolean",

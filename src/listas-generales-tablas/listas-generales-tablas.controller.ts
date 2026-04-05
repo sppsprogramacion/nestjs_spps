@@ -29,4 +29,9 @@ export class ListasGeneralesTablasController {
   async obtenerTablasHistorialProcesal() {
     return await this.listasGeneralesTablasService.obtenerTablasHistorialProcesalTodas();
   }
+
+  @Get('tablas-domicilio-interno')
+  async obtenerTablasDomicilioInterno() {
+    return await this.listasGeneralesTablasService.obtenerTablasDomicilioInternoTodas();
+  }
 }

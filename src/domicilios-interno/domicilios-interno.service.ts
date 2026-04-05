@@ -83,6 +83,22 @@ export class DomiciliosInternoService {
   }
   //FIN BUSCAR  XID..................................................................
 
+  //DESHABILITAR TODOS LOS DOMICILIOS DE UN INTERNO
+  async deshabilitarDomicilios(idInternoX: number, idUsuarioX: number) {
+    
+    try{
+      const respuesta = await this.domicilioInternoRepository.createQueryBuilder('domicilios_interno')
+      .update('domicilios_interno')
+      .set({vigente: false})
+      .where('interno_id = :id_interno',{id_interno: idInternoX})
+      .execute();
+    }
+    catch (error){
+      this.handleDBErrors(error);
+    }
+  }
+  //FIN DESHABILITAR TODOS LOS DOMICILIOS DE UN INTERNO.....................................................
+
   async update(id: number, data: UpdateDomiciliosInternoDto, usuario: Usuario) {
 
     //controlar ingreso del nterno

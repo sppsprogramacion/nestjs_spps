@@ -222,17 +222,37 @@ export class ListasGeneralesTablasService {
   }
   //FIN TABLAS HISTORIAL PROCESAL...........................................
 
-  //TABLAS HISTORIAL PROCESAL
+  //TABLAS DOMICILIO INTERNOS
   async obtenerTablasDomicilioInternoTodas() {    
+
+    const paises = await this.dataSource.query(`
+      SELECT id_pais, pais FROM paises
+      
+    `);
+
+    const provincias = await this.dataSource.query(`
+      SELECT id_provincia, provincia, pais_id FROM provincias
+      
+    `);
+
+    const departamentos = await this.dataSource.query(`
+      SELECT id_departamento, departamento, provincia_id FROM departamentos
+      
+    `);
+
+    const municipios = await this.dataSource.query(`
+      SELECT id_municipio, municipio, departamento_id FROM municipios
+      
+    `);
 
     const zona_residencia = await this.dataSource.query(`
       SELECT id_zona_residencia, zona_residencia FROM zona_residencia
       
     `);
           
-    return { zona_residencia};
+    return { paises, provincias, departamentos, municipios, zona_residencia};
   
   }
-  //FIN TABLAS HISTORIAL PROCESAL...........................................
+  //FIN TABLAS DOMICILIO INTERNOS...........................................
 
 }
