@@ -5,6 +5,7 @@ import { UpdateDomiciliosInternoDto } from './dto/update-domicilios-interno.dto'
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UpdateAnularDomicilioInternoDto } from './dto/update-anular-domicilio-interno.dto';
 
 @Controller('domicilios-interno')
 export class DomiciliosInternoController {
@@ -54,6 +55,20 @@ export class DomiciliosInternoController {
     return this.domiciliosInternoService.findOne(+id);
   }
 
+  //ANULAR TRASLADO
+  @Put('anular')
+  @Auth()
+  updateAnular(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_domicilio', ParseIntPipe) id_domicilio: string ,
+    @Body() dataDto: UpdateAnularDomicilioInternoDto
+  ) {
+    
+    return this.domiciliosInternoService.anularDomicilio(+id_domicilio, dataDto, user);
+  }
+  //FIN ANULAR TRASLADO.................................
+  
+
   @Put(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   update(
@@ -63,5 +78,7 @@ export class DomiciliosInternoController {
   ) {
     return this.domiciliosInternoService.update(+id, updateDomiciliosInternoDto, user);
   }
+
+
 
 }

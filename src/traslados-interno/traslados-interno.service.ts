@@ -181,7 +181,7 @@ export class TrasladosInternoService {
   //FIN BUSCAR  XID..................................................................
   
   //ANULAR TRASLADO
-    async anularTraslado(id: number, data: UpdateProcesarTrasladoDto, usuario: Usuario) {
+  async anularTraslado(id: number, data: UpdateProcesarTrasladoDto, usuario: Usuario) {
       
     let dataTraslado: CreateTrasladosInternoDto = new CreateTrasladosInternoDto;
 

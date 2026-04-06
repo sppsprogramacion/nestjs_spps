@@ -8,10 +8,10 @@ export class UpdateDomiciliosInternoDto {
     
     interno_id: number;
 
-    @Length(1,100,{message: "pais_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,10,{message: "pais_id debe tener entre $constraint1 y $constraint2 caracteres."})
     pais_id: string;
 
-    @Length(1,100,{message: "provincia_id debe tener entre $constraint1 y $constraint2 caracteres."})
+    @Length(1,10,{message: "provincia_id debe tener entre $constraint1 y $constraint2 caracteres."})
     provincia_id: string;
 
     @IsInt({message: "departamento_id debe ser un número entero"})
