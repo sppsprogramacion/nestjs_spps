@@ -27,6 +27,5 @@ export class CreateBitacoraProhibicionesVisitaDto {
     usuario_id: number;
 
     fecha_cambio: Date;
-
         
 }
