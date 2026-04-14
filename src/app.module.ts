@@ -70,6 +70,8 @@ import { NivelesEducacionModule } from './niveles-educacion/niveles-educacion.mo
 import { ReligionesModule } from './religiones/religiones.module';
 import { OcupacionesModule } from './ocupaciones/ocupaciones.module';
 import { DomiciliosInternoModule } from './domicilios-interno/domicilios-interno.module';
+import { PabellonesModule } from './pabellones/pabellones.module';
+import { SituacionProvisoriaModule } from './situacion-provisoria/situacion-provisoria.module';
 
 @Module({
   imports: [
@@ -147,6 +149,8 @@ import { DomiciliosInternoModule } from './domicilios-interno/domicilios-interno
     ReligionesModule,
     OcupacionesModule,
     DomiciliosInternoModule,
+    PabellonesModule,
+    SituacionProvisoriaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
