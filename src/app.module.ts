@@ -72,6 +72,7 @@ import { OcupacionesModule } from './ocupaciones/ocupaciones.module';
 import { DomiciliosInternoModule } from './domicilios-interno/domicilios-interno.module';
 import { PabellonesModule } from './pabellones/pabellones.module';
 import { SituacionProvisoriaModule } from './situacion-provisoria/situacion-provisoria.module';
+import { TrimestresModule } from './trimestres/trimestres.module';
 
 @Module({
   imports: [
@@ -151,6 +152,7 @@ import { SituacionProvisoriaModule } from './situacion-provisoria/situacion-prov
     DomiciliosInternoModule,
     PabellonesModule,
     SituacionProvisoriaModule,
+    TrimestresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
