@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFoundException, Put } from '@nestjs/common';
 import { TrimestresService } from './trimestres.service';
 import { CreateTrimestreDto } from './dto/create-trimestre.dto';
 import { UpdateTrimestreDto } from './dto/update-trimestre.dto';
@@ -8,27 +8,37 @@ export class TrimestresController {
   constructor(private readonly trimestresService: TrimestresService) {}
 
   @Post()
-  create(@Body() createTrimestreDto: CreateTrimestreDto) {
-    return this.trimestresService.create(createTrimestreDto);
-  }
+  create(@Body() data: CreateTrimestreDto) {
+    return this.trimestresService.create(data);
+  }  
 
-  @Get()
+  @Get('todos')
   findAll() {
     return this.trimestresService.findAll();
   }
+  
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {    
+    
     return this.trimestresService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTrimestreDto: UpdateTrimestreDto) {
-    return this.trimestresService.update(+id, updateTrimestreDto);
-  }
+  
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.trimestresService.remove(+id);
+  //PARA RUTA NO DEFINIDA
+  @Get('*')
+  rutasNoDefinidas() {
+    throw new NotFoundException('No se encontró la ruta especificada. Verifique si la ruta es correcta');
+  }
+  //FIN PARA RUTA NO DEFINIDA...........
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() dataDto: UpdateTrimestreDto
+  ) {
+
+    return this.trimestresService.update(+id, dataDto);
   }
 }

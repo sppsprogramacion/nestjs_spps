@@ -73,6 +73,10 @@ import { DomiciliosInternoModule } from './domicilios-interno/domicilios-interno
 import { PabellonesModule } from './pabellones/pabellones.module';
 import { SituacionProvisoriaModule } from './situacion-provisoria/situacion-provisoria.module';
 import { TrimestresModule } from './trimestres/trimestres.module';
+import { ConductaModule } from './conducta/conducta.module';
+import { ConceptoModule } from './concepto/concepto.module';
+import { ProgresividadModule } from './progresividad/progresividad.module';
+import { FasesModule } from './fases/fases.module';
 
 @Module({
   imports: [
@@ -153,6 +157,10 @@ import { TrimestresModule } from './trimestres/trimestres.module';
     PabellonesModule,
     SituacionProvisoriaModule,
     TrimestresModule,
+    ConductaModule,
+    ConceptoModule,
+    ProgresividadModule,
+    FasesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,24 +1,24 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateSituacionProvisoriaDto } from './dto/create-situacion-provisoria.dto';
-import { UpdateSituacionProvisoriaDto } from './dto/update-situacion-provisoria.dto';
+import { CreateConductaDto } from './dto/create-conducta.dto';
+import { UpdateConductaDto } from './dto/update-conducta.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SituacionProvisoria } from './entities/situacion-provisoria.entity';
+import { Conducta } from './entities/conducta.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class SituacionProvisoriaService {
+export class ConductaService {
   
   constructor(
-    @InjectRepository(SituacionProvisoria)
-    private readonly situacionProvisoriaRepository: Repository<SituacionProvisoria>
+    @InjectRepository(Conducta)
+    private readonly conductaRepository: Repository<Conducta>
   ){}
 
-  async create(data: CreateSituacionProvisoriaDto): Promise<SituacionProvisoria> {
+  async create(data: CreateConductaDto): Promise<Conducta> {
 
     try {
       
-      const nuevo = await this.situacionProvisoriaRepository.create(data);
-      return await this.situacionProvisoriaRepository.save(nuevo);
+      const nuevo = await this.conductaRepository.create(data);
+      return await this.conductaRepository.save(nuevo);
     }catch (error) {
 
       this.handleDBErrors(error);  
@@ -26,13 +26,13 @@ export class SituacionProvisoriaService {
   }
 
   async findAll() {
-    return await this.situacionProvisoriaRepository.find(
+    return await this.conductaRepository.find(
       {
-         where: {
+        where: {
           activo : true
         },
         order:{
-            situacion_provisoria: "ASC"
+          conducta: "ASC"
         }
       }
     );
@@ -42,16 +42,16 @@ export class SituacionProvisoriaService {
   //BUSCAR  XID
   async findOne(id: number) {
 
-    const respuesta = await this.situacionProvisoriaRepository.findOneBy({id_situacion_provisoria: id});
+    const respuesta = await this.conductaRepository.findOneBy({id_conducta: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
   }
   //FIN BUSCAR  XID..................................................................
 
-  async update(id: number, data: UpdateSituacionProvisoriaDto) {
+  async update(id: number, data: UpdateConductaDto) {
 
     try{
-      const respuesta = await this.situacionProvisoriaRepository.update(id, data);
+      const respuesta = await this.conductaRepository.update(id, data);
       if((await respuesta).affected == 0){
         await this.findOne(id);
       } 
@@ -74,6 +74,4 @@ export class SituacionProvisoriaService {
     throw new InternalServerErrorException (error.message);
   }
   //FIN MANEJO DE ERRORES........................................
-  
-
 }

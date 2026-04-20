@@ -1,17 +1,16 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('trimestres')
-export class Trimestre {
-
+@Entity('concepto')
+export class Concepto {
     @PrimaryGeneratedColumn()
-    id_trimestre: number;
+    id_concepto: number;
     
     @Column({
         type: 'varchar',
         length: 100,
         nullable: false,
     })
-    trimestre: string
+    concepto: string
 
     @Column({
         type: "boolean",
