@@ -16,7 +16,7 @@ export class HistorialProcesalService {
       private readonly ingresoInternoService: IngresosInternoService
   ){}
 
-  async create(data: CreateHistorialProcesalDto): Promise<HistorialProcesal> {
+  async createLocal(data: CreateHistorialProcesalDto): Promise<HistorialProcesal> {
     
     try {
       

@@ -8,6 +8,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
 import { TrasladosInternoService } from 'src/traslados-interno/traslados-interno.service';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { CreateHistorialProcesalDto } from 'src/historial-procesal/dto/create-historial-procesal.dto';
 
 @Injectable()
 export class IngresosInternoService {
@@ -193,6 +194,47 @@ export class IngresosInternoService {
     }   
   }  
   //FIN INGRESAR DESDE OTRA UNIDAD..................................................
+
+  //CARGAR PROGRESIVIDAD
+  async updateCargarProgresividad(idIngreso: number, dataIngresoRequest: UpdateIngresosInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
+        
+    try{
+      //buscar ingreso antes de modificar
+      let dataIngreso = await this.findOne(idIngreso);
+      
+      //verificar si el organismo del ingreso corresponde al organismo del usuario
+      if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar este registro. No coincide el organismo al que pertece el usuario con el organismo de alojamiento.");
+              
+      //verificar si el ingreso esta vigente, solo se modifican ingresos vigentes
+      if(dataIngreso.esta_liberado) 
+        throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
+
+      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      if(dataIngreso.eliminado) 
+        throw new NotFoundException("No se puede modificar un ingreso eliminado");
+    
+      let fecha_actual: any = new Date().toISOString().split('T')[0];
+    
+      //cargar datos por defecto HISTORIAL PROCESAL
+      dataHistorialRequest.motivo = "SISTEMA JUDICIALES";
+      dataHistorialRequest.tipo_historial_procesal_id = 4;
+      dataHistorialRequest.organismo_id = usuario.organismo_id;
+      dataHistorialRequest.usuario_id = usuario.id_usuario;
+      dataHistorialRequest.fecha_carga = fecha_actual;
+
+      //actualiza los datos de ingreso
+      const respuesta = await this.ingresossInternoRepository.update(idIngreso, dataIngresoRequest);
+      
+
+      return respuesta;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN CARGAR PROGRESIVIDAD
 
   async update(id: number, data: UpdateIngresosInternoDto, usuario:Usuario) {
         

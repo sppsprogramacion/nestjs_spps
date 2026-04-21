@@ -41,10 +41,11 @@ export class PabellonesService {
     
       const pabellones = await this.pabellonRepository.find(
         {        
-          where: {
-            organismo_id: id_organismo,
-            activo : true
-          },
+          where:[
+            { organismo_id: id_organismo },
+            { organismo_id: 28 },
+            {activo : true}
+          ],           
           order:{
             pabellon: "ASC"
           }

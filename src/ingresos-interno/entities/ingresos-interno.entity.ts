@@ -1,10 +1,17 @@
+import { Concepto } from "src/concepto/entities/concepto.entity";
+import { Conducta } from "src/conducta/entities/conducta.entity";
 import { EstadoProcesal } from "src/estado-procesal/entities/estado-procesal.entity";
+import { Fase } from "src/fases/entities/fase.entity";
 import { Interno } from "src/internos/entities/interno.entity";
 import { Jurisdiccion } from "src/jurisdiccion/entities/jurisdiccion.entity";
 import { OrganismoExterno } from "src/organismos-externos/entities/organismos-externo.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { Pabellon } from "src/pabellones/entities/pabellone.entity";
+import { Progresividad } from "src/progresividad/entities/progresividad.entity";
 import { Reingreso } from "src/reingreso/entities/reingreso.entity";
+import { SituacionProvisoria } from "src/situacion-provisoria/entities/situacion-provisoria.entity";
 import { TipoDefensor } from "src/tipos-defensor/entities/tipos-defensor.entity";
+import { Trimestre } from "src/trimestres/entities/trimestre.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -206,6 +213,159 @@ export class IngresoInterno {
         nullable: true
     })
     abogado: string;
+
+    //PABELLON
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    pabellon_id: number;
+
+    @ManyToOne(type => Pabellon, {eager: true} )
+    @JoinColumn({
+        name: 'pabellon_id',
+        referencedColumnName: 'id_pabellon'
+    })
+    pabellon: Pabellon;
+    //FIN PABELLON    
+
+    @Column({
+        type:'varchar',
+        length: 10,
+        nullable: true,
+        default: 0
+    })
+    celda: string;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    tiene_programa_puerta: boolean;
+
+    //SITUIACION PROVISORIA
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    situacion_provisoria_id: number;
+
+    @ManyToOne(type => SituacionProvisoria, {eager: true} )
+    @JoinColumn({
+        name: 'situacion_provisoria_id',
+        referencedColumnName: 'id_situacion_provisoria'
+    })
+    situacion_provisoria: SituacionProvisoria;
+    //FIN SITUIACION PROVISORIA
+    
+    @Column({
+        type:'varchar',
+        length: 500,
+        nullable: true,
+    })
+    situacion_provisoria_detalle: string;
+
+    //TRIMESTRE
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    trimestre_id: number;
+
+    @ManyToOne(type => Trimestre, {eager: true} )
+    @JoinColumn({
+        name: 'trimestre_id',
+        referencedColumnName: 'id_trimestre'
+    })
+    trimestre: Trimestre;
+    //FIN TRIMESTRE
+
+    //CONDUCTA
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    conducta_id: number;
+
+    @ManyToOne(type => Conducta, {eager: true} )
+    @JoinColumn({
+        name: 'conducta_id',
+        referencedColumnName: 'id_conducta'
+    })
+    conducta: Conducta;
+    //FIN CONDUCTA
+
+    //CONCEPTO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    concepto_id: number;
+
+    @ManyToOne(type => Concepto, {eager: true} )
+    @JoinColumn({
+        name: 'concepto_id',
+        referencedColumnName: 'id_concepto'
+    })
+    concepto: Concepto;
+    //FIN CONCEPTO
+
+    //PROGRESIVIDAD
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    progresividad_id: number;
+
+    @ManyToOne(type => Progresividad, {eager: true} )
+    @JoinColumn({
+        name: 'progresividad_id',
+        referencedColumnName: 'id_progresividad'
+    })
+    progresividad: Progresividad;
+    //FIN PROGRESIVIDAD
+
+    //FASE
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    fase_id: number;
+
+    @ManyToOne(type => Fase, {eager: true} )
+    @JoinColumn({
+        name: 'fase_id',
+        referencedColumnName: 'id_fase'
+    })
+    fase: Fase;
+    //FIN FASE
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    tiene_extramuro: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    tiene_granja: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    tiene_semilibertad: boolean;
+
+    
 
     @Column({
         type: "boolean",

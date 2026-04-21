@@ -61,6 +61,33 @@ export class CreateIngresosInternoDto {
     @Length(1,200,{message: "abogado debe tener entre $constraint1 y $constraint2 caracteres."})
     abogado: string;
 
+
+    pabellon_id: number;
+   
+    celda: string;
+
+    tiene_programa_puerta: boolean;
+
+    situacion_provisoria_id: number;
+
+    situacion_provisoria_detalle: string;
+
+    trimestre_id: number;
+
+    conducta_id: number;
+
+    concepto_id: number;
+
+    progresividad_id: number;
+
+    fase_id: number;
+
+    tiene_extramuro: boolean;
+
+    tiene_granja: boolean;
+
+    tiene_semilibertad: boolean;
+
     esta_liberado: boolean;
     
     fecha_egreso: Date;

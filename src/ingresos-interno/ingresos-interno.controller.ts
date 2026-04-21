@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, InternalServerErrorException, NotFoundException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, InternalServerErrorException, NotFoundException, Put, UnprocessableEntityException } from '@nestjs/common';
 import { IngresosInternoService } from './ingresos-interno.service';
 import { CreateIngresosInternoDto } from './dto/create-ingresos-interno.dto';
 import { UpdateIngresosInternoDto } from './dto/update-ingresos-interno.dto';
@@ -6,6 +6,8 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { ValidRoles } from 'src/auth/interfaces';
 import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
+import { EstablecerPeriodoObservacionDto } from './dto/establecer-periodo-observacion.dto';
+import { CreateHistorialProcesalDto } from 'src/historial-procesal/dto/create-historial-procesal.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -62,6 +64,27 @@ export class IngresosInternoController {
   ) {
     
     return this.ingresosInternoService.updateIngresarDesdeOtraUnidad(+id_ingreso, dataDto, user);
+  }
+
+  @Put('establecer-periodo-observacion')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerPEriodoObservacion(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: EstablecerPeriodoObservacionDto
+  ) {
+    
+    if(dataDto.progresividad_id != 4 ) throw new UnprocessableEntityException("La progresividad seleccionada debe ser OBSERVACION");
+    
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    dataIngresoRequest.progresividad_id = dataDto.progresividad_id;
+    dataIngresoRequest.fase_id = 1;
+
+    dataHistorialRequest.fecha = dataDto.fecha;
+    dataHistorialRequest.detalle = dataDto.detalle;
+
+    return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
   
   @Put(':id')
