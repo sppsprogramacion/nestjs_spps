@@ -1,24 +1,30 @@
 import { BadRequestException, ConflictException, forwardRef, HttpException, HttpStatus, Inject, Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
-import { CreateIngresosInternoDto } from './dto/create-ingresos-interno.dto';
-import { UpdateIngresosInternoDto } from './dto/update-ingresos-interno.dto';
+import { DataSource } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+
+import { CreateIngresosInternoDto } from './dto/create-ingresos-interno.dto';
+import { CreateHistorialProcesalDto } from 'src/historial-procesal/dto/create-historial-procesal.dto';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { HistorialProcesalService } from 'src/historial-procesal/historial-procesal.service';
 import { IngresoInterno } from './entities/ingresos-interno.entity';
 import { Repository } from 'typeorm';
-import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UpdateIngresosInternoDto } from './dto/update-ingresos-interno.dto';
 import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { TrasladosInternoService } from 'src/traslados-interno/traslados-interno.service';
-import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
-import { CreateHistorialProcesalDto } from 'src/historial-procesal/dto/create-historial-procesal.dto';
+import { HistorialProcesal } from 'src/historial-procesal/entities/historial-procesal.entity';
 
 @Injectable()
 export class IngresosInternoService {
   
   constructor(
+    private dataSource: DataSource,
     @InjectRepository(IngresoInterno)
     private readonly ingresossInternoRepository: Repository<IngresoInterno>,
     @Inject(forwardRef(() => TrasladosInternoService))
     private readonly trasladosInternoService: TrasladosInternoService,    
     private readonly driveImagenesService: DriveImagenesService,
+    //private readonly historialProcesalService: HistorialProcesalService,
     //private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService
   ){}
 
@@ -200,34 +206,85 @@ export class IngresosInternoService {
         
     try{
       //buscar ingreso antes de modificar
-      let dataIngreso = await this.findOne(idIngreso);
+      // let dataIngreso = await this.findOne(idIngreso);
       
-      //verificar si el organismo del ingreso corresponde al organismo del usuario
-      if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
-        throw new NotFoundException("No tiene acceso a modificar este registro. No coincide el organismo al que pertece el usuario con el organismo de alojamiento.");
+      // //verificar si el organismo del ingreso corresponde al organismo del usuario
+      // if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
+      //   throw new NotFoundException("No tiene acceso a modificar este registro. No coincide el organismo al que pertece el usuario con el organismo de alojamiento.");
               
-      //verificar si el ingreso esta vigente, solo se modifican ingresos vigentes
-      if(dataIngreso.esta_liberado) 
-        throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
+      // //verificar si el ingreso esta vigente, solo se modifican ingresos vigentes
+      // if(dataIngreso.esta_liberado) 
+      //   throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
 
-      //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
-      if(dataIngreso.eliminado) 
-        throw new NotFoundException("No se puede modificar un ingreso eliminado");
+      // //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
+      // if(dataIngreso.eliminado) 
+      //   throw new NotFoundException("No se puede modificar un ingreso eliminado");
     
-      let fecha_actual: any = new Date().toISOString().split('T')[0];
+      // let fecha_actual: any = new Date().toISOString().split('T')[0];
     
-      //cargar datos por defecto HISTORIAL PROCESAL
+      // //cargar datos por defecto HISTORIAL PROCESAL
+      // dataHistorialRequest.motivo = "SISTEMA JUDICIALES";
+      // dataHistorialRequest.tipo_historial_procesal_id = 4;
+      // dataHistorialRequest.organismo_id = usuario.organismo_id;
+      // dataHistorialRequest.usuario_id = usuario.id_usuario;
+      // dataHistorialRequest.fecha_carga = fecha_actual;
+
+      // //actualiza los datos de ingreso
+      // const respuesta = await this.ingresossInternoRepository.update(idIngreso, dataIngresoRequest);
+      
+      // await this.historialProcesalService.createLocal(dataHistorialRequest);
+
+      // return respuesta;
+
+      await this.dataSource.transaction(async (manager) => {
+
+      // ⚠️ IMPORTANTE: usar manager también para leer
+      const dataIngreso = await manager.findOne(IngresoInterno, {
+        where: { id_ingreso_interno: idIngreso }
+      });
+
+      if (!dataIngreso) {
+        throw new NotFoundException("Ingreso no encontrado");
+      }
+
+      // validaciones
+      if (dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar este registro.");
+
+      if (dataIngreso.esta_liberado) 
+        throw new NotFoundException("El interno está liberado.");
+
+      if (dataIngreso.eliminado) 
+        throw new NotFoundException("El ingreso está eliminado");
+
+      const fecha_actual: any = new Date().toISOString().split('T')[0];
+
+      // seteo historial
+      dataHistorialRequest.ingreso_interno_id = idIngreso;
       dataHistorialRequest.motivo = "SISTEMA JUDICIALES";
       dataHistorialRequest.tipo_historial_procesal_id = 4;
       dataHistorialRequest.organismo_id = usuario.organismo_id;
       dataHistorialRequest.usuario_id = usuario.id_usuario;
       dataHistorialRequest.fecha_carga = fecha_actual;
 
-      //actualiza los datos de ingreso
-      const respuesta = await this.ingresossInternoRepository.update(idIngreso, dataIngresoRequest);
-      
+      // update
+      const respuesta = await manager.update(
+        IngresoInterno,
+        idIngreso,
+        dataIngresoRequest
+      );
 
-      return respuesta;
+      if (respuesta.affected !== 1) {
+        throw new Error("No se pudo actualizar el ingreso");
+      }
+
+      // guardar historial (🔁 usando manager)
+      await manager.save(HistorialProcesal, dataHistorialRequest);
+
+    });
+
+    return { ok: true };
+
     }
     catch(error){
       
