@@ -24,7 +24,8 @@ export class IngresosInternoService {
     @Inject(forwardRef(() => TrasladosInternoService))
     private readonly trasladosInternoService: TrasladosInternoService,    
     private readonly driveImagenesService: DriveImagenesService,
-    //private readonly historialProcesalService: HistorialProcesalService,
+    @Inject(forwardRef(() => HistorialProcesalService))
+    private readonly historialProcesalService: HistorialProcesalService,
     //private readonly bitacoraProhibicionesVisitaService: BitacoraProhibicionesVisitaService
   ){}
 
@@ -205,85 +206,55 @@ export class IngresosInternoService {
   async updateCargarProgresividad(idIngreso: number, dataIngresoRequest: UpdateIngresosInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
         
     try{
-      //buscar ingreso antes de modificar
-      // let dataIngreso = await this.findOne(idIngreso);
       
-      // //verificar si el organismo del ingreso corresponde al organismo del usuario
-      // if(dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
-      //   throw new NotFoundException("No tiene acceso a modificar este registro. No coincide el organismo al que pertece el usuario con el organismo de alojamiento.");
-              
-      // //verificar si el ingreso esta vigente, solo se modifican ingresos vigentes
-      // if(dataIngreso.esta_liberado) 
-      //   throw new NotFoundException("No se puede modificar los datos de ingreso. El interno esta liberado.");
-
-      // //verificar si la prohibicion esta vigente, solo se modifican prohibiciones vigentes
-      // if(dataIngreso.eliminado) 
-      //   throw new NotFoundException("No se puede modificar un ingreso eliminado");
-    
-      // let fecha_actual: any = new Date().toISOString().split('T')[0];
-    
-      // //cargar datos por defecto HISTORIAL PROCESAL
-      // dataHistorialRequest.motivo = "SISTEMA JUDICIALES";
-      // dataHistorialRequest.tipo_historial_procesal_id = 4;
-      // dataHistorialRequest.organismo_id = usuario.organismo_id;
-      // dataHistorialRequest.usuario_id = usuario.id_usuario;
-      // dataHistorialRequest.fecha_carga = fecha_actual;
-
-      // //actualiza los datos de ingreso
-      // const respuesta = await this.ingresossInternoRepository.update(idIngreso, dataIngresoRequest);
-      
-      // await this.historialProcesalService.createLocal(dataHistorialRequest);
-
-      // return respuesta;
 
       await this.dataSource.transaction(async (manager) => {
-
-      // ⚠️ IMPORTANTE: usar manager también para leer
-      const dataIngreso = await manager.findOne(IngresoInterno, {
-        where: { id_ingreso_interno: idIngreso }
+  
+        // ⚠️ IMPORTANTE: usar manager también para leer
+        const dataIngreso = await manager.findOne(IngresoInterno, {
+          where: { id_ingreso_interno: idIngreso }
+        });
+  
+        if (!dataIngreso) {
+          throw new NotFoundException("Ingreso no encontrado");
+        }
+  
+        // validaciones
+        if (dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
+          throw new NotFoundException("No tiene acceso a modificar este registro.");
+  
+        if (dataIngreso.esta_liberado) 
+          throw new NotFoundException("El interno está liberado.");
+  
+        if (dataIngreso.eliminado) 
+          throw new NotFoundException("El ingreso está eliminado");
+  
+        const fecha_actual: any = new Date().toISOString().split('T')[0];
+  
+        // seteo historial
+        dataHistorialRequest.ingreso_interno_id = idIngreso;
+        dataHistorialRequest.tipo_historial_procesal_id = 4;        
+        dataHistorialRequest.fecha_carga = fecha_actual;
+        dataHistorialRequest.organismo_id = usuario.organismo_id;
+        dataHistorialRequest.usuario_id = usuario.id_usuario;
+  
+        // update
+        const respuesta = await manager.update(
+          IngresoInterno,
+          idIngreso,
+          dataIngresoRequest
+        );
+  
+        if (respuesta.affected !== 1) {
+          throw new Error("No se pudo actualizar el ingreso");
+        }
+  
+        // guardar historial ( usando manager)
+        await this.historialProcesalService.createLocal(dataHistorialRequest, manager);
+  
       });
-
-      if (!dataIngreso) {
-        throw new NotFoundException("Ingreso no encontrado");
-      }
-
-      // validaciones
-      if (dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
-        throw new NotFoundException("No tiene acceso a modificar este registro.");
-
-      if (dataIngreso.esta_liberado) 
-        throw new NotFoundException("El interno está liberado.");
-
-      if (dataIngreso.eliminado) 
-        throw new NotFoundException("El ingreso está eliminado");
-
-      const fecha_actual: any = new Date().toISOString().split('T')[0];
-
-      // seteo historial
-      dataHistorialRequest.ingreso_interno_id = idIngreso;
-      dataHistorialRequest.motivo = "SISTEMA JUDICIALES";
-      dataHistorialRequest.tipo_historial_procesal_id = 4;
-      dataHistorialRequest.organismo_id = usuario.organismo_id;
-      dataHistorialRequest.usuario_id = usuario.id_usuario;
-      dataHistorialRequest.fecha_carga = fecha_actual;
-
-      // update
-      const respuesta = await manager.update(
-        IngresoInterno,
-        idIngreso,
-        dataIngresoRequest
-      );
-
-      if (respuesta.affected !== 1) {
-        throw new Error("No se pudo actualizar el ingreso");
-      }
-
-      // guardar historial (🔁 usando manager)
-      await manager.save(HistorialProcesal, dataHistorialRequest);
-
-    });
-
-    return { ok: true };
+  
+      return { ok: true };
 
     }
     catch(error){

@@ -15,6 +15,7 @@ import { IngresosInternoModule } from 'src/ingresos-interno/ingresos-interno.mod
     ])
   ],
   controllers: [HistorialProcesalController],
-  providers: [HistorialProcesalService]
+  providers: [HistorialProcesalService],
+  exports: [HistorialProcesalService]
 })
 export class HistorialProcesalModule {}

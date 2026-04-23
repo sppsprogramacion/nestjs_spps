@@ -3,7 +3,7 @@ import { CreateHistorialProcesalDto } from './dto/create-historial-procesal.dto'
 import { UpdateHistorialProcesalDto } from './dto/update-historial-procesal.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HistorialProcesal } from './entities/historial-procesal.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { IngresosInternoService } from 'src/ingresos-interno/ingresos-interno.service';
 
@@ -16,16 +16,11 @@ export class HistorialProcesalService {
       private readonly ingresoInternoService: IngresosInternoService
   ){}
 
-  async createLocal(data: CreateHistorialProcesalDto): Promise<HistorialProcesal> {
-    
-    try {
-      
-      const nuevo = await this.historialProcesalRepository.create(data);
-      return await this.historialProcesalRepository.save(nuevo);
-    }catch (error) {
-
-      this.handleDBErrors(error);  
-    }     
+  createLocal(data, manager?: EntityManager) {
+    if (manager) {
+      return manager.save(HistorialProcesal, data);
+    }
+    return this.historialProcesalRepository.save(data);
   }
 
   async createDesdeController(dataHistorialDto: CreateHistorialProcesalDto, motivo: string, usuario: Usuario): Promise<HistorialProcesal> {

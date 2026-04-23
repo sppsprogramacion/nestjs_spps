@@ -1,10 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateHistorialProcesalDto } from './create-historial-procesal.dto';
 import { IsDateString, IsInt, Length } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UpdateHistorialProcesalDto {
-    @IsInt({message: "tipo_historial_procesal_id debe ser un número entero."})
+    //@IsInt({message: "tipo_historial_procesal_id debe ser un número entero."})
     tipo_historial_procesal_id: number;
 
     @IsDateString()

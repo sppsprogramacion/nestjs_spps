@@ -8,6 +8,8 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto';
 import { EstablecerPeriodoObservacionDto } from './dto/establecer-periodo-observacion.dto';
 import { CreateHistorialProcesalDto } from 'src/historial-procesal/dto/create-historial-procesal.dto';
+import { EstablecerPeriodoTratamientoDto } from './dto/establecer-periodo-tratamiento.dto';
+import { EstablecerPeriodoPruebaDto } from './dto/establecer-periodo-prueba.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -81,11 +83,74 @@ export class IngresosInternoController {
     dataIngresoRequest.progresividad_id = dataDto.progresividad_id;
     dataIngresoRequest.fase_id = 1;
 
+    dataHistorialRequest.motivo = "PERIODO OBSERVACION";
     dataHistorialRequest.fecha = dataDto.fecha;
     dataHistorialRequest.detalle = dataDto.detalle;
 
     return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
+
+  @Put('establecer-periodo-tratamiento')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerPeriodoTratamiento(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: EstablecerPeriodoTratamientoDto
+  ) {
+    
+    if(dataDto.progresividad_id != 6 ) throw new UnprocessableEntityException("La progresividad seleccionada debe ser TRATAMIENTO");
+    
+    if(dataDto.fase_id != 4 && dataDto.tiene_extramuro == true){
+      throw new UnprocessableEntityException("Solo la fase de confianza puede tener extramuro");
+    }
+
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    dataIngresoRequest.progresividad_id = dataDto.progresividad_id;
+    dataIngresoRequest.fase_id = dataDto.fase_id;
+    dataIngresoRequest.tiene_extramuro = dataDto.tiene_extramuro;
+    
+    if(dataDto.fase_id == 2){
+      
+      dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - SOCIALIZACION";
+    }
+    if(dataDto.fase_id == 3){
+      
+      dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - CONSOLIDACION";
+    }
+    if(dataDto.fase_id == 4){
+      
+      dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - CONFIANZA";
+    }
+    dataHistorialRequest.fecha = dataDto.fecha;
+    dataHistorialRequest.detalle = dataDto.detalle;
+
+    return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
+  }
+
+  @Put('establecer-periodo-prueba')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerPeriodoPrueba(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: EstablecerPeriodoPruebaDto
+  ) {
+    
+    if(dataDto.progresividad_id != 5) throw new UnprocessableEntityException("La progresividad seleccionada debe ser PRUEBA");
+    
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    dataIngresoRequest.progresividad_id = dataDto.progresividad_id;
+    dataIngresoRequest.fase_id = 1;
+    dataIngresoRequest.tiene_extramuro = false;
+
+    dataHistorialRequest.motivo = "PERIODO PRUEBA";    
+    dataHistorialRequest.fecha = dataDto.fecha;
+    dataHistorialRequest.detalle = dataDto.detalle;
+
+    return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
+  }
+
   
   @Put(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
