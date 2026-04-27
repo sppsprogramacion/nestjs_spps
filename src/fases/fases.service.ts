@@ -37,6 +37,20 @@ export class FasesService {
     );
   }
 
+  //BUSCAR POR PROGRESIVIDAD
+  async findXProgresividad(idProgresividad: number) {
+    return await this.faseRepository.find({
+      where: [
+        { activo: true, progresividad_id: idProgresividad },
+        { activo: true, id_fase: 1 }
+      ],
+      order: {
+        fase: "ASC"
+      }
+    });
+  }
+  //FIN BUSCAR POR PROGRESIVIDAD.........................................
+
   
   //BUSCAR  XID
   async findOne(id: number) {
