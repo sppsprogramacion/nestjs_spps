@@ -77,6 +77,7 @@ import { ConductaModule } from './conducta/conducta.module';
 import { ConceptoModule } from './concepto/concepto.module';
 import { ProgresividadModule } from './progresividad/progresividad.module';
 import { FasesModule } from './fases/fases.module';
+import { MotivosEgresoModule } from './motivos-egreso/motivos-egreso.module';
 
 @Module({
   imports: [
@@ -161,6 +162,7 @@ import { FasesModule } from './fases/fases.module';
     ConceptoModule,
     ProgresividadModule,
     FasesModule,
+    MotivosEgresoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,6 +13,8 @@ import { UpdateIngresoOtraUnidadDto } from './dto/update-ingreso-otra-unidad.dto
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { TrasladosInternoService } from 'src/traslados-interno/traslados-interno.service';
 import { HistorialProcesal } from 'src/historial-procesal/entities/historial-procesal.entity';
+import { UpdateEgresoDto } from 'src/registro-diario/dto/update-egreso.dto';
+import { UpdateEgresoInternoDto } from './dto/update-egreso-interno.dto';
 
 @Injectable()
 export class IngresosInternoService {
@@ -234,6 +236,67 @@ export class IngresosInternoService {
         // seteo historial
         dataHistorialRequest.ingreso_interno_id = idIngreso;
         dataHistorialRequest.tipo_historial_procesal_id = 4;        
+        dataHistorialRequest.fecha_carga = fecha_actual;
+        dataHistorialRequest.organismo_id = usuario.organismo_id;
+        dataHistorialRequest.usuario_id = usuario.id_usuario;
+  
+        // update
+        const respuesta = await manager.update(
+          IngresoInterno,
+          idIngreso,
+          dataIngresoRequest
+        );
+  
+        if (respuesta.affected !== 1) {
+          throw new Error("No se pudo actualizar el ingreso");
+        }
+  
+        // guardar historial ( usando manager)
+        await this.historialProcesalService.createLocal(dataHistorialRequest, manager);
+  
+      });
+  
+      return { ok: true };
+
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN CARGAR PROGRESIVIDAD
+
+  //CARGAR PROGRESIVIDAD
+  async updateEgreso(idIngreso: number, dataIngresoRequest: UpdateEgresoInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
+        
+    try{
+
+      await this.dataSource.transaction(async (manager) => {
+  
+        // ⚠️ IMPORTANTE: usar manager también para leer
+        const dataIngreso = await manager.findOne(IngresoInterno, {
+          where: { id_ingreso_interno: idIngreso }
+        });
+  
+        if (!dataIngreso) {
+          throw new NotFoundException("Ingreso no encontrado");
+        }
+  
+        // validaciones
+        if (dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
+          throw new NotFoundException("No tiene acceso a modificar este registro.");
+  
+        if (dataIngreso.esta_liberado) 
+          throw new NotFoundException("El interno está liberado.");
+  
+        if (dataIngreso.eliminado) 
+          throw new NotFoundException("El ingreso está eliminado");
+  
+        const fecha_actual: any = new Date().toISOString().split('T')[0];
+  
+        // seteo historial
+        dataHistorialRequest.ingreso_interno_id = idIngreso;
+        dataHistorialRequest.tipo_historial_procesal_id = 1;        
         dataHistorialRequest.fecha_carga = fecha_actual;
         dataHistorialRequest.organismo_id = usuario.organismo_id;
         dataHistorialRequest.usuario_id = usuario.id_usuario;

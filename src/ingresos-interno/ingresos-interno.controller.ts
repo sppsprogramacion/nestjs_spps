@@ -10,6 +10,8 @@ import { EstablecerPeriodoObservacionDto } from './dto/establecer-periodo-observ
 import { CreateHistorialProcesalDto } from 'src/historial-procesal/dto/create-historial-procesal.dto';
 import { EstablecerPeriodoTratamientoDto } from './dto/establecer-periodo-tratamiento.dto';
 import { EstablecerPeriodoPruebaDto } from './dto/establecer-periodo-prueba.dto';
+import { UpdateEgresoDto } from 'src/registro-diario/dto/update-egreso.dto';
+import { UpdateEgresoInternoDto } from './dto/update-egreso-interno.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -128,6 +130,7 @@ export class IngresosInternoController {
     return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
 
+  //ESTABLECER PERIODO DE PRUEBA
   @Put('establecer-periodo-prueba')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   updateEstablecerPeriodoPrueba(
@@ -150,7 +153,31 @@ export class IngresosInternoController {
 
     return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
+  //FIN ESTABLECER PERIODO DE PRUEBA...........................................................
 
+  //ESTABLECER EGRESO
+  @Put('egreso')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEgreso(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: UpdateEgresoInternoDto
+  ) {
+    
+    
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    // dataIngresoRequest.esta_liberado = true;
+    // dataIngresoRequest.fecha_egreso = dataDto.fecha_egreso;
+    // dataIngresoRequest.tiene_extramuro = false;
+    
+    dataHistorialRequest.motivo = "EGRESO";    
+    dataHistorialRequest.fecha = dataDto.fecha_egreso;
+    dataHistorialRequest.detalle = dataDto.detalles_egreso;
+
+    return this.ingresosInternoService.updateEgreso(+id_ingreso, dataDto, dataHistorialRequest, user);
+  }
+  //FIN ESTABLECER EGRESO...........................................................
   
   @Put(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)

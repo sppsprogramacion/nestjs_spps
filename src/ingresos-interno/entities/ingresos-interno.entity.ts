@@ -4,6 +4,8 @@ import { EstadoProcesal } from "src/estado-procesal/entities/estado-procesal.ent
 import { Fase } from "src/fases/entities/fase.entity";
 import { Interno } from "src/internos/entities/interno.entity";
 import { Jurisdiccion } from "src/jurisdiccion/entities/jurisdiccion.entity";
+import { Juzgado } from "src/juzgados/entities/juzgado.entity";
+import { MotivoEgreso } from "src/motivos-egreso/entities/motivos-egreso.entity";
 import { OrganismoExterno } from "src/organismos-externos/entities/organismos-externo.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Pabellon } from "src/pabellones/entities/pabellone.entity";
@@ -364,7 +366,6 @@ export class IngresoInterno {
         default: false
     })
     tiene_semilibertad: boolean;
-
     
 
     @Column({
@@ -378,6 +379,53 @@ export class IngresoInterno {
         nullable: true        
     })
     fecha_egreso: Date;
+
+    //MOTIVO EGRESO
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 1
+    })
+    motivo_egreso_id: number;
+
+    @ManyToOne(type => MotivoEgreso, {eager: true} )
+    @JoinColumn({
+        name: 'motivo_egreso_id',
+        referencedColumnName: 'id_motivo_egreso'
+    })
+    motivo_egreso: MotivoEgreso;
+    //FIN MOTIVO EGRESO
+
+    //JUZGADO LIBERA
+    @Column({
+        type: 'varchar',
+        length: 10,
+        nullable: false,
+        default: '0SINESP'
+    })
+    juzgado_libera_id: string;
+
+    @ManyToOne(type => Juzgado, {eager: true} )
+    @JoinColumn({
+        name: 'juzgado_libera_id',
+        referencedColumnName: 'id_juzgado'
+    })
+    juzgado_libera: Juzgado;
+    //FIN JUZGADO LIBERA
+
+    @Column({
+        type:'varchar',
+        length: 500,
+        nullable: true
+    })
+    domicilio_libertad: string;
+
+    @Column({
+        type:'varchar',
+        length: 2000,
+        nullable: true
+    })
+    detalles_egreso: string;
 
     @Column({
         type: 'date',
