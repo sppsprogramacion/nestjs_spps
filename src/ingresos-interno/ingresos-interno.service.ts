@@ -266,7 +266,7 @@ export class IngresosInternoService {
   }  
   //FIN CARGAR PROGRESIVIDAD
 
-  //CARGAR PROGRESIVIDAD
+  //CARGAR EGRESO
   async updateEgreso(idIngreso: number, dataIngresoRequest: UpdateEgresoInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
         
     try{
@@ -325,7 +325,7 @@ export class IngresosInternoService {
       this.handleDBErrors(error); 
     }   
   }  
-  //FIN CARGAR PROGRESIVIDAD
+  //FIN CARGAR EGRESO
 
   async update(id: number, data: UpdateIngresosInternoDto, usuario:Usuario) {
         

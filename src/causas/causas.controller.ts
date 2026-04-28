@@ -41,6 +41,19 @@ export class CausasController {
   }
   //FIN BUSCAR  XID INGRESO....................................................
 
+  //BUSCAR  XID INGRESO
+    @Get('buscar-xcausa')  
+    @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+    async findXCausa(
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('id_causa', ParseIntPipe) id_causa: string
+      
+    ) {    
+      
+    return this.causasService.findOneControl(+id_causa);
+  }
+  //FIN BUSCAR  XID INGRESO....................................................
+
   @Get(':id')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   findOne(@Param('id') id: string) {

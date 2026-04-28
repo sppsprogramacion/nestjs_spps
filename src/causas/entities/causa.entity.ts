@@ -22,7 +22,7 @@ export class Causa {
     })
     ingreso_interno_id: number;
 
-    @ManyToOne(type => IngresoInterno, {eager: true} )
+    @ManyToOne(type => IngresoInterno )
     @JoinColumn({
         name: 'ingreso_interno_id',
         referencedColumnName: 'id_ingreso_interno'

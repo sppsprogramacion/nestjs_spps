@@ -87,6 +87,20 @@ export class CausasService {
   //fin BUSCAR POR INGRESO................................................
 
   //BUSCAR  XID
+  async findOneControl(id: number) {
+
+    return await this.causaRepository
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.ingreso_interno', 'ingreso')
+      .leftJoinAndSelect('c.estado_procesal', 'ep')
+      .where('c.id_causa = :id', { id: id })
+      .andWhere('c.eliminado = false')
+      .orderBy('c.id_causa', 'ASC')
+      .getOne();
+  }
+  //FIN BUSCAR  XID..................................................................
+
+  //BUSCAR  XID
   async findOne(id: number) {
 
     const respuesta = await this.causaRepository.findOneBy({id_causa: id});
@@ -100,7 +114,7 @@ export class CausasService {
             
     try{
       //buscar causa antes de modificar los datos 
-      let dataCausaActual = await this.findOne(idCausa);
+      let dataCausaActual = await this.findOneControl(idCausa);
 
       //verificar si el organismo de alojamiento corresponde al organismo del usuario
       if(dataCausaActual.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
@@ -136,7 +150,7 @@ export class CausasService {
             
     try{
       //buscar causa antes de modificar los datos 
-      let dataCausaActual = await this.findOne(idCausa);
+      let dataCausaActual = await this.findOneControl(idCausa);
 
       //verificar si el organismo de alojamiento corresponde al organismo del usuario
       if(dataCausaActual.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
@@ -185,7 +199,7 @@ export class CausasService {
       
       try{
         //buscar causa antes de modificar
-        let dataCausa = await this.findOne(id);
+        let dataCausa = await this.findOneControl(id);
         
         //verificar si el organismo de alojamiento corresponde al organismo del usuario
         if(dataCausa.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
