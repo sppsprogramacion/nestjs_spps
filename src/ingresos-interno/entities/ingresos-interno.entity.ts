@@ -366,7 +366,12 @@ export class IngresoInterno {
         default: false
     })
     tiene_semilibertad: boolean;
-    
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    tiene_transitoria: boolean;    
 
     @Column({
         type: "boolean",
