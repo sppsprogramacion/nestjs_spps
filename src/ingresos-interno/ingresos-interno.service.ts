@@ -233,6 +233,60 @@ export class IngresosInternoService {
   
         const fecha_actual: any = new Date().toISOString().split('T')[0];
   
+        //controlar periodo observacion
+        if(dataIngresoRequest.progresividad_id != dataIngreso.progresividad_id && dataIngresoRequest.progresividad_id == 4){
+          if(dataIngresoRequest.fase_id != 1) throw new UnprocessableEntityException("El periodo de OBSERVACION no debe tener fases");
+          
+          if(dataIngresoRequest.tiene_extramuro || dataIngresoRequest.tiene_granja || dataIngresoRequest.tiene_semilibertad || dataIngresoRequest.tiene_transitoria)
+            throw new UnprocessableEntityException("El periodo de OBSERVACION no debe tener extramuro,  granja, semilibertad o transitoria.");
+
+          dataHistorialRequest.motivo = "PERIODO OBSERVACION";
+        }
+
+        //controlar periodo tratamiento
+        if(dataIngresoRequest.progresividad_id == 6 && (dataIngresoRequest.fase_id != dataIngreso.fase_id || dataIngresoRequest.tiene_extramuro != dataIngreso.tiene_extramuro)){
+                
+          if(dataIngresoRequest.fase_id != 4 && dataIngresoRequest.tiene_extramuro == true){
+            throw new UnprocessableEntityException("Solo la fase de confianza puede tener extramuro");
+          }
+
+          if(dataIngresoRequest.tiene_granja || dataIngresoRequest.tiene_semilibertad || dataIngresoRequest.tiene_transitoria)
+            throw new UnprocessableEntityException("El periodo de TRATAMIENTO no debe tener granja, semilibertad o transitoria.");
+          
+          if(dataIngresoRequest.fase_id == 2){
+      
+            dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - SOCIALIZACION";
+          }
+          if(dataIngresoRequest.fase_id == 3){
+            
+            dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - CONSOLIDACION";
+          }
+          if(dataIngresoRequest.fase_id == 4){
+            
+            dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - CONFIANZA";
+          }
+        }
+
+        //controlar periodo prueba
+        if(dataIngresoRequest.progresividad_id == 5 && (dataIngresoRequest.tiene_granja != dataIngreso.tiene_granja || dataIngresoRequest.tiene_semilibertad != dataIngreso.tiene_semilibertad || dataIngresoRequest.tiene_transitoria != dataIngreso.tiene_transitoria)){
+          if(dataIngresoRequest.fase_id != 1) throw new UnprocessableEntityException("El periodo de PRUEBA no debe tener fases");
+          
+          if(dataIngresoRequest.tiene_extramuro)
+            throw new UnprocessableEntityException("El periodo de PRUEBA no debe tener extramuro");
+
+          dataHistorialRequest.motivo = "PERIODO PRUEBA";
+        }
+
+        //controlar periodo libertad condicional
+        if(dataIngresoRequest.progresividad_id == 6){
+          if(dataIngresoRequest.fase_id != 1) throw new UnprocessableEntityException("El periodo de LIBERTAD CONDICIONAL no debe tener fases");
+          
+          if(dataIngresoRequest.tiene_extramuro || dataIngresoRequest.tiene_granja || dataIngresoRequest.tiene_semilibertad || dataIngresoRequest.tiene_transitoria)
+            throw new UnprocessableEntityException("El periodo de LIBERTAD CONDICIONAL no debe tener extramuro,  granja, semilibertad o transitoria.");
+
+          dataHistorialRequest.motivo = "PERIODO LIBERTAD CONDICIONAL";
+        }
+
         // seteo historial
         dataHistorialRequest.ingreso_interno_id = idIngreso;
         dataHistorialRequest.tipo_historial_procesal_id = 4;        
@@ -252,8 +306,9 @@ export class IngresosInternoService {
         }
   
         // guardar historial ( usando manager)
-        await this.historialProcesalService.createLocal(dataHistorialRequest, manager);
-  
+        if(dataIngresoRequest.progresividad_id != 1 && dataIngresoRequest.progresividad_id != 2 ){
+          await this.historialProcesalService.createLocal(dataHistorialRequest, manager);
+        }
       });
   
       return { ok: true };
@@ -270,6 +325,8 @@ export class IngresosInternoService {
   async updateEgreso(idIngreso: number, dataIngresoRequest: UpdateEgresoInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
         
     try{
+      
+      let resultado;
 
       await this.dataSource.transaction(async (manager) => {
   
@@ -287,13 +344,14 @@ export class IngresosInternoService {
           throw new NotFoundException("No tiene acceso a modificar este registro.");
   
         if (dataIngreso.esta_liberado) 
-          throw new NotFoundException("El interno está liberado.");
+          throw new NotFoundException("El interno ya estaba liberado.");
   
         if (dataIngreso.eliminado) 
           throw new NotFoundException("El ingreso está eliminado");
   
         const fecha_actual: any = new Date().toISOString().split('T')[0];
-  
+               
+
         // seteo historial
         dataHistorialRequest.ingreso_interno_id = idIngreso;
         dataHistorialRequest.tipo_historial_procesal_id = 1;        
@@ -307,7 +365,9 @@ export class IngresosInternoService {
           idIngreso,
           dataIngresoRequest
         );
-  
+        
+        resultado = respuesta;
+
         if (respuesta.affected !== 1) {
           throw new Error("No se pudo actualizar el ingreso");
         }
@@ -317,7 +377,7 @@ export class IngresosInternoService {
   
       });
   
-      return { ok: true };
+      return resultado;
 
     }
     catch(error){

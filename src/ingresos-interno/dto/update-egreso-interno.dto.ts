@@ -3,8 +3,7 @@ import { IsBoolean, IsDateString, IsInt, Length } from "class-validator";
 
 
 export class UpdateEgresoInternoDto {
-    
-    @IsBoolean({message: "esta_liberado debe ser verdadero o falso"})
+        
     esta_liberado: boolean;
 
     @IsDateString()

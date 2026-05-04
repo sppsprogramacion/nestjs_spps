@@ -255,4 +255,54 @@ export class ListasGeneralesTablasService {
   }
   //FIN TABLAS DOMICILIO INTERNOS...........................................
 
+  //TABLAS PARA EGRESO
+  async obtenerTablasParaEgreso() {    
+
+    const motivos_egreso = await this.dataSource.query(`
+      SELECT id_motivo_egreso, motivo_egreso FROM motivos_egreso WHERE activo = true
+      
+    `);
+    
+
+    const juzgados = await this.dataSource.query(`
+      SELECT id_juzgado, juzgado FROM juzgados
+      
+    `);
+
+    return { motivos_egreso, juzgados};
+  } 
+  //FIN TABLAS PARA EGRESO...........................................
+
+  //TABLAS PARA PROGRESIVIDAD
+  async obtenerTablasParaProgresividad() {    
+
+    const trimestres = await this.dataSource.query(`
+      SELECT id_trimestre, trimestre FROM trimestres WHERE activo = true
+      
+    `);
+    
+    const conducta = await this.dataSource.query(`
+      SELECT id_conducta, conducta FROM conducta WHERE activo = true
+      
+    `);
+
+    const concepto = await this.dataSource.query(`
+      SELECT id_concepto, concepto FROM concepto WHERE activo = true
+      
+    `);
+
+    const progresividad = await this.dataSource.query(`
+      SELECT id_progresividad, progresividad FROM progresividad WHERE activo = true
+      
+    `);
+
+    const fases = await this.dataSource.query(`
+      SELECT id_fase, fase FROM fases WHERE activo = true
+      
+    `);
+
+    return { trimestres, conducta, concepto, progresividad, fases};
+  } 
+  //FIN TABLAS PARA PROGRESIVIDAD...........................................
+
 }

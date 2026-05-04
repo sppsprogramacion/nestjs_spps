@@ -12,6 +12,7 @@ import { EstablecerPeriodoTratamientoDto } from './dto/establecer-periodo-tratam
 import { EstablecerPeriodoPruebaDto } from './dto/establecer-periodo-prueba.dto';
 import { UpdateEgresoDto } from 'src/registro-diario/dto/update-egreso.dto';
 import { UpdateEgresoInternoDto } from './dto/update-egreso-interno.dto';
+import { EstablecerProgresividadDto } from './dto/establecer-progresividad.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -130,6 +131,34 @@ export class IngresosInternoController {
     return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
 
+  //ESTABLECER PROGRESIVIDAD
+  @Put('establecer-progresividad')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerProgresividad(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: EstablecerProgresividadDto
+  ) {
+        
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    dataIngresoRequest.trimestre_id = dataDto.trimestre_id;
+    dataIngresoRequest.conducta_id = dataDto.conducta_id;
+    dataIngresoRequest.concepto_id = dataDto.concepto_id;
+    dataIngresoRequest.progresividad_id = dataDto.progresividad_id;
+    dataIngresoRequest.fase_id = dataDto.fase_id;
+    dataIngresoRequest.tiene_extramuro = dataDto.tiene_extramuro;
+    dataIngresoRequest.tiene_granja = dataDto.tiene_granja;
+    dataIngresoRequest.tiene_semilibertad = dataDto.tiene_semilibertad;
+    dataIngresoRequest.tiene_transitoria = dataDto.tiene_transitoria;
+   
+    dataHistorialRequest.fecha = dataDto.fecha;
+    dataHistorialRequest.detalle = dataDto.detalle;
+
+    return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
+  }
+  //FIN ESTABLECER PROGRESIVIDAD
+
   //ESTABLECER PERIODO DE PRUEBA
   @Put('establecer-periodo-prueba')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
@@ -165,11 +194,10 @@ export class IngresosInternoController {
   ) {
     
     
-    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    //let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
     let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
-    // dataIngresoRequest.esta_liberado = true;
-    // dataIngresoRequest.fecha_egreso = dataDto.fecha_egreso;
-    // dataIngresoRequest.tiene_extramuro = false;
+    
+    dataDto.esta_liberado = true;
     
     dataHistorialRequest.motivo = "EGRESO";    
     dataHistorialRequest.fecha = dataDto.fecha_egreso;

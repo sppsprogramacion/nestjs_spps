@@ -10,19 +10,29 @@ export class ListasGeneralesTablasController {
     return await this.listasGeneralesTablasService.obtenerCaracteristicasPersonalesTodas();
   }
 
+  @Get('tablas-causa')
+  async obtenerTablasCausa() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaCausa();
+  }
+
   @Get('tablas-datos-filiatorios')
   async obtenerDatosFiliatorios() {
     return await this.listasGeneralesTablasService.obtenerTablasFiliarotiosTodas();
   }
 
-  @Get('tablas-ingreso-interno')
-  async obtenerTablasIngresoInterno() {
-    return await this.listasGeneralesTablasService.obtenerTablasParaIngresoInterno();
+  @Get('tablas-domicilio-interno')
+  async obtenerTablasDomicilioInterno() {
+    return await this.listasGeneralesTablasService.obtenerTablasDomicilioInternoTodas();
   }
 
-  @Get('tablas-causa')
-  async obtenerTablasCausa() {
-    return await this.listasGeneralesTablasService.obtenerTablasParaCausa();
+  @Get('tablas-egreso')
+  async obtenerTablasEgreso() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaEgreso();
+  }
+
+  @Get('tablas-progresividad')
+  async obtenerTablasProgresividad() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaProgresividad();
   }
 
   @Get('tablas-historial-procesal')
@@ -30,8 +40,11 @@ export class ListasGeneralesTablasController {
     return await this.listasGeneralesTablasService.obtenerTablasHistorialProcesalTodas();
   }
 
-  @Get('tablas-domicilio-interno')
-  async obtenerTablasDomicilioInterno() {
-    return await this.listasGeneralesTablasService.obtenerTablasDomicilioInternoTodas();
+  @Get('tablas-ingreso-interno')
+  async obtenerTablasIngresoInterno() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaIngresoInterno();
   }
+
+  
+  
 }

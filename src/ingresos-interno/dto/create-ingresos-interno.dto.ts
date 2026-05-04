@@ -87,6 +87,8 @@ export class CreateIngresosInternoDto {
     tiene_granja: boolean;
 
     tiene_semilibertad: boolean;
+    
+    tiene_transitoria: boolean;    
 
     esta_liberado: boolean;
     
