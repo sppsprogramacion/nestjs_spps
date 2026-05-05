@@ -208,8 +208,6 @@ export class IngresosInternoService {
   async updateCargarProgresividad(idIngreso: number, dataIngresoRequest: UpdateIngresosInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
         
     try{
-      
-
       await this.dataSource.transaction(async (manager) => {
   
         // ⚠️ IMPORTANTE: usar manager también para leer
@@ -234,7 +232,10 @@ export class IngresosInternoService {
         const fecha_actual: any = new Date().toISOString().split('T')[0];
   
         //controlar periodo observacion
-        if(dataIngresoRequest.progresividad_id != dataIngreso.progresividad_id && dataIngresoRequest.progresividad_id == 4){
+        if(dataIngresoRequest.progresividad_id == 4){
+          //controlar si hubo cambios
+          if(dataIngresoRequest.progresividad_id == dataIngreso.progresividad_id) throw new UnprocessableEntityException("No se realizo la edicion porque no hubo cambios en el estado de la PROGRESIVIDAD");
+
           if(dataIngresoRequest.fase_id != 1) throw new UnprocessableEntityException("El periodo de OBSERVACION no debe tener fases");
           
           if(dataIngresoRequest.tiene_extramuro || dataIngresoRequest.tiene_granja || dataIngresoRequest.tiene_semilibertad || dataIngresoRequest.tiene_transitoria)
@@ -244,8 +245,10 @@ export class IngresosInternoService {
         }
 
         //controlar periodo tratamiento
-        if(dataIngresoRequest.progresividad_id == 6 && (dataIngresoRequest.fase_id != dataIngreso.fase_id || dataIngresoRequest.tiene_extramuro != dataIngreso.tiene_extramuro)){
-                
+        if(dataIngresoRequest.progresividad_id == 6){
+          //controlar si hubo cambios
+          if(dataIngresoRequest.fase_id == dataIngreso.fase_id && dataIngresoRequest.tiene_extramuro == dataIngreso.tiene_extramuro) throw new UnprocessableEntityException("No se realizo la edicion porque no hubo cambios en el estado de la PROGRESIVIDAD");
+
           if(dataIngresoRequest.fase_id != 4 && dataIngresoRequest.tiene_extramuro == true){
             throw new UnprocessableEntityException("Solo la fase de confianza puede tener extramuro");
           }
@@ -268,7 +271,10 @@ export class IngresosInternoService {
         }
 
         //controlar periodo prueba
-        if(dataIngresoRequest.progresividad_id == 5 && (dataIngresoRequest.tiene_granja != dataIngreso.tiene_granja || dataIngresoRequest.tiene_semilibertad != dataIngreso.tiene_semilibertad || dataIngresoRequest.tiene_transitoria != dataIngreso.tiene_transitoria)){
+        if(dataIngresoRequest.progresividad_id == 5){
+          //controlar si hubo cambios
+          if(dataIngresoRequest.tiene_granja == dataIngreso.tiene_granja && dataIngresoRequest.tiene_semilibertad == dataIngreso.tiene_semilibertad && dataIngresoRequest.tiene_transitoria == dataIngreso.tiene_transitoria) throw new UnprocessableEntityException("No se realizo la edicion porque no hubo cambios en el estado de la PROGRESIVIDAD");
+
           if(dataIngresoRequest.fase_id != 1) throw new UnprocessableEntityException("El periodo de PRUEBA no debe tener fases");
           
           if(dataIngresoRequest.tiene_extramuro)
