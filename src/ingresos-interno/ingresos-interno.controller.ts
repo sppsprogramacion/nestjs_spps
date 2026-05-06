@@ -13,6 +13,7 @@ import { EstablecerPeriodoPruebaDto } from './dto/establecer-periodo-prueba.dto'
 import { UpdateEgresoDto } from 'src/registro-diario/dto/update-egreso.dto';
 import { UpdateEgresoInternoDto } from './dto/update-egreso-interno.dto';
 import { EstablecerProgresividadDto } from './dto/establecer-progresividad.dto';
+import { EstablecerConductaConceptoDto } from './dto/establecer-conducta-concepto.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -132,6 +133,19 @@ export class IngresosInternoController {
   }
 
   //ESTABLECER PROGRESIVIDAD
+  @Put('establecer-conducta-concepto')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerConductaConcepto(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: EstablecerConductaConceptoDto
+  ) {
+           
+    return this.ingresosInternoService.update(+id_ingreso, dataDto,user);
+  }
+  //FIN ESTABLECER PROGRESIVIDAD
+
+  //ESTABLECER PROGRESIVIDAD
   @Put('establecer-progresividad')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   updateEstablecerProgresividad(
@@ -142,9 +156,7 @@ export class IngresosInternoController {
         
     let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
     let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
-    dataIngresoRequest.trimestre_id = dataDto.trimestre_id;
-    dataIngresoRequest.conducta_id = dataDto.conducta_id;
-    dataIngresoRequest.concepto_id = dataDto.concepto_id;
+    
     dataIngresoRequest.progresividad_id = dataDto.progresividad_id;
     dataIngresoRequest.fase_id = dataDto.fase_id;
     dataIngresoRequest.tiene_extramuro = dataDto.tiene_extramuro;

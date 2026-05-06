@@ -208,6 +208,8 @@ export class IngresosInternoService {
   async updateCargarProgresividad(idIngreso: number, dataIngresoRequest: UpdateIngresosInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
         
     try{
+      let resultado;
+
       await this.dataSource.transaction(async (manager) => {
   
         // ⚠️ IMPORTANTE: usar manager también para leer
@@ -284,7 +286,7 @@ export class IngresosInternoService {
         }
 
         //controlar periodo libertad condicional
-        if(dataIngresoRequest.progresividad_id == 6){
+        if(dataIngresoRequest.progresividad_id == 3){
           if(dataIngresoRequest.fase_id != 1) throw new UnprocessableEntityException("El periodo de LIBERTAD CONDICIONAL no debe tener fases");
           
           if(dataIngresoRequest.tiene_extramuro || dataIngresoRequest.tiene_granja || dataIngresoRequest.tiene_semilibertad || dataIngresoRequest.tiene_transitoria)
@@ -307,6 +309,8 @@ export class IngresosInternoService {
           dataIngresoRequest
         );
   
+        resultado = respuesta;
+
         if (respuesta.affected !== 1) {
           throw new Error("No se pudo actualizar el ingreso");
         }
@@ -317,7 +321,7 @@ export class IngresosInternoService {
         }
       });
   
-      return { ok: true };
+      return resultado;
 
     }
     catch(error){
