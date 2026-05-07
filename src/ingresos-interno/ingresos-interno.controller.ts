@@ -14,6 +14,7 @@ import { UpdateEgresoDto } from 'src/registro-diario/dto/update-egreso.dto';
 import { UpdateEgresoInternoDto } from './dto/update-egreso-interno.dto';
 import { EstablecerProgresividadDto } from './dto/establecer-progresividad.dto';
 import { EstablecerConductaConceptoDto } from './dto/establecer-conducta-concepto.dto';
+import { EstablecerAlojamientoDto } from './dto/establecer-alojamiento.dto';
 
 @Controller('ingresos-interno')
 export class IngresosInternoController {
@@ -132,7 +133,31 @@ export class IngresosInternoController {
     return this.ingresosInternoService.updateCargarProgresividad(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
 
-  //ESTABLECER PROGRESIVIDAD
+  //ESTABLECER ALOJAMIENTO
+  @Put('establecer-alojamiento')
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  updateEstablecerAlojamiento(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_ingreso', ParseIntPipe) id_ingreso: string ,
+    @Body() dataDto: EstablecerAlojamientoDto
+  ) {
+        
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    
+    dataIngresoRequest.pabellon_id = dataDto.pabellon_id;
+    dataIngresoRequest.celda = dataDto.celda;
+    dataIngresoRequest.tiene_programa_puerta = dataDto.tiene_programa_puerta;
+    dataIngresoRequest.situacion_provisoria_id = dataDto.situacion_provisoria_id;
+   
+    dataHistorialRequest.fecha = dataDto.fecha;
+    dataHistorialRequest.detalle = dataDto.detalle;
+
+    return this.ingresosInternoService.updateCargarAlojamiento(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
+  }
+  //FIN ESTABLECER ALOJAMIENTO
+
+  //ESTABLECER CONDUCTA CONCEPTO
   @Put('establecer-conducta-concepto')
   @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
   updateEstablecerConductaConcepto(
@@ -143,7 +168,7 @@ export class IngresosInternoController {
            
     return this.ingresosInternoService.update(+id_ingreso, dataDto,user);
   }
-  //FIN ESTABLECER PROGRESIVIDAD
+  //FIN ESTABLECER CONDUCTA CONCEPTO
 
   //ESTABLECER PROGRESIVIDAD
   @Put('establecer-progresividad')

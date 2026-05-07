@@ -273,8 +273,8 @@ export class ListasGeneralesTablasService {
   } 
   //FIN TABLAS PARA EGRESO...........................................
 
-  //TABLAS PARA PROGRESIVIDAD
-  async obtenerTablasParaProgresividad() {    
+  //TABLAS PARA CONDUCTA CONCEPTO
+  async obtenerTablasParaConductaConcepto() {    
 
     const trimestres = await this.dataSource.query(`
       SELECT id_trimestre, trimestre FROM trimestres WHERE activo = true
@@ -291,6 +291,15 @@ export class ListasGeneralesTablasService {
       
     `);
 
+    
+    return { trimestres, conducta, concepto,};
+  } 
+  //FIN TABLAS PARA CONDUCTA CONEPTO...........................................
+
+  //TABLAS PARA PROGRESIVIDAD
+  async obtenerTablasParaProgresividad() {    
+
+    
     const progresividad = await this.dataSource.query(`
       SELECT id_progresividad, progresividad FROM progresividad WHERE activo = true
       
@@ -301,7 +310,25 @@ export class ListasGeneralesTablasService {
       
     `);
 
-    return { trimestres, conducta, concepto, progresividad, fases};
+    return { progresividad, fases};
+  } 
+  //FIN TABLAS PARA PROGRESIVIDAD...........................................
+
+  //TABLAS PARA ALOJAMIENTO
+  async obtenerTablasParaAlojamiento() {    
+
+    
+    const situacion_provisoria = await this.dataSource.query(`
+      SELECT id_situacion_provisoria, situacion_provisoria FROM situacion_provisoria WHERE activo = true
+      
+    `);
+
+    const pabellones = await this.dataSource.query(`
+      SELECT id_pabellon, pabellon FROM pabellones WHERE activo = true
+      
+    `);
+
+    return { situacion_provisoria, pabellones};
   } 
   //FIN TABLAS PARA PROGRESIVIDAD...........................................
 

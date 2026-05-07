@@ -5,6 +5,11 @@ import { ListasGeneralesTablasService } from './listas-generales-tablas.service'
 export class ListasGeneralesTablasController {
   constructor(private readonly listasGeneralesTablasService: ListasGeneralesTablasService) {}
 
+  @Get('tablas-alojamiento')
+  async obtenerTablasAlojamiento() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaAlojamiento();
+  }
+
   @Get('tablas-caracteriasticas-personales')
   async obtenerCaracteristicasPersonales() {
     return await this.listasGeneralesTablasService.obtenerCaracteristicasPersonalesTodas();
@@ -13,6 +18,11 @@ export class ListasGeneralesTablasController {
   @Get('tablas-causa')
   async obtenerTablasCausa() {
     return await this.listasGeneralesTablasService.obtenerTablasParaCausa();
+  }
+
+  @Get('tablas-conducta-concepto')
+  async obtenerTablasConductaConcepto() {
+    return await this.listasGeneralesTablasService.obtenerTablasParaConductaConcepto();
   }
 
   @Get('tablas-datos-filiatorios')
@@ -44,7 +54,5 @@ export class ListasGeneralesTablasController {
   async obtenerTablasIngresoInterno() {
     return await this.listasGeneralesTablasService.obtenerTablasParaIngresoInterno();
   }
-
-  
   
 }

@@ -117,6 +117,10 @@ export class HistorialProcesalService {
       //verificar si el organismo de alojamiento corresponde al organismo del usuario
       if(dataHistorial.ingreso_interno.organismo_alojamiento_id != usuario.organismo_id) 
         throw new NotFoundException("No tiene acceso a modificar el historial. Solo lo puede hacer el organismo donde esta alojado el interno.");
+
+      //verificar si el organismo de alojamiento corresponde al organismo del usuario
+      if(dataHistorial.organismo_id!= usuario.organismo_id) 
+        throw new NotFoundException("No tiene acceso a modificar este registro del historial. Solo lo puede hacer el organismo que lo regustró.");
       
       //verificar si el historial esta eliminado
       if(dataHistorial.is_eliminado) 
