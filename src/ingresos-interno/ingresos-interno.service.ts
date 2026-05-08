@@ -233,37 +233,19 @@ export class IngresosInternoService {
   
         const fecha_actual: any = new Date().toISOString().split('T')[0];
           
-        //controlar periodo tratamiento
-        // if(dataIngresoRequest.progresividad_id == 6){
-        //   //controlar si hubo cambios
-        //   if(dataIngresoRequest.progresividad_id == dataIngreso.progresividad_id && dataIngresoRequest.fase_id == dataIngreso.fase_id && dataIngresoRequest.tiene_extramuro == dataIngreso.tiene_extramuro) throw new UnprocessableEntityException("No se realizo la edicion porque no hubo cambios en el estado de la PROGRESIVIDAD");
+       
+        //controlar si hubo cambios
+        if(
+          dataIngresoRequest.pabellon_id == dataIngreso.pabellon_id 
+          && dataIngresoRequest.celda == dataIngreso.celda 
+          && dataIngresoRequest.tiene_programa_puerta == dataIngreso.tiene_programa_puerta
+          && dataIngresoRequest.situacion_provisoria_id == dataIngreso.situacion_provisoria_id
+        ) throw new UnprocessableEntityException("No se realizo la edicion porque no hubo cambios en el estado deL ALOJAMIENTO");
 
-        //   if(dataIngresoRequest.fase_id != 4 && dataIngresoRequest.tiene_extramuro == true){
-        //     throw new UnprocessableEntityException("Solo la fase de confianza puede tener extramuro");
-        //   }
-
-        //   if(dataIngresoRequest.tiene_granja || dataIngresoRequest.tiene_semilibertad || dataIngresoRequest.tiene_transitoria)
-        //     throw new UnprocessableEntityException("El periodo de TRATAMIENTO no debe tener granja, semilibertad o transitoria.");
-          
-        //   if(dataIngresoRequest.fase_id == 2){
-      
-        //     dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - SOCIALIZACION";
-        //   }
-        //   if(dataIngresoRequest.fase_id == 3){
-            
-        //     dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - CONSOLIDACION";
-        //   }
-        //   if(dataIngresoRequest.fase_id == 4){
-            
-        //     dataHistorialRequest.motivo = "PERIODO TRATAMIENTO - CONFIANZA";
-        //   }
-        // }
-
-        
-
+                
         // seteo historial
         dataHistorialRequest.ingreso_interno_id = idIngreso;
-        dataHistorialRequest.tipo_historial_procesal_id = 4;   
+        dataHistorialRequest.tipo_historial_procesal_id = 6;   
         dataHistorialRequest.motivo = "ALOJAMIENTO";     
         dataHistorialRequest.fecha_carga = fecha_actual;
         dataHistorialRequest.organismo_id = usuario.organismo_id;
