@@ -72,7 +72,7 @@ export class HistorialProcesalService {
             ingreso_interno_id: idIngreso
           },
           order:{
-            fecha: "ASC"
+            fecha: "DESC"
           }
         }
       );   
