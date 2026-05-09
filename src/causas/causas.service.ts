@@ -172,6 +172,7 @@ export class CausasService {
       let fecha_actual: any = new Date().toISOString().split('T')[0];    
       let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
       
+      dataUpdate.estado_procesal_id = dataUpdate.estado_procesal_id;
       dataUpdate.tiene_computo = false;
       dataUpdate.fecha_condena = null;
       dataUpdate.tribunal_condena_id = "0SINESP";

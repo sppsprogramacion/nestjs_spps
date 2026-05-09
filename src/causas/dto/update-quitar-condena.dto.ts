@@ -1,13 +1,13 @@
 
-import { IsBoolean, IsInt } from 'class-validator';
+import { IsBoolean, IsInt, Length } from 'class-validator';
 
 export class UpdateQuitarCondenaDto{
   
   id_causa: number;
-  
-  @IsBoolean()
+    
   tiene_computo: boolean;
 
+  @Length(1,10,{message: "estado_procesal_id debe tener entre $constraint1 y $constraint2 caracteres."})
   estado_procesal_id: string;
   
   fecha_condena: Date;
