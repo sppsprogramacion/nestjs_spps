@@ -50,6 +50,8 @@ export class CreateInternoUnidadDto {
     @Length(1,10,{message: "piel_id debe tener entre $constraint1 y $constraint2 caracteres."})
     piel_id: string;
 
+    marcas_corporales: string;
+
     @Length(1,10,{message: "nacionalidad_id debe tener entre $constraint1 y $constraint2 caracteres."})
     nacionalidad_id: string;
         

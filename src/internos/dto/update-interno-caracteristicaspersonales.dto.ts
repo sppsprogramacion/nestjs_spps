@@ -33,6 +33,11 @@ export class UpdateInternoCaracteristicasPersonalesDto {
     @Length(1,10,{message: "piel_id debe tener entre $constraint1 y $constraint2 caracteres."})
     piel_id: string;
     
+    @Transform(({ value }) => value === '' ? undefined : value)
+    @IsOptional()
+    @Length(1,1000,{message: "marcas_corporales debe tener entre $constraint1 y $constraint2 caracteres."})
+    marcas_corporales: string;
+    
     organismo_id: number;
     
     foto: string;     

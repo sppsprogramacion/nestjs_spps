@@ -220,6 +220,12 @@ export class Interno {
     piel: Piel;
     //FIN PIEL
 
+    @Column({
+        type:'varchar',
+        length: 1000,
+        nullable: true
+    })
+    marcas_corporales: string;
     //FIN CARACTERISTICAS PERSONALES.................................
 
     //DATOS FILIATORIOS
