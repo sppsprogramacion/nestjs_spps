@@ -47,7 +47,20 @@ export class IngresosInternoController {
     
     return this.ingresosInternoService.findXInterno(+id_interno);
   }
-  //FIN BUSCAR  XID CIUDADANO....................................................
+  //FIN BUSCAR  XID INTERNO....................................................
+
+  //CONTAR POR ORGANISMO
+  @Get('contaringresos-xorganismo')  
+  @Auth(ValidRoles.judicialOperador, ValidRoles.judicialAdmin)
+  async contarIngresosXOrganismo(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    //@Query('id_interno', ParseIntPipe) id_interno: string
+    
+  ) {    
+    
+    return this.ingresosInternoService.contarIngresosPorEstadoProcesal(user.organismo_id);
+  }
+  //FINCONTAR POR ORGANISMO....................................................
   
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    

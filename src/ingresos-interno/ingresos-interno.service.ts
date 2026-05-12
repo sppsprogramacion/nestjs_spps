@@ -150,6 +150,7 @@ export class IngresosInternoService {
     const cantidades = await this.ingresossInternoRepository
       .createQueryBuilder('i')
       .select('i.estado_procesal_id', 'estado_procesal_id')
+      .addSelect('i.jurisdiccion_id', 'jurisdiccion_id')
       .addSelect('COUNT(*)', 'cantidad')
       .where('i.organismo_alojamiento_id = :id', {
         id: id_organismox
@@ -158,28 +159,40 @@ export class IngresosInternoService {
         liberado: false
       })
       .groupBy('i.estado_procesal_id')
+      .addGroupBy('i.jurisdiccion_id')
       .orderBy('i.estado_procesal_id', 'ASC')
       .getRawMany();
   
     // Estados posibles
-    const estados = ['1', '2', '3', '4', '5', '6'];
+    const estadosProcesales = ['A', 'P', 'PROC'];
   
-    // Completar faltantes con 0
-    const resultadoFinal = estados.map(estado => {
+    // Jurisdicciones posibles
+    const jurisdicciones = ['P', 'F'];
   
-      const encontrado = cantidades.find(
-        x => x.estado_procesal_id === estado
-      );
+    // Armar resultado completo
+    const resultadoFinal = [];
   
-      return {
-        estado_procesal_id: estado,
-        cantidad: encontrado
-          ? Number(encontrado.cantidad)
-          : 0
-      };
-    });
+    for (const estado of estadosProcesales) {
   
-    return resultadoFinal;
+      for (const jurisdiccion of jurisdicciones) {
+  
+        const encontrado = cantidades.find(
+          x =>
+            x.estado_procesal_id === estado &&
+            x.jurisdiccion_id === jurisdiccion
+        );
+  
+        resultadoFinal.push({
+          estado_procesal_id: estado,
+          jurisdiccion_id: jurisdiccion,
+          cantidad: encontrado
+            ? Number(encontrado.cantidad)
+            : 0
+        });
+      }
+    }
+
+  return resultadoFinal;
   }
   //FIN BUSCAR  X CONTAR ORGANISMO..................................................................
 
