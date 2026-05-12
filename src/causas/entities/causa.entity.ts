@@ -251,6 +251,18 @@ export class Causa {
     vigente: boolean;
 
     @Column({
+        type: "boolean",
+        default: false
+    })
+    esta_unificada: boolean;
+
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    agoto_condena: boolean;
+
+    @Column({
         type: 'date',
         nullable: false        
     })

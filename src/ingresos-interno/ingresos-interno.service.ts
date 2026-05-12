@@ -143,6 +143,46 @@ export class IngresosInternoService {
   }
   //FIN BUSCAR  XORGANISMO..................................................................
 
+  //BUSCAR  X CONTAR ORGANISMO
+  async contarIngresosPorEstadoProcesal(id_organismox: number) {
+
+    // Consulta agrupada
+    const cantidades = await this.ingresossInternoRepository
+      .createQueryBuilder('i')
+      .select('i.estado_procesal_id', 'estado_procesal_id')
+      .addSelect('COUNT(*)', 'cantidad')
+      .where('i.organismo_alojamiento_id = :id', {
+        id: id_organismox
+      })
+      .andWhere('i.esta_liberado = :liberado', {
+        liberado: false
+      })
+      .groupBy('i.estado_procesal_id')
+      .orderBy('i.estado_procesal_id', 'ASC')
+      .getRawMany();
+  
+    // Estados posibles
+    const estados = ['1', '2', '3', '4', '5', '6'];
+  
+    // Completar faltantes con 0
+    const resultadoFinal = estados.map(estado => {
+  
+      const encontrado = cantidades.find(
+        x => x.estado_procesal_id === estado
+      );
+  
+      return {
+        estado_procesal_id: estado,
+        cantidad: encontrado
+          ? Number(encontrado.cantidad)
+          : 0
+      };
+    });
+  
+    return resultadoFinal;
+  }
+  //FIN BUSCAR  X CONTAR ORGANISMO..................................................................
+
   //BUSCAR  XID
   async findOne(id: number) {
 

@@ -1,5 +1,5 @@
 
-import { IsDateString, IsInt, Length } from 'class-validator';
+import { IsBoolean, IsDateString, IsInt, Length } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UpdateEstablecerCondenaDto{
@@ -41,4 +41,9 @@ export class UpdateEstablecerCondenaDto{
     })
     fecha_cumple_pena: Date;
 
+    @IsBoolean({message: "esta_unificada debe ser verdadero o falso"})
+    esta_unificada: boolean;
+    
+    @IsBoolean({message: "tiene_semilibertad debe ser verdadero o falso"})
+    agoto_condena: boolean;
 }
