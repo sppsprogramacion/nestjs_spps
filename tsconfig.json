@@ -20,6 +20,7 @@
     "noFallthroughCasesInSwitch": false,
     "strict": false,
     "noEmitOnError": false,
-    "preserveSymlinks": true
+    "preserveSymlinks": true,
+    "types": ["node", "express", "multer"]
   }
 }

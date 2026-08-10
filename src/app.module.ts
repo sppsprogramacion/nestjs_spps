@@ -78,6 +78,8 @@ import { ConceptoModule } from './concepto/concepto.module';
 import { ProgresividadModule } from './progresividad/progresividad.module';
 import { FasesModule } from './fases/fases.module';
 import { MotivosEgresoModule } from './motivos-egreso/motivos-egreso.module';
+import { DedosHuellaModule } from './dedos_huella/dedos_huella.module';
+import { HuellasModule } from './huellas/huellas.module';
 
 @Module({
   imports: [
@@ -163,6 +165,8 @@ import { MotivosEgresoModule } from './motivos-egreso/motivos-egreso.module';
     ProgresividadModule,
     FasesModule,
     MotivosEgresoModule,
+    DedosHuellaModule,
+    HuellasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
