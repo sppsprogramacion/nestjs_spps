@@ -80,6 +80,7 @@ import { FasesModule } from './fases/fases.module';
 import { MotivosEgresoModule } from './motivos-egreso/motivos-egreso.module';
 import { DedosHuellaModule } from './dedos_huella/dedos_huella.module';
 import { HuellasModule } from './huellas/huellas.module';
+import { HuellasCambiosModule } from './huellas-cambios/huellas-cambios.module';
 
 @Module({
   imports: [
@@ -167,6 +168,7 @@ import { HuellasModule } from './huellas/huellas.module';
     MotivosEgresoModule,
     DedosHuellaModule,
     HuellasModule,
+    HuellasCambiosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

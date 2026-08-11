@@ -52,36 +52,28 @@ export class Huella {
         default: true,
         
     })
-    activo: boolean;
-
-    @Column({ 
-        type: 'bigint', 
-        unsigned: true, 
-        default: 1 
-    })
-    version: string; 
-
-    @Column({
-        type: 'varchar',
-        length: 2000,
-        nullable: false
-    })
-    detalle_motivo: string;
+    activo: boolean;   
     
     @Column({
-        type: 'date',
+        type: 'datetime',
         nullable: false,
         default: () => 'CURRENT_TIMESTAMP' 
     })
     fecha_registro: Date;
 
     @Column({
-        type: 'date',
+        type: 'datetime',
         default: () => 'CURRENT_TIMESTAMP', 
         onUpdate: 'CURRENT_TIMESTAMP' 
     })
     fecha_modificacion: Date;
-
+    
+    @Column({
+        type: 'varchar',
+        length: 2000,
+        nullable: false
+    })
+    detalle_motivo: string;
 
     //ORGANISMO
     @Column({
