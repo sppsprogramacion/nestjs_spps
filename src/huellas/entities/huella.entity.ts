@@ -17,7 +17,7 @@ export class Huella {
     })
     ciudadano_id: number;
 
-    @ManyToOne(type => Ciudadano, {eager: true} )
+    @ManyToOne(type => Ciudadano, {eager: false} )
     @JoinColumn({
         name: 'ciudadano_id',
         referencedColumnName: 'id_ciudadano'
@@ -33,7 +33,7 @@ export class Huella {
     })
     dedo_id: number;
 
-    @ManyToOne(type => DedoHuella, {eager: true} )
+    @ManyToOne(type => DedoHuella, {eager: false} )
     @JoinColumn({
         name: 'dedo_id',
         referencedColumnName: 'id_dedo_huella'
@@ -83,7 +83,7 @@ export class Huella {
     })
     organismo_id: number;
 
-    @ManyToOne(type => Organismo, {eager: true} )
+    @ManyToOne(type => Organismo, {eager: false} )
     @JoinColumn({
         name: 'organismo_id',
         referencedColumnName: 'id_organismo'
@@ -99,7 +99,7 @@ export class Huella {
     })
     usuario_id: number;
 
-    @ManyToOne(type => Usuario, {eager: true} )
+    @ManyToOne(type => Usuario, {eager: false} )
     @JoinColumn({
         name: 'usuario_id',
         referencedColumnName: 'id_usuario'

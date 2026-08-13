@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, NotFou
 import { DedosHuellaService } from './dedos_huella.service';
 import { CreateDedosHuellaDto } from './dto/create-dedos_huella.dto';
 import { UpdateDedosHuellaDto } from './dto/update-dedos_huella.dto';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Controller('dedos-huella')
 export class DedosHuellaController {
@@ -10,7 +11,10 @@ export class DedosHuellaController {
 
   @Post()
   @Auth()
-  create(@Body() data: CreateDedosHuellaDto) {
+  create(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() data: CreateDedosHuellaDto
+  ) {
     return this.dedosHuellaService.create(data);
   }  
 

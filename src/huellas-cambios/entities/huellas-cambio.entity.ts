@@ -1,4 +1,5 @@
-import { Column, PrimaryGeneratedColumn } from "typeorm";
+import { Huella } from "src/huellas/entities/huella.entity";
+import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 export class HuellaCambio {
@@ -9,21 +10,35 @@ export class HuellaCambio {
     })
     version: string;
 
+
     @Column({
-        type: 'bigint',
-        unsigned: true
+        type: 'int',
+        unsigned: true,
+        nullable: false
     })
-    huella_id: string;
+    huella_id: number;
+
+    @ManyToOne(() => Huella, { eager: false })
+    @JoinColumn({
+        name: 'huella_id',
+        referencedColumnName: 'id_huella_ciudadano'
+    })
+    huella: Huella;
+
 
     @Column({
         type: 'enum',
-        enum: ['ALTA', 'BAJA']
+        enum: ['ALTA', 'BAJA'],
+        nullable: false
     })
-    accion: string;
+    accion: 'ALTA' | 'BAJA';
+
 
     @Column({
         type: 'datetime',
+        nullable: false,
         default: () => 'CURRENT_TIMESTAMP'
     })
     fecha: Date;
+
 }
