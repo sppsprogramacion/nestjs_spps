@@ -1,19 +1,10 @@
 import { Transform } from "class-transformer";
-import { IsInt, IsOptional, Length } from "class-validator";
+import { IsOptional, Length } from "class-validator";
 
-
-export class CreateHuellaDto {
+export class QuitarHuellaDto {
 
     
     id_huella_ciudadano: number;
-    
-    @IsInt({message: "ciudadano_id debe ser un número entero."})
-    ciudadano_id: number;
-
-    @IsInt({message: "dedo_id debe ser un número entero."})
-    dedo_id: number;    
-    
-    huella: Buffer;
     
     activo: boolean;       
     

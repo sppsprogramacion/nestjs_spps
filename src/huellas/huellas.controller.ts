@@ -4,13 +4,14 @@ import { CreateHuellaDto } from './dto/create-huella.dto';
 import { UpdateHuellaDto } from './dto/update-huella.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('huellas')
 export class HuellasController {
   constructor(private readonly huellasService: HuellasService) {}
 
   @Post()
-  @Auth()
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateHuellaDto

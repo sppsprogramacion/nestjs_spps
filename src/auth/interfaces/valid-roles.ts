@@ -1,7 +1,7 @@
 
 
 export enum ValidRoles {
-    superadmin = "superadmin",
+    superAdmin = "superAdmin",
     supervisor = "supervisor",
     ciudadanoAdmin = "ciudadanoAdmin",
     ciudadanoConsulta = "ciudadanoConsulta",
@@ -11,5 +11,7 @@ export enum ValidRoles {
     judicialOperador = "judicialOperador",
     restriccionAdmin = "restriccionAdmin",
     restriccionConsulta = "restriccionConsulta",
-    restriccionOperador = "restriccionOperador"
+    restriccionOperador = "restriccionOperador",
+    visitaAdmin = "visitaAdmin",
+    visitaOperador = "visitaOperador"
 }
