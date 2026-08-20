@@ -31,7 +31,7 @@ export class IngresosInternoController {
   }  
   
   @Get('todos')
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superAdmin)
   findAll() {
     return this.ingresosInternoService.findAll();
   }

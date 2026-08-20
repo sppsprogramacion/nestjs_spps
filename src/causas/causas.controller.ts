@@ -23,7 +23,7 @@ export class CausasController {
   }  
 
   @Get('todos')
-  @Auth(ValidRoles.superadmin)
+  @Auth(ValidRoles.superAdmin)
   findAll() {
     return this.causasService.findAll();
   }

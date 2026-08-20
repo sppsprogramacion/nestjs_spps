@@ -3,6 +3,7 @@ import { CreateListasGeneralesTablaDto } from './dto/create-listas-generales-tab
 import { UpdateListasGeneralesTablaDto } from './dto/update-listas-generales-tabla.dto';
 import { DataSource } from 'typeorm';
 import { Jurisdiccion } from '../jurisdiccion/entities/jurisdiccion.entity';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class ListasGeneralesTablasService {
@@ -315,7 +316,7 @@ export class ListasGeneralesTablasService {
   //FIN TABLAS PARA PROGRESIVIDAD...........................................
 
   //TABLAS PARA ALOJAMIENTO
-  async obtenerTablasParaAlojamiento() {    
+  async obtenerTablasParaAlojamiento(usuario: Usuario) {    
 
     
     const situacion_provisoria = await this.dataSource.query(`
@@ -323,10 +324,14 @@ export class ListasGeneralesTablasService {
       
     `);
 
-    const pabellones = await this.dataSource.query(`
-      SELECT id_pabellon, pabellon FROM pabellones WHERE activo = true
+    // const pabellones = await this.dataSource.query(`
+    //   SELECT id_pabellon, pabellon FROM pabellones WHERE activo = true AND organismo_id =  'usuario.organismo_id'
       
-    `);
+    // `);
+
+    const pabellones = await this.dataSource.query(`
+      SELECT id_pabellon, pabellon FROM pabellones WHERE activo = true AND organismo_id = ?
+    `, [usuario.organismo_id]);
 
     return { situacion_provisoria, pabellones};
   } 
