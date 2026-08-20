@@ -1,7 +1,7 @@
 import { Huella } from "src/huellas/entities/huella.entity";
-import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-
+@Entity('huellas_cambios')
 export class HuellaCambio {
 
     @PrimaryGeneratedColumn({
@@ -13,7 +13,6 @@ export class HuellaCambio {
 
     @Column({
         type: 'int',
-        unsigned: true,
         nullable: false
     })
     huella_id: number;
