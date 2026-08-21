@@ -70,7 +70,7 @@ export class Huella {
     
     @Column({
         type: 'varchar',
-        length: 500,
+        length: 200,
         nullable: false
     })
     detalle_motivo: string;
