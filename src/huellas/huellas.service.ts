@@ -4,6 +4,7 @@ import { UpdateHuellaDto } from './dto/update-huella.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Huella } from './entities/huella.entity';
 import { Repository } from 'typeorm';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class HuellasService {
@@ -13,7 +14,16 @@ export class HuellasService {
     private readonly huellaRepository: Repository<Huella>
   ){}
 
-  async create(data: CreateHuellaDto): Promise<Huella> {
+  async create(data: CreateHuellaDto, usuario: Usuario): Promise<Huella> {
+    
+    data.activo = true;
+
+    data.detalle_motivo =
+        data.detalle_motivo ?? 'Registro de huella';
+
+    data.usuario_id = usuario.id_usuario;
+
+    data.organismo_id = usuario.organismo_id;
 
     try {
       

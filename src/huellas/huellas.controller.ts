@@ -16,7 +16,7 @@ export class HuellasController {
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateHuellaDto
   ) {
-    return this.huellasService.create(data);
+    return this.huellasService.create(data, user);
   }  
 
   @Get('todos')

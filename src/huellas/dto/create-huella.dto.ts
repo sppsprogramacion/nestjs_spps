@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsInt, IsOptional, Length } from "class-validator";
+import { IsByteLength, IsInt, IsNotEmpty, IsOptional, Length } from "class-validator";
 
 
 export class CreateHuellaDto {
@@ -13,6 +13,8 @@ export class CreateHuellaDto {
     @IsInt({message: "dedo_id debe ser un número entero."})
     dedo_id: number;    
     
+    @IsNotEmpty({message: 'La huella es obligatoria.'})
+    @IsByteLength(1, 16777215, {message: 'La huella contiene una cantidad de bytes no válida.'})
     huella: Buffer;
     
     activo: boolean;       
