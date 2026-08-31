@@ -2,9 +2,13 @@ import { Ciudadano } from "src/ciudadanos/entities/ciudadano.entity";
 import { DedoHuella } from "src/dedos_huella/entities/dedos_huella.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('huellas')
+@Index(
+    'IDX_HUELLA_CIUDADANO_DEDO_ACTIVO',
+    ['ciudadano_id', 'dedo_id', 'activo'],
+)
 export class Huella {
 
     @PrimaryGeneratedColumn()

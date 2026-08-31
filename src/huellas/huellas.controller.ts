@@ -24,6 +24,16 @@ export class HuellasController {
     return this.huellasService.findAll();
   }
 
+  @Get('/ciudadano/:id')
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async obtenerHuellasCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+
+    return await this.huellasService.obtenerPorCiudadano(id);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
     
