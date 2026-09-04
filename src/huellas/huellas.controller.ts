@@ -34,6 +34,13 @@ export class HuellasController {
     return await this.huellasService.obtenerPorCiudadano(id);
   }
 
+  @Get('sincronizacion-inicial')
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async sincronizacionInicial() {
+  
+      return await this.huellasService.sincronizacionInicial();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
     

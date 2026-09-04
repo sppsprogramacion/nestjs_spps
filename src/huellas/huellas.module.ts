@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Huella } from './entities/huella.entity';
 import { DedoHuella } from 'src/dedos_huella/entities/dedos_huella.entity';
 import { Ciudadano } from 'src/ciudadanos/entities/ciudadano.entity';
+import { HuellaCambio } from 'src/huellas-cambios/entities/huellas-cambio.entity';
 
 @Module({
   imports: [
     AuthModule,
     TypeOrmModule.forFeature([
       Huella,
+      HuellaCambio,
       Ciudadano,
       DedoHuella
     ])
