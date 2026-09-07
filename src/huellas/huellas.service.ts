@@ -26,151 +26,7 @@ export class HuellasService {
         private readonly dataSource: DataSource,
     ){}
 
-//   async create(dto: CreateHuellaDto, usuario: Usuario): Promise<HuellaResponseDto> {
-    
-//     // -------------------------------------------------
-//     // 1. Verificar que exista el ciudadano
-//     // -------------------------------------------------
-
-//     const ciudadano =
-//         await this.ciudadanoRepository.findOne({
-//             where: {
-//                 id_ciudadano: dto.ciudadano_id,
-//             },
-//         });
-
-//     if (!ciudadano) {
-//         throw new NotFoundException(
-//             `No existe el ciudadano con id ${dto.ciudadano_id}.`,
-//         );
-//     }
-
-
-//     // -------------------------------------------------
-//     // 2. Verificar que exista el dedo
-//     // -------------------------------------------------
-
-//     const dedo =
-//         await this.dedoRepository.findOne({
-//             where: {
-//                 id_dedo_huella: dto.dedo_id,
-//             },
-//         });
-
-//     if (!dedo) {
-//         throw new NotFoundException(
-//             `No existe el dedo con id ${dto.dedo_id}.`,
-//         );
-//     }
-
-
-//     // -------------------------------------------------
-//     // 3. Buscar huellas activas del ciudadano
-//     // -------------------------------------------------
-
-//     const huellasActivas =
-//         await this.huellaRepository.find({
-//             where: {
-//                 ciudadano_id: dto.ciudadano_id,
-//                 activo: true,
-//             },
-//         });
-
-
-//     // -------------------------------------------------
-//     // 4. Verificar que no tenga ya 2 huellas activas
-//     // -------------------------------------------------
-
-//     if (huellasActivas.length >= 2) {
-
-//         throw new BadRequestException(
-//             'El ciudadano ya tiene 2 huellas activas registradas.',
-//         );
-//     }
-
-
-//     // -------------------------------------------------
-//     // 5. Verificar que el dedo no esté registrado
-//     // -------------------------------------------------
-
-//     const huellaMismoDedo =
-//         huellasActivas.find(
-//             h => h.dedo_id === dto.dedo_id,
-//         );
-
-//     if (huellaMismoDedo) {
-
-//         throw new BadRequestException(
-//             'El ciudadano ya tiene una huella activa registrada para ese dedo.',
-//         );
-//     }
-//     //fin verificaciones-----
-
-//     // -------------------------------------------------
-//     // 6. Convertir Base64 a Buffer
-//     // -------------------------------------------------
-
-//     let bufferHuella: Buffer;
-
-//     try {
-
-//         bufferHuella = Buffer.from(dto.huella, 'base64');
-
-//     } catch {
-
-//         throw new BadRequestException(
-//             'La huella no contiene un Base64 válido.',
-//         );
-//     }
-
-
-//     // -------------------------------------------------
-//     // 7. Verificar que el Buffer no esté vacío
-//     // -------------------------------------------------
-
-//     if (!bufferHuella || bufferHuella.length === 0) {
-
-//         throw new BadRequestException(
-//             'La huella no contiene datos.',
-//         );
-//     }
-
-//     // -------------------------------------------------
-//     // 8. Crear la entidad
-//     // -------------------------------------------------
-
-//     try {
-//       const nuevaHuella = this.huellaRepository.create({
-//           ciudadano_id: dto.ciudadano_id,
-//           dedo_id: dto.dedo_id,
-//           huella: bufferHuella,
-//           activo: true,
-//           detalle_motivo: dto.detalle_motivo || 'Registro inicial',
-//           organismo_id: usuario.organismo_id,
-//           usuario_id: usuario.id_usuario,
-//       });
-      
-//       const huellaGuardada = await this.huellaRepository.save(nuevaHuella);
-      
-//       return {
-//             id_huella_ciudadano: huellaGuardada.id_huella_ciudadano,
-//             ciudadano_id: huellaGuardada.ciudadano_id,
-//             dedo_id: huellaGuardada.dedo_id,
-//             activo: huellaGuardada.activo,
-//             detalle_motivo: huellaGuardada.detalle_motivo,
-//             fecha_registro: huellaGuardada.fecha_registro,
-//             fecha_modificacion: huellaGuardada.fecha_modificacion,
-//             organismo_id: huellaGuardada.organismo_id,
-//             usuario_id: huellaGuardada.usuario_id,
-//         };
-
-
-//     }catch (error) {
-
-//       this.handleDBErrors(error);  
-//     }     
-//   }
-
+    //CREAR
     async create(dto: CreateHuellaDto,user: Usuario): Promise<HuellaResponseDto> {
 
         return await this.dataSource.transaction(async manager => {
@@ -190,9 +46,7 @@ export class HuellasService {
             });
     
             if (!ciudadano) {
-                throw new BadRequestException(
-                    'El ciudadano indicado no existe.'
-                );
+                throw new BadRequestException('El ciudadano indicado no existe.');
             }
     
     
@@ -206,11 +60,8 @@ export class HuellasService {
             });
     
             if (!dedo) {
-                throw new BadRequestException(
-                    'El dedo indicado no existe.'
-                );
-            }
-    
+                throw new BadRequestException('El dedo indicado no existe.');
+            }    
     
             // -----------------------------------
             // OBTENER HUELLAS ACTIVAS
@@ -220,14 +71,11 @@ export class HuellasService {
                     ciudadano_id: dto.ciudadano_id,
                     activo: true
                 }
-            });
-    
+            });    
     
             // Máximo 2 huellas activas
             if (huellasActivas.length >= 2) {
-                throw new BadRequestException(
-                    'El ciudadano ya posee dos huellas activas.'
-                );
+                throw new BadRequestException('El ciudadano ya posee dos huellas activas.');
             }
     
     
@@ -237,24 +85,17 @@ export class HuellasService {
             );
     
             if (mismoDedo) {
-                throw new BadRequestException(
-                    'El ciudadano ya posee una huella activa para ese dedo.'
-                );
+                throw new BadRequestException('El ciudadano ya posee una huella activa para ese dedo.')
             }
     
     
             // -----------------------------------
             // BASE64 → BUFFER
             // -----------------------------------
-            const bufferHuella = Buffer.from(
-                dto.huella,
-                'base64'
-            );
+            const bufferHuella = Buffer.from(dto.huella,'base64');
     
             if (!bufferHuella || bufferHuella.length === 0) {
-                throw new BadRequestException(
-                    'La huella recibida no es válida.'
-                );
+                throw new BadRequestException('La huella recibida no es válida.');
             }
     
     
@@ -265,66 +106,39 @@ export class HuellasService {
                 ciudadano_id: dto.ciudadano_id,
                 dedo_id: dto.dedo_id,
                 huella: bufferHuella,
-    
                 activo: true,
-    
-                detalle_motivo:
-                    dto.detalle_motivo || 'Registro inicial',
-    
+                detalle_motivo: dto.detalle_motivo || 'Registro inicial',
                 organismo_id: user.organismo_id,
                 usuario_id: user.id_usuario
             });
     
-            const huellaGuardada =
-                await huellaRepository.save(nuevaHuella);
-    
+            const huellaGuardada = await huellaRepository.save(nuevaHuella);    
     
             // -----------------------------------
             // REGISTRAR CAMBIO PARA SINCRONIZACION
             // -----------------------------------
             const cambio = huellaCambioRepository.create({
-                huella_id:
-                    huellaGuardada.id_huella_ciudadano,
-    
+                huella_id: huellaGuardada.id_huella_ciudadano,
                 accion: 'ALTA',
-    
                 organismo_id: user.organismo_id,
                 usuario_id: user.id_usuario
             });
     
-            await huellaCambioRepository.save(cambio);
-    
+            await huellaCambioRepository.save(cambio);    
     
             // -----------------------------------
             // RESPUESTA
             // -----------------------------------
             return {
-                id_huella_ciudadano:
-                    huellaGuardada.id_huella_ciudadano,
-    
-                ciudadano_id:
-                    huellaGuardada.ciudadano_id,
-    
-                dedo_id:
-                    huellaGuardada.dedo_id,
-    
-                activo:
-                    huellaGuardada.activo,
-    
-                detalle_motivo:
-                    huellaGuardada.detalle_motivo,
-    
-                fecha_registro:
-                    huellaGuardada.fecha_registro,
-    
-                fecha_modificacion:
-                    huellaGuardada.fecha_modificacion,
-    
-                organismo_id:
-                    huellaGuardada.organismo_id,
-    
-                usuario_id:
-                    huellaGuardada.usuario_id
+                id_huella_ciudadano: huellaGuardada.id_huella_ciudadano,
+                ciudadano_id: huellaGuardada.ciudadano_id,
+                dedo_id: huellaGuardada.dedo_id,
+                activo: huellaGuardada.activo,
+                detalle_motivo: huellaGuardada.detalle_motivo,
+                fecha_registro: huellaGuardada.fecha_registro,
+                fecha_modificacion: huellaGuardada.fecha_modificacion,
+                organismo_id: huellaGuardada.organismo_id,
+                usuario_id: huellaGuardada.usuario_id
             };
         });
     } 
@@ -396,6 +210,7 @@ export class HuellasService {
     //RETORNAR POR CIUDADANO...................................................................
     //.........................................................................................
 
+    //SINCRONIZACION INICIAL
     async sincronizacionInicial() {
 
         return await this.dataSource.transaction('REPEATABLE READ',async manager => {
@@ -466,47 +281,76 @@ export class HuellasService {
             }
         );
     }
+    //FIN SINCRONIZACION INICIAL
+    //-------------------------------------------------------------------------------------------------
 
-  //BUSCAR  XID
-  async findOne(id: number) {
+    //SINCRONIZACION
+    async sincronizacion(version: string) {
+
+        const cambios = await this.dataSource.getRepository(HuellaCambio)
+            .createQueryBuilder('cambio')    
+            .leftJoinAndSelect('cambio.huella', 'huella')    
+            .where('cambio.version > :version', { version })
+            .orderBy('cambio.version','ASC')
+            .getMany();    
+    
+        return cambios.map(cambio => {
+    
+            return {    
+                version: cambio.version,    
+                accion: cambio.accion,    
+                huella_id: cambio.huella_id,    
+                ciudadano_id: cambio.huella?.ciudadano_id,    
+                dedo_id: cambio.huella?.dedo_id,
+                huella: cambio.accion === 'ALTA'
+                        ? cambio.huella?.huella?.toString('base64')
+                        : null
+            };
+        });
+    }
+    //FIN SINCRONIZACION
+    //-------------------------------------------------------------------------------------------------
+
+    //BUSCAR  XID
+    async findOne(id: number) {
 
     const respuesta = await this.huellaRepository.findOneBy({id_huella_ciudadano: id});
     if (!respuesta) throw new NotFoundException("El elemento solicitado no existe.");
     return respuesta;
-  }
-  //FIN BUSCAR  XID..................................................................
-
-  async update(id: number, data: UpdateHuellaDto) {
-
-    try{
-      // const respuesta = await this.huellaRepository.update(id, data);
-      // if((await respuesta).affected == 0){
-      //   await this.findOne(id);
-      // } 
-      // return respuesta;
     }
-    catch(error){
-      
-      this.handleDBErrors(error); 
-    }   
-  }
+    //FIN BUSCAR  XID..................................................................
 
-  async remove(id: number) {
-    const respuesta = await this.huellaRepository.findOneBy({id_huella_ciudadano: id});
-    if(!respuesta) throw new NotFoundException("No existe el registro de nivel_educacion que intenta eliminar");
-    return await this.huellaRepository.remove(respuesta);
-  }
+    async update(id: number, data: UpdateHuellaDto) {
 
-
-  //MANEJO DE ERRORES
-  private handleDBErrors(error: any): never {
-    if(error.code === "ER_DUP_ENTRY"){
-      throw new BadRequestException (error.sqlMessage);
+        try{
+            // const respuesta = await this.huellaRepository.update(id, data);
+            // if((await respuesta).affected == 0){
+            //   await this.findOne(id);
+            // } 
+            // return respuesta;
+        }
+        catch(error){
+            
+            this.handleDBErrors(error); 
+        }   
     }
-    
-    if(error.status == 404) throw new NotFoundException(error.response);
-  
-    throw new InternalServerErrorException (error.message);
-  }
-  //FIN MANEJO DE ERRORES........................................
+
+    async remove(id: number) {
+        const respuesta = await this.huellaRepository.findOneBy({id_huella_ciudadano: id});
+        if(!respuesta) throw new NotFoundException("No existe el registro de nivel_educacion que intenta eliminar");
+        return await this.huellaRepository.remove(respuesta);
+    }
+
+
+    //MANEJO DE ERRORES
+    private handleDBErrors(error: any): never {
+        if(error.code === "ER_DUP_ENTRY"){
+            throw new BadRequestException (error.sqlMessage);
+        }
+        
+        if(error.status == 404) throw new NotFoundException(error.response);
+        
+        throw new InternalServerErrorException (error.message);
+    }
+    //FIN MANEJO DE ERRORES........................................
 }

@@ -20,7 +20,10 @@ export class HuellasController {
   }  
 
   @Get('todos')
-  findAll() {
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  findAll(
+     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {
     return this.huellasService.findAll();
   }
 
@@ -36,13 +39,29 @@ export class HuellasController {
 
   @Get('sincronizacion-inicial')
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
-  async sincronizacionInicial() {
+  async sincronizacionInicial(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {
   
       return await this.huellasService.sincronizacionInicial();
   }
 
+  @Get('sincronizacion/:version')
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async sincronizacion(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('version') version: string
+  ) {
+
+      return await this.huellasService.sincronizacion(version);
+  }
+
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: string) {    
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  findOne(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id', ParseIntPipe) id: string
+  ) {    
     
     return this.huellasService.findOne(+id);
   }
