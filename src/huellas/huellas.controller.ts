@@ -73,12 +73,23 @@ export class HuellasController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: string, 
-    @Body() dataDto: UpdateHuellaDto
+  @Delete(':id')
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async quitarHuella(
+      @Param('id', ParseIntPipe) id: number,
+      @GetUser('usuario') user: Usuario,
   ) {
-
-    return this.huellasService.update(+id, dataDto);
+      return await this.huellasService.quitarHuellas(id, user);
   }
+
+  // @Put(':id')
+  // update(
+  //   @Param('id', ParseIntPipe) id: string, 
+  //   @Body() dataDto: UpdateHuellaDto
+  // ) {
+
+  //   return this.huellasService.update(+id, dataDto);
+  // }
+
+
 }

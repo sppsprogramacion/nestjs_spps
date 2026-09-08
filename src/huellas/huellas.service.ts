@@ -215,37 +215,28 @@ export class HuellasService {
 
         return await this.dataSource.transaction('REPEATABLE READ',async manager => {
     
-                const cambioRepository =
-                    manager.getRepository(HuellaCambio);
+                const cambioRepository = manager.getRepository(HuellaCambio);
     
-                const huellaRepository =
-                    manager.getRepository(Huella);
+                const huellaRepository = manager.getRepository(Huella);
     
     
                 // ---------------------------------
                 // OBTENER VERSION ACTUAL
                 // ---------------------------------
     
-                const resultadoVersion =
-                    await cambioRepository
+                const resultadoVersion = await cambioRepository
                         .createQueryBuilder('cambio')
-                        .select(
-                            'MAX(cambio.version)',
-                            'version'
-                        )
-                        .getRawOne();
+                        .select('MAX(cambio.version)','version')
+                        .getRawOne();    
     
-    
-                const versionActual =
-                    resultadoVersion?.version || '0';
+                const versionActual = resultadoVersion?.version || '0';
     
     
                 // ---------------------------------
                 // OBTENER TODAS LAS HUELLAS ACTIVAS
                 // ---------------------------------
     
-                const huellas =
-                    await huellaRepository.find({
+                const huellas = await huellaRepository.find({
                         where: {
                             activo: true
                         },
@@ -261,21 +252,12 @@ export class HuellasService {
     
                 return {
     
-                    version: versionActual,
-    
-                    huellas: huellas.map(huella => ({
-    
-                        id_huella_ciudadano:
-                            huella.id_huella_ciudadano,
-    
-                        ciudadano_id:
-                            huella.ciudadano_id,
-    
-                        dedo_id:
-                            huella.dedo_id,
-    
-                        huella:
-                            huella.huella.toString('base64')
+                    version: versionActual,    
+                    huellas: huellas.map(huella => ({    
+                        id_huella_ciudadano: huella.id_huella_ciudadano,    
+                        ciudadano_id: huella.ciudadano_id,
+                        dedo_id: huella.dedo_id,
+                        huella: huella.huella.toString('base64')
                     }))
                 };
             }
@@ -335,12 +317,64 @@ export class HuellasService {
         }   
     }
 
-    async remove(id: number) {
-        const respuesta = await this.huellaRepository.findOneBy({id_huella_ciudadano: id});
-        if(!respuesta) throw new NotFoundException("No existe el registro de nivel_educacion que intenta eliminar");
-        return await this.huellaRepository.remove(respuesta);
+    async quitarHuellas(idHuella: number,user: Usuario) {
+        return await this.dataSource.transaction(
+            async manager => {
+    
+                const huellaRepository = manager.getRepository(Huella);
+    
+                const huellaCambioRepository = manager.getRepository(HuellaCambio);
+    
+    
+                // ----------------------------------
+                // BUSCAR HUELLA
+                // ----------------------------------
+    
+                const huella = await huellaRepository.findOne({
+                    where: {
+                        id_huella_ciudadano: idHuella,
+                        activo: true
+                    }
+                });
+    
+                if (!huella) {
+                    throw new NotFoundException('No existe una huella activa con ese identificador.');
+                }
+    
+    
+                // ----------------------------------
+                // BAJA LOGICA
+                // ----------------------------------
+    
+                huella.activo = false;
+    
+                huella.usuario_id = user.id_usuario;
+                huella.organismo_id = user.organismo_id;
+    
+                const huellaActualizada = await huellaRepository.save(huella);
+    
+    
+                // ----------------------------------
+                // REGISTRAR CAMBIO
+                // ----------------------------------
+    
+                const cambio = huellaCambioRepository.create({
+                    huella_id: huellaActualizada.id_huella_ciudadano,
+                    accion: 'BAJA',
+                    organismo_id: user.organismo_id,
+                    usuario_id: user.id_usuario
+                });
+    
+                await huellaCambioRepository.save(cambio);
+    
+    
+                return {
+                    id_huella_ciudadano: huellaActualizada.id_huella_ciudadano,
+                    activo: huellaActualizada.activo
+                };
+            }
+        );
     }
-
 
     //MANEJO DE ERRORES
     private handleDBErrors(error: any): never {
