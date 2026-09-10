@@ -73,7 +73,7 @@ export class HuellasController {
   }
   //FIN PARA RUTA NO DEFINIDA...........
 
-  @Delete(':id')
+  @Delete('quitar-huella/:id')
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
   async quitarHuella(
       @Param('id', ParseIntPipe) id: number,

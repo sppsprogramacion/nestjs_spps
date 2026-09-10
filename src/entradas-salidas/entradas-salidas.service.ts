@@ -2,10 +2,14 @@ import { BadRequestException, Injectable, InternalServerErrorException, NotFound
 import { CreateEntradasSalidaDto } from './dto/create-entradas-salida.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntradasSalida } from './entities/entradas-salida.entity';
-import { IsNull, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateEntradaSalidasCancelarDto } from './dto/update-entradas-salidas-cancelar.dto';
 import { UpdateEntradaPrincipalEgresoDto } from './dto/update-entrada-principal-egreso.dto';
+import { Ciudadano } from '../ciudadanos/entities/ciudadano.entity';
+import { Interno } from 'src/internos/entities/interno.entity';
+import { VisitaInterno } from 'src/visitas-internos/entities/visitas-interno.entity';
+import { MenorACargo } from '../menores_a_cargo/entities/menores_a_cargo.entity';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -13,6 +17,7 @@ export class EntradasSalidasService {
       @InjectRepository(EntradasSalida)
       private readonly entradaSalidasRepository: Repository<EntradasSalida>,
       //private readonly sectoresDestinoService: SectoresDestinoService
+      private readonly dataSource: DataSource,
     ){}
   
     async create(data: CreateEntradasSalidaDto, usuario: Usuario): Promise<EntradasSalida> {
@@ -119,7 +124,62 @@ export class EntradasSalidasService {
   }
   //FIN BUSCAR  XFECHA..................................................................
   
-  
+  //CIUDADANO PARA VISITA
+  async findCiudadanoParaVisita(dni: number,user: Usuario) {
+    return await this.dataSource.transaction(
+        async manager => {
+
+            const ciudadanoRepository = manager.getRepository(Ciudadano);
+            const menoresACargoRepository = manager.getRepository(MenorACargo);
+            const internosRepository = manager.getRepository(Interno);
+            const visitaInternoRepository = manager.getRepository(VisitaInterno);
+
+            // ----------------------------------
+            // BUSCAR CIUDADANO
+            // ----------------------------------
+            const ciudadano = await ciudadanoRepository.findOne({
+                where: {
+                    dni: dni
+                }
+            });
+
+            if (!ciudadano) {
+                throw new NotFoundException('No hay una persona registrada con este numero de documento.');
+            }
+
+
+            // ----------------------------------
+            // BUSCAR INTERNOS VINCULADOS
+            // ----------------------------------
+            const internos = await visitaInternoRepository.find({
+                where: {
+                    ciudadano_id: ciudadano.id_ciudadano,
+                    vigente: true,                    
+                }
+            });
+
+            // ----------------------------------
+            // BUSCAR MENORES
+            // ----------------------------------
+
+            const menores = await menoresACargoRepository.find({
+                where: {
+                    ciudadano_tutor_id: ciudadano.id_ciudadano,
+                    anulado: true,                    
+                }
+            });
+
+
+
+            return {
+                ciudadano, internos, menores
+            };
+        }
+    );
+}
+  //FIN CIUDADANO PARA VISITA
+  //-------------------------------------------------------------------------------------
+
   //BUSCAR  XID
   async findOne(id: number) {
 

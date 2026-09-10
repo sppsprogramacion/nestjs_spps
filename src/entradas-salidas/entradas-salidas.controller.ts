@@ -7,6 +7,7 @@ import { DateValidationPipe } from 'src/pipes/date-validation.pipe';
 import { TimeValidationPipe } from 'src/pipes/time-validation.pipe';
 import { UpdateEntradaPrincipalEgresoDto } from './dto/update-entrada-principal-egreso.dto';
 import { UpdateEntradaSalidasCancelarDto } from './dto/update-entradas-salidas-cancelar.dto';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('entradas-salidas')
 export class EntradasSalidasController {
@@ -46,6 +47,18 @@ export class EntradasSalidasController {
   ) {        
 
     return this.entradasSalidasService.findPendientesSalidaFechaActual(user);
+  }
+  //FIN BUSCAR  PENDIENTES SALIDA....................................................
+
+  //CIUDADANO PARA VISITA
+  @Get('buscar-ciudadano/:dni')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findCiudadanoParaVisita(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('dni', ParseIntPipe) dni: string,
+  ) {        
+
+    return this.entradasSalidasService.findCiudadanoParaVisita(+dni,user);
   }
   //FIN BUSCAR  PENDIENTES SALIDA....................................................
   
