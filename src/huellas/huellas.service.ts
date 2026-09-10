@@ -180,32 +180,23 @@ export class HuellasService {
     //RETORNAR POR CIUDADANO
     async obtenerPorCiudadano( ciudadano_id: number,) {
 
-    const huellas = await this.huellaRepository.find({
-        where: {
-            ciudadano_id,
-            activo: true,
-        },
-        order: {
-            id_huella_ciudadano: 'ASC',
-        },
-    });
-
-    return huellas.map(huella => ({
-        id_huella_ciudadano:
-            huella.id_huella_ciudadano,
-
-        ciudadano_id:
-            huella.ciudadano_id,
-
-        dedo_id:
-            huella.dedo_id,
-
-        huella:
-            huella.huella.toString('base64'),
-
-        activo:
-            huella.activo,
-    }));
+        const huellas = await this.huellaRepository.find({
+            where: {
+                ciudadano_id,
+                activo: true,
+            },
+            order: {
+                id_huella_ciudadano: 'ASC',
+            },
+        });
+    
+        return huellas.map(huella => ({
+            id_huella_ciudadano: huella.id_huella_ciudadano,
+            ciudadano_id: huella.ciudadano_id,
+            dedo_id: huella.dedo_id,
+            huella: huella.huella.toString('base64'),
+            activo: huella.activo,
+        }));
     }
     //RETORNAR POR CIUDADANO...................................................................
     //.........................................................................................

@@ -4,6 +4,7 @@ import { EntradasSalidasController } from './entradas-salidas.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntradasSalida } from './entities/entradas-salida.entity';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { EntradasSalida } from './entities/entradas-salida.entity';
     ])
   ],
   controllers: [EntradasSalidasController],
-  providers: [EntradasSalidasService]
+  providers: [EntradasSalidasService, DriveImagenesService]
 })
 export class EntradasSalidasModule {}

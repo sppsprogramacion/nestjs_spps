@@ -10,6 +10,7 @@ import { Ciudadano } from '../ciudadanos/entities/ciudadano.entity';
 import { Interno } from 'src/internos/entities/interno.entity';
 import { VisitaInterno } from 'src/visitas-internos/entities/visitas-interno.entity';
 import { MenorACargo } from '../menores_a_cargo/entities/menores_a_cargo.entity';
+import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -18,6 +19,7 @@ export class EntradasSalidasService {
       private readonly entradaSalidasRepository: Repository<EntradasSalida>,
       //private readonly sectoresDestinoService: SectoresDestinoService
       private readonly dataSource: DataSource,
+      private readonly driveImagenesService: DriveImagenesService,
     ){}
   
     async create(data: CreateEntradasSalidaDto, usuario: Usuario): Promise<EntradasSalida> {
@@ -151,7 +153,7 @@ export class EntradasSalidasService {
             // ----------------------------------
             // BUSCAR INTERNOS VINCULADOS
             // ----------------------------------
-            const internos = await visitaInternoRepository.find({
+            const vinculos = await visitaInternoRepository.find({
                 where: {
                     ciudadano_id: ciudadano.id_ciudadano,
                     vigente: true,                    
@@ -169,10 +171,61 @@ export class EntradasSalidasService {
                 }
             });
 
+            //buscar foto del ciudadano
+            let imgUrl: string = "";
+            let foto_nombre = ciudadano.foto;
+            
+            //obtener url de la imagen en drive y agregado en la respuesta
+            const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
+            if(file){
+              imgUrl = await file.webContentLink;
+              ciudadano.foto = imgUrl;
+            }
+            else{
+              ciudadano.foto = null;
+            }
 
+            // Calcular la edad sin moment    
+            let edad = null;
+            if (ciudadano.fecha_nac) {
+              const fechaNac = new Date(ciudadano.fecha_nac);
+              const hoy = new Date();
+              edad = hoy.getFullYear() - fechaNac.getFullYear();
+        
+              // Ajustar si el cumpleaños no ha pasado este año
+              const mes = hoy.getMonth() - fechaNac.getMonth();
+              if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                edad--;
+              }
+            }
 
             return {
-                ciudadano, internos, menores
+              
+              ciudadano: {
+                  id_ciudadano: ciudadano.id_ciudadano,
+                  apellido: ciudadano.apellido,
+                  nombre: ciudadano.nombre,
+                  dni: ciudadano.dni,                  
+                  sexo: ciudadano.sexo.sexo,
+                  fecha_nacimiento: ciudadano.fecha_nac,
+                  edad: edad,
+                  nacionalidad: ciudadano.nacionalidad.nacionalidad,
+                  pais: ciudadano.pais.pais,
+                  provincia: ciudadano.provincia.provincia,
+                  departamento: ciudadano.departamento.departamento,
+                  municipio: ciudadano.municipio.municipio,
+                  ciudad: ciudadano.ciudad,
+                  barrio: ciudadano.barrio,
+                  direccion: ciudadano.direccion + " " + ciudadano.numero_dom,
+                  foto: ciudadano.foto  
+                }, 
+                internos: vinculos.map(vinculo=>({
+                  id_interno: vinculo.interno_id,
+                  apellido_nombre: vinculo.interno.apellido + " " + vinculo.interno.nombre,
+                  prontuario: vinculo.interno.prontuario,
+                  parentesco: vinculo.parentesco.parentesco
+                })), 
+                menores
             };
         }
     );
