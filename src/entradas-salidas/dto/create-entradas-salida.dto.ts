@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsInt, IsOptional, Length } from "class-validator";
 
 export class CreateEntradasSalidaDto {
@@ -71,10 +72,11 @@ export class CreateEntradasSalidaDto {
     // @Length(1,1000,{message: "menores debe tener entre $constraint1 y $constraint2 caracteres."})
     menores: string;
     
-    @IsOptional()
-    @Length(1,20,{message: "pabellon debe tener entre $constraint1 y $constraint2 caracteres."})
+    // @IsOptional()
+    // @Length(1,20,{message: "pabellon debe tener entre $constraint1 y $constraint2 caracteres."})
     pabellon: string;    
     
+    @Transform(({ value }) => value === '' ? undefined : value)
     @IsOptional()
     @Length(1,200,{message: "casillero debe tener entre $constraint1 y $constraint2 caracteres."})
     casillero: string;

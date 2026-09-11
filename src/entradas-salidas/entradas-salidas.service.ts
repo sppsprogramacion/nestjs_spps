@@ -17,7 +17,6 @@ export class EntradasSalidasService {
   constructor(
       @InjectRepository(EntradasSalida)
       private readonly entradaSalidasRepository: Repository<EntradasSalida>,
-      //private readonly sectoresDestinoService: SectoresDestinoService
       private readonly dataSource: DataSource,
       private readonly driveImagenesService: DriveImagenesService,
     ){}
@@ -33,14 +32,130 @@ export class EntradasSalidasService {
       data.cancelado = false;
       data.organismo_id = usuario.organismo_id;
       data.usuario_id = usuario.id_usuario;  
+
+      return await this.dataSource.transaction(async manager => {
+          
+          const entradasSalidaRepository = manager.getRepository(EntradasSalida);
+          const internoRepository = manager.getRepository(Interno);
+          const visitaInternoRepository = manager.getRepository(VisitaInterno);
+          const ciudadanoRepository = manager.getRepository(Ciudadano);
+  
+          // -----------------------------------
+          // VALIDAR CIUDADANO
+          // -----------------------------------
+          const ciudadano = await ciudadanoRepository.findOne({
+              where: {
+                  id_ciudadano: data.ciudadano_id
+              }
+          });
+  
+          if (!ciudadano) {
+              throw new BadRequestException('El ciudadano indicado no existe.');
+          }
+  
+  
+          // -----------------------------------
+          // VALIDAR INTERNO
+          // -----------------------------------
+          const interno = await internoRepository.findOne({
+              where: {
+                  id_interno: data.interno_id
+              }
+          });
+  
+          if (!interno) {
+              throw new BadRequestException('El interno indicado no existe.');
+          }    
+
+          // -----------------------------------
+          // VALIDAR INTERNO - falta verificar que el interno sea de esta unidad
+          // -----------------------------------
+          const vinculo = await visitaInternoRepository.findOne({
+              where: {
+                  interno_id: data.interno_id,
+                  ciudadano_id: data.ciudadano_id,
+                  vigente: true
+              }
+          });
+  
+          if (!vinculo) {
+              throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
+          }    
+  
+          // -----------------------------------
+          // VALIDAD MENORES
+          // -----------------------------------
+          // const huellasActivas = await huellaRepository.find({
+          //     where: {
+          //         ciudadano_id: dto.ciudadano_id,
+          //         activo: true
+          //     }
+          // });    
+   
+  
+          const entradasSalidas = await entradasSalidaRepository.find({
+              where: {
+                  ciudadano_id: data.ciudadano_id,
+                  fecha_ingreso_principal: fecha_actual,
+                  cancelado: false,
+              }
+          });    
+  
+          if (entradasSalidas) {
+              throw new BadRequestException('El ciudadano ya posee un ingreso este dia.')
+          }
+   
+  
+          // -----------------------------------
+          // GUARDAR HUELLA
+          // -----------------------------------
+          const nuevoIngreso = entradasSalidaRepository.create({
+            numero_ficha: "101",
+            numero_aux: 1,
+            interno_id: data.interno_id,
+            nombre_interno: interno.apellido + " " + interno.nombre,
+            ciudadano_id: data.ciudadano_id,
+            nombre_visita: ciudadano.apellido, 
+            edad: 30,
+            sexo_id: ciudadano.sexo_id,
+            parentesco_id: vinculo.parentesco_id,
+            categoria: "ADULTO",
+            ciudadano_tutor_id: null,
+            fecha_ingreso_principal: fecha_actual,
+            hora_ingreso_principal: hora_actual,
+            casillero: data.casillero,            
+            organismo_id: usuario.organismo_id,
+            usuario_id: usuario.id_usuario
+          });
+  
+          const ingresoGuardado = await entradasSalidaRepository.save(nuevoIngreso);    
+  
+          // -----------------------------------
+          // REGISTRAR CAMBIO PARA SINCRONIZACION
+          // -----------------------------------
+          // const cambio = huellaCambioRepository.create({
+          //     huella_id: huellaGuardada.id_huella_ciudadano,
+          //     accion: 'ALTA',
+          //     organismo_id: user.organismo_id,
+          //     usuario_id: user.id_usuario
+          // });
+  
+          // await huellaCambioRepository.save(cambio);    
+  
+          // -----------------------------------
+          // RESPUESTA
+          // -----------------------------------
+          return {
+              numero_ficha: ingresoGuardado.numero_ficha,
+              ciudadano: ingresoGuardado.nombre_visita,
+              interno: ingresoGuardado.nombre_interno,
+              casillero: "25",
+              parentesco: ingresoGuardado.parentesco.parentesco,
+              fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+              hora_registro: ingresoGuardado.hora_ingreso_principal,
+          };
+      });
       
-      // const sectorDestino = await this.sectoresDestinoService.findOne(data.sector_destino_id);    
-  
-      // if (!sectorDestino) throw new NotFoundException("El sector no existe.");
-  
-      // if(sectorDestino.organismo_destino.organismo_depende != usuario.organismo_id && sectorDestino.organismo_destino.id_organismo_destino != 22) 
-      //   throw new NotFoundException("El organismo al que pertenece el sector seleccionado no es accesible por este usuario");
-        
       try {
         
         const nuevo = await this.entradaSalidasRepository.create(data);
