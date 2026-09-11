@@ -171,6 +171,10 @@ export class EntradasSalidasService {
                 }
             });
 
+            //--------------------------------------------
+            //CONSTRUIR RESPUESTA
+            //--------------------------------------------
+
             //buscar foto del ciudadano
             let imgUrl: string = "";
             let foto_nombre = ciudadano.foto;
@@ -185,7 +189,7 @@ export class EntradasSalidasService {
               ciudadano.foto = null;
             }
 
-            // Calcular la edad sin moment    
+            // Calcular la edad ciudadano sin moment    
             let edad = null;
             if (ciudadano.fecha_nac) {
               const fechaNac = new Date(ciudadano.fecha_nac);
@@ -199,33 +203,62 @@ export class EntradasSalidasService {
               }
             }
 
+            // lista de menores midificada y con edad
+            const menoresResponse = menores.map(item => {
+              let edad = null;
+          
+              if (item.ciudadanoMenor.fecha_nac) {
+                const fechaNac = new Date(item.ciudadanoMenor.fecha_nac);
+                const hoy = new Date();
+                edad = hoy.getFullYear() - fechaNac.getFullYear();
+          
+                // Ajustar si el cumpleaños no ha pasado este año
+                const mes = hoy.getMonth() - fechaNac.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edad--;
+                }
+              }          
+
+              return {
+                id_ciudadano: item.ciudadanoMenor.id_ciudadano,
+                apellido: item.ciudadanoMenor.apellido,
+                nombre: item.ciudadanoMenor.nombre,                
+                dni: item.ciudadanoMenor.dni,
+                sexo: item.ciudadanoMenor.sexo.sexo,
+                edad
+              };
+            });
+
+            //formar respuesta 
             return {
               
-              ciudadano: {
-                  id_ciudadano: ciudadano.id_ciudadano,
-                  apellido: ciudadano.apellido,
-                  nombre: ciudadano.nombre,
-                  dni: ciudadano.dni,                  
-                  sexo: ciudadano.sexo.sexo,
-                  fecha_nacimiento: ciudadano.fecha_nac,
-                  edad: edad,
-                  nacionalidad: ciudadano.nacionalidad.nacionalidad,
-                  pais: ciudadano.pais.pais,
-                  provincia: ciudadano.provincia.provincia,
-                  departamento: ciudadano.departamento.departamento,
-                  municipio: ciudadano.municipio.municipio,
-                  ciudad: ciudadano.ciudad,
-                  barrio: ciudadano.barrio,
-                  direccion: ciudadano.direccion + " " + ciudadano.numero_dom,
-                  foto: ciudadano.foto  
-                }, 
-                internos: vinculos.map(vinculo=>({
-                  id_interno: vinculo.interno_id,
-                  apellido_nombre: vinculo.interno.apellido + " " + vinculo.interno.nombre,
-                  prontuario: vinculo.interno.prontuario,
-                  parentesco: vinculo.parentesco.parentesco
-                })), 
-                menores
+              ciudadanoResponse: {
+                id_ciudadano: ciudadano.id_ciudadano,
+                apellido: ciudadano.apellido,
+                nombre: ciudadano.nombre,
+                dni: ciudadano.dni,                  
+                sexo: ciudadano.sexo.sexo,
+                fecha_nacimiento: ciudadano.fecha_nac,
+                edad: edad,
+                nacionalidad: ciudadano.nacionalidad.nacionalidad,
+                pais: ciudadano.pais.pais,
+                provincia: ciudadano.provincia.provincia,
+                departamento: ciudadano.departamento.departamento,
+                municipio: ciudadano.municipio.municipio,
+                ciudad: ciudadano.ciudad,
+                barrio: ciudadano.barrio,
+                direccion: ciudadano.direccion + " " + ciudadano.numero_dom,
+                foto: ciudadano.foto,
+                tiene_discapacidad: ciudadano.tiene_discapacidad,
+                fecha_alta: ciudadano.fecha_alta
+              }, 
+              internosResponse: vinculos.map(vinculo=>({
+                id_interno: vinculo.interno_id,
+                apellido_nombre: vinculo.interno.apellido + " " + vinculo.interno.nombre,
+                prontuario: vinculo.interno.prontuario,
+                parentesco: vinculo.parentesco.parentesco
+              })), 
+              menoresResponse
             };
         }
     );

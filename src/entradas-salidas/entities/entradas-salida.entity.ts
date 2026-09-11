@@ -122,11 +122,7 @@ export class EntradasSalida {
     })
     ciudadano_tutor_id?: number;
     
-    @ManyToOne(() => Ciudadano, {
-      eager: true,
-      nullable: true,
-      onDelete: 'SET NULL',
-    })
+    @ManyToOne(() => Ciudadano, {eager: true,nullable: true,onDelete: 'SET NULL',})
     @JoinColumn({
       name: 'ciudadano_tutor_id',
       referencedColumnName: 'id_ciudadano',
