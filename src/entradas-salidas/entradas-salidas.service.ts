@@ -85,10 +85,29 @@ export class EntradasSalidasService {
               throw new BadRequestException('El ciudadano indicado no existe.');
           }
 
+          // controlar la edad  del ciudadano sin moment    
+          let edad = 0;
+          if (ciudadano.fecha_nac) {
+            const fechaNac = new Date(ciudadano.fecha_nac);
+            const hoy = new Date();
+            edad = hoy.getFullYear() - fechaNac.getFullYear();
+      
+            // Ajustar si el cumpleaños no ha pasado este año
+            const mes = hoy.getMonth() - fechaNac.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+              edad--;
+            }
+          }
+
+          if (edad < 18) {
+              throw new NotFoundException('El ciudadano es menor. Debe ingresar con un adulto.');
+          }
+
           // -----------------------------------
           // 3 . VALIDAR MENORES A CARGO
           // -----------------------------------
           let listaMenoresACargoValidos: MenorACargo[] = [];          
+          //solo se controla los menores si mando la lista con los ids con datos
           if(data.listaIdsMenores.length > 0){
             //buscar a los menores que tiene a cargo el adulto
             const listaMenoresACargo = await menoresACargoRepository.find({
@@ -98,29 +117,30 @@ export class EntradasSalidasService {
                 }
             }); 
 
+            //cuando el adulto no tiene menores a cargo
             if(listaMenoresACargo.length === 0){
               throw new BadRequestException('El ciudadano no tiene menores a cargo registrados.');
             }
 
-            // Obtener los IDs encontrados de la listaMenores
-            const idsEncontrados = listaMenoresACargo.map(
+            // Obtener los IDs de la listaMenores
+            const idsMenoresACargo = listaMenoresACargo.map(
                 registro => registro.ciudadanoMenor.id_ciudadano
             );
-            console.log("idsEncontrados: " + idsEncontrados);
+            console.log("idsMenoresACargo: " + idsMenoresACargo);
   
-            // Buscar cuáles IDs enviados no fueron encontrados
+            // Buscar cuáles IDs enviados NO fueron encontrados
             const listaIdsNoEncontrados = data.listaIdsMenores.filter(
-                id => !idsEncontrados.includes(id)
+                id => !idsMenoresACargo.includes(id)
             );
-
             
+            //cuando uno o mas de los ids enviados no coinciden con los menores a cargo del adulto
             if (listaIdsNoEncontrados.length > 0) {
                 throw new BadRequestException(`No se encontraron los siguientes menores a cargo del adulto: ${listaIdsNoEncontrados.join(', ')}` );
             }
 
             // Buscar cuáles IDs enviados fueron encontrados
             const listaIdsEncontrados = data.listaIdsMenores.filter(
-                id => idsEncontrados.includes(id)
+                id => idsMenoresACargo.includes(id)
             );
             console.log("ListaidsEncontrados: " + listaIdsEncontrados);           
             
@@ -143,10 +163,12 @@ export class EntradasSalidasService {
                 }
             }
 
+            //cuando hay menores enviados que en realidadad NOO SON menores
             if(nombreNoMenores != ""){
               throw new BadRequestException("Estos ciudadanos no son menores: " + nombreNoMenores );
             }
 
+            //formar lista con los menores que son validos
             for(const idMenor of listaIdsEncontrados){
 
               const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
@@ -183,6 +205,7 @@ export class EntradasSalidasService {
               } 
             }
 
+            //cuando hay menores que no estan vinculados con el interno
             if(nombreMenoresNoVinculados != ""){
               throw new BadRequestException("Estos menores no estan vinculados con el interno: " + nombreMenoresNoVinculados );
             }
@@ -217,8 +240,8 @@ export class EntradasSalidasService {
             interno_id: data.interno_id,
             nombre_interno: interno.apellido + " " + interno.nombre,
             ciudadano_id: data.ciudadano_id,
-            nombre_visita: ciudadano.apellido, 
-            edad: 30,
+            nombre_visita: ciudadano.apellido  + " " + ciudadano.nombre, 
+            edad: edad,
             sexo_id: ciudadano.sexo_id,
             parentesco_id: vinculoAdulto.parentesco_id,
             categoria: "ADULTO",
@@ -359,6 +382,23 @@ export class EntradasSalidasService {
                 throw new NotFoundException('No hay una persona registrada con este numero de documento.');
             }
 
+            // Calcular la edad ciudadano sin moment    
+            let edad = 0;
+            if (ciudadano.fecha_nac) {
+              const fechaNac = new Date(ciudadano.fecha_nac);
+              const hoy = new Date();
+              edad = hoy.getFullYear() - fechaNac.getFullYear();
+        
+              // Ajustar si el cumpleaños no ha pasado este año
+              const mes = hoy.getMonth() - fechaNac.getMonth();
+              if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                edad--;
+              }
+            }
+
+            if (edad < 18) {
+                throw new NotFoundException('El ciudadano es menor. Debe ingresar con un adulto.');
+            }
 
             // ----------------------------------
             // BUSCAR INTERNOS VINCULADOS
@@ -399,19 +439,7 @@ export class EntradasSalidasService {
               ciudadano.foto = null;
             }
 
-            // Calcular la edad ciudadano sin moment    
-            let edad = null;
-            if (ciudadano.fecha_nac) {
-              const fechaNac = new Date(ciudadano.fecha_nac);
-              const hoy = new Date();
-              edad = hoy.getFullYear() - fechaNac.getFullYear();
-        
-              // Ajustar si el cumpleaños no ha pasado este año
-              const mes = hoy.getMonth() - fechaNac.getMonth();
-              if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-                edad--;
-              }
-            }
+            
 
             // lista de menores midificada y con edad
             const menoresResponse = menores.map(item => {

@@ -61,7 +61,7 @@ export class VisitasInternosService {
         break;
       }
       
-      if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV" || data.parentesco_id == "PAD" || data.parentesco_id == "MAD"){
+      if(data.parentesco_id == "CONC" || data.parentesco_id == "CONY" || data.parentesco_id == "NOV" ){
         //controlar si el interno tiene concubina conyugue o novia
         //controlar si el interno esta vinculado con otra visita con estos parentescos (CONC, CONY, NOV)
         if(vinculo.interno_id == data.interno_id && (vinculo.parentesco_id == "CONC" || vinculo.parentesco_id == "CONY" || vinculo.parentesco_id == "NOV")){
@@ -70,19 +70,32 @@ export class VisitasInternosService {
           break;
         }
         
-        //controlar si el interno esta vinculado con otra visita con estos parentescos (MAD, PAD)
-        if(vinculo.interno_id == data.interno_id && (vinculo.parentesco_id == "PAD" || vinculo.parentesco_id == "MAD")){
-          isHabilitado = false;
-          mensajeInhabilitado= "El interno ya se encuentran vinculado con otro ciudadano con éste parentesco. Sólo puede tener un ciudadno vinculado con este parentesco";
-          break;
-        }
-  
         //controlar si la visita esta vinculada con otro interno con estos parentescos (CONC, CONY, NOV)
         if(vinculo.ciudadano_id == data.ciudadano_id && (vinculo.parentesco_id == "CONC" || vinculo.parentesco_id == "CONY" || vinculo.parentesco_id == "NOV")){
           isHabilitado = false;
-          mensajeInhabilitado= "El ciudadano ya se encuentran vinculado con otro interno como Concubino/a, Conyugue o Novo/ia. Sólo puede tener un interno como Concubino/a, Conyugue o Novio/a.";
+          mensajeInhabilitado= "El ciudadano ya se encuentran vinculado con otro interno como Concubino/a, Conyugue o Novio/ia. Sólo puede tener un interno como Concubino/a, Conyugue o Novio/a.";
           break;
         }
+      }
+
+      if(data.parentesco_id == "PAD" ){
+                
+        //controlar si el interno esta vinculado con otra visita con estos parentescos (MAD, PAD)
+        if(vinculo.interno_id == data.interno_id && (vinculo.parentesco_id == "PAD" )){
+          isHabilitado = false;
+          mensajeInhabilitado= "El interno ya se encuentran vinculado con otro ciudadano con éste parentesco (PADRE). Sólo puede tener un ciudadno vinculado con este parentesco";
+          break;
+        } 
+      }
+
+      if(data.parentesco_id == "MAD"){
+                
+        //controlar si el interno esta vinculado con otra visita con estos parentescos (MAD, PAD)
+        if(vinculo.interno_id == data.interno_id && (vinculo.parentesco_id == "MAD")){
+          isHabilitado = false;
+          mensajeInhabilitado= "El interno ya se encuentran vinculado con otro ciudadano con éste parentesco (MADRE). Sólo puede tener un ciudadno vinculado con este parentesco";
+          break;
+        } 
       }
     }
     
