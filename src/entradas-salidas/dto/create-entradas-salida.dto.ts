@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsInt, IsOptional, Length } from "class-validator";
+import { IsArray, IsInt, IsOptional, Length } from "class-validator";
 
 export class CreateEntradasSalidaDto {
     
@@ -80,6 +80,13 @@ export class CreateEntradasSalidaDto {
     @IsOptional()
     @Length(1,200,{message: "casillero debe tener entre $constraint1 y $constraint2 caracteres."})
     casillero: string;
+
+    @IsArray({ message: "listaIdsMenores debe ser una lista." })
+    @IsInt({
+        each: true,
+        message: "Cada elemento de listaIdsMenores debe ser un número entero."
+    })
+    listaIdsMenores: number[];
 
     observaciones_usuarios: string;
    

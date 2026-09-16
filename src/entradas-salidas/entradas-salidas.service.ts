@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, NotFound
 import { CreateEntradasSalidaDto } from './dto/create-entradas-salida.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntradasSalida } from './entities/entradas-salida.entity';
-import { DataSource, IsNull, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UpdateEntradaSalidasCancelarDto } from './dto/update-entradas-salidas-cancelar.dto';
 import { UpdateEntradaPrincipalEgresoDto } from './dto/update-entrada-principal-egreso.dto';
@@ -11,6 +11,8 @@ import { Interno } from 'src/internos/entities/interno.entity';
 import { VisitaInterno } from 'src/visitas-internos/entities/visitas-interno.entity';
 import { MenorACargo } from '../menores_a_cargo/entities/menores_a_cargo.entity';
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
+import { EntradaSalidaResponseDto } from './dto/entrada-salida-response.dto';
+import { IngresoInterno } from 'src/ingresos-interno/entities/ingresos-interno.entity';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -21,7 +23,7 @@ export class EntradasSalidasService {
       private readonly driveImagenesService: DriveImagenesService,
     ){}
   
-    async create(data: CreateEntradasSalidaDto, usuario: Usuario): Promise<EntradasSalida> {
+    async create(data: CreateEntradasSalidaDto, usuario: Usuario): Promise<EntradaSalidaResponseDto> {
   
       //cargar datos por defecto
       let fecha_actual: any = new Date().toISOString().split('T')[0];    
@@ -33,130 +35,230 @@ export class EntradasSalidasService {
       data.organismo_id = usuario.organismo_id;
       data.usuario_id = usuario.id_usuario;  
 
-      // return await this.dataSource.transaction(async manager => {
+      return await this.dataSource.transaction(async manager => {
           
-      //     const entradasSalidaRepository = manager.getRepository(EntradasSalida);
-      //     const internoRepository = manager.getRepository(Interno);
-      //     const visitaInternoRepository = manager.getRepository(VisitaInterno);
-      //     const ciudadanoRepository = manager.getRepository(Ciudadano);
+          const ciudadanoRepository = manager.getRepository(Ciudadano);
+          const entradasSalidaRepository = manager.getRepository(EntradasSalida);
+          const ingresoInternoRepository = manager.getRepository(IngresoInterno);
+          const internoRepository = manager.getRepository(Interno);
+          const menoresACargoRepository = manager.getRepository(MenorACargo);
+          const visitaInternoRepository = manager.getRepository(VisitaInterno);
   
-      //     // -----------------------------------
-      //     // VALIDAR CIUDADANO
-      //     // -----------------------------------
-      //     const ciudadano = await ciudadanoRepository.findOne({
-      //         where: {
-      //             id_ciudadano: data.ciudadano_id
-      //         }
-      //     });
+          // -----------------------------------
+          // 1 . VALIDAR INTERNO 
+          // -----------------------------------
+          const interno = await internoRepository.findOne({
+              where: {
+                  id_interno: data.interno_id
+              }
+          });
   
-      //     if (!ciudadano) {
-      //         throw new BadRequestException('El ciudadano indicado no existe.');
-      //     }
-  
-  
-      //     // -----------------------------------
-      //     // VALIDAR INTERNO
-      //     // -----------------------------------
-      //     const interno = await internoRepository.findOne({
-      //         where: {
-      //             id_interno: data.interno_id
-      //         }
-      //     });
-  
-      //     if (!interno) {
-      //         throw new BadRequestException('El interno indicado no existe.');
-      //     }    
+          if (!interno) {
+              throw new BadRequestException('El interno indicado no existe.');
+          }   
 
-      //     // -----------------------------------
-      //     // VALIDAR INTERNO - falta verificar que el interno sea de esta unidad
-      //     // -----------------------------------
-      //     const vinculo = await visitaInternoRepository.findOne({
-      //         where: {
-      //             interno_id: data.interno_id,
-      //             ciudadano_id: data.ciudadano_id,
-      //             vigente: true
-      //         }
-      //     });
+          const ingresoInterno = await ingresoInternoRepository.findOne({
+              where: {
+                  interno_id: data.interno_id,
+                  esta_liberado: false
+              }
+          });
+          
+          if (!ingresoInterno) {
+              throw new BadRequestException('El interno indicado no se encuentra alojado en esta unidad.');
+          } 
+
+          if (ingresoInterno.organismo_alojamiento_id != usuario.organismo_id) {
+              throw new BadRequestException('El interno indicado no se encuentra alojado en esta unidad.');
+          }  
+
+          // -----------------------------------
+          // 2 . VALIDAR CIUDADANO
+          // -----------------------------------
+          const ciudadano = await ciudadanoRepository.findOne({
+              where: {
+                  id_ciudadano: data.ciudadano_id
+              }
+          });
   
-      //     if (!vinculo) {
-      //         throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
-      //     }    
+          if (!ciudadano) {
+              throw new BadRequestException('El ciudadano indicado no existe.');
+          }
+
+          // -----------------------------------
+          // 3 . VALIDAR MENORES A CARGO
+          // -----------------------------------
+          let listaMenoresACargoValidos: MenorACargo[] = [];          
+          if(data.listaIdsMenores.length > 0){
+            //buscar a los menores que tiene a cargo el adulto
+            const listaMenoresACargo = await menoresACargoRepository.find({
+                where: {
+                  ciudadano_tutor_id: ciudadano.id_ciudadano,
+                  anulado: false
+                }
+            }); 
+
+            if(listaMenoresACargo.length === 0){
+              throw new BadRequestException('El ciudadano no tiene menores a cargo registrados.');
+            }
+
+            // Obtener los IDs encontrados de la listaMenores
+            const idsEncontrados = listaMenoresACargo.map(
+                registro => registro.ciudadanoMenor.id_ciudadano
+            );
+            console.log("idsEncontrados: " + idsEncontrados);
   
-      //     // -----------------------------------
-      //     // VALIDAD MENORES
-      //     // -----------------------------------
-      //     // const huellasActivas = await huellaRepository.find({
-      //     //     where: {
-      //     //         ciudadano_id: dto.ciudadano_id,
-      //     //         activo: true
-      //     //     }
-      //     // });    
+            // Buscar cuáles IDs enviados no fueron encontrados
+            const listaIdsNoEncontrados = data.listaIdsMenores.filter(
+                id => !idsEncontrados.includes(id)
+            );
+
+            
+            if (listaIdsNoEncontrados.length > 0) {
+                throw new BadRequestException(`No se encontraron los siguientes menores a cargo del adulto: ${listaIdsNoEncontrados.join(', ')}` );
+            }
+
+            // Buscar cuáles IDs enviados fueron encontrados
+            const listaIdsEncontrados = data.listaIdsMenores.filter(
+                id => idsEncontrados.includes(id)
+            );
+            console.log("ListaidsEncontrados: " + listaIdsEncontrados);           
+            
+            //controlar edad de los encontrados
+            let nombreNoMenores: string = "";
+            for(const idMenor of listaIdsEncontrados){
+                const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
+                let edad: number = 0;
+                const fechaNac = new Date(menorAACargo.ciudadanoMenor.fecha_nac);
+                const hoy = new Date();
+                edad = hoy.getFullYear() - fechaNac.getFullYear();          
+                // Ajustar si el cumpleaños no ha pasado este año
+                const mes = hoy.getMonth() - fechaNac.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edad--;
+                }
+
+                if(edad >=18){
+                  nombreNoMenores = nombreNoMenores + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre + " (" + edad + " años) // ";
+                }
+            }
+
+            if(nombreNoMenores != ""){
+              throw new BadRequestException("Estos ciudadanos no son menores: " + nombreNoMenores );
+            }
+
+            for(const idMenor of listaIdsEncontrados){
+
+              const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
+              listaMenoresACargoValidos.push(menorAACargo);
+
+            }
+          }
+
+          // -----------------------------------
+          // 4 . VALIDAR VINCULOS 
+          // -----------------------------------
+          const listaVinculos = await visitaInternoRepository.find({
+              where: {
+                  interno_id: data.interno_id,
+                  vigente: true
+              }
+          });
+  
+          //VALIDAR VINCULO ADULTO
+          const vinculoAdulto = listaVinculos.find(v => v.ciudadano_id === data.ciudadano_id)
+          if (!vinculoAdulto) {
+              throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
+          }    
+
+          //VALIDAR VINCULO MENORES       
+          if(data.listaIdsMenores.length > 0){
+            
+            let nombreMenoresNoVinculados: string = "";
+            for (const registro of listaMenoresACargoValidos) {
+                
+              const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === registro.ciudadanoMenor.id_ciudadano)
+              if (!vinculoMenor) {
+                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + registro.ciudadanoMenor.apellido + " " + registro.ciudadanoMenor.nombre + " // ";
+              } 
+            }
+
+            if(nombreMenoresNoVinculados != ""){
+              throw new BadRequestException("Estos menores no estan vinculados con el interno: " + nombreMenoresNoVinculados );
+            }
+          }
+   
+          // -----------------------------------
+          // 5 . VALIDAR CON REQUISITOS DE CANTIDAD DE DIRECTOS E INDIRECTOS
+          // -----------------------------------
+          
+          // -----------------------------------
+          // 5 . VALIDAD INGRESO EN ENTRADA SALIDAS
+          // -----------------------------------
+          // const entradasSalidas = await entradasSalidaRepository.find({
+          //     where: {
+          //         ciudadano_id: data.ciudadano_id,
+          //         fecha_ingreso_principal: fecha_actual,
+          //         cancelado: false,
+          //     }
+          // });    
+  
+          // if (entradasSalidas) {
+          //     throw new BadRequestException('El ciudadano ya posee un ingreso este dia.')
+          // }
    
   
-      //     const entradasSalidas = await entradasSalidaRepository.find({
-      //         where: {
-      //             ciudadano_id: data.ciudadano_id,
-      //             fecha_ingreso_principal: fecha_actual,
-      //             cancelado: false,
-      //         }
-      //     });    
+          // -----------------------------------
+          // 6 . GUARDAR INGRESO
+          // -----------------------------------
+          const nuevoIngreso = entradasSalidaRepository.create({
+            numero_ficha: "105",
+            numero_aux: 1,
+            interno_id: data.interno_id,
+            nombre_interno: interno.apellido + " " + interno.nombre,
+            ciudadano_id: data.ciudadano_id,
+            nombre_visita: ciudadano.apellido, 
+            edad: 30,
+            sexo_id: ciudadano.sexo_id,
+            parentesco_id: vinculoAdulto.parentesco_id,
+            categoria: "ADULTO",
+            ciudadano_tutor_id: null,
+            fecha_ingreso_principal: fecha_actual,
+            hora_ingreso_principal: hora_actual,
+            casillero: data.casillero,            
+            organismo_id: usuario.organismo_id,
+            usuario_id: usuario.id_usuario
+          });
   
-      //     if (entradasSalidas) {
-      //         throw new BadRequestException('El ciudadano ya posee un ingreso este dia.')
-      //     }
-   
+          const ingresoGuardado = await entradasSalidaRepository.save(nuevoIngreso);    
   
-      //     // -----------------------------------
-      //     // GUARDAR HUELLA
-      //     // -----------------------------------
-      //     const nuevoIngreso = entradasSalidaRepository.create({
-      //       numero_ficha: "101",
-      //       numero_aux: 1,
-      //       interno_id: data.interno_id,
-      //       nombre_interno: interno.apellido + " " + interno.nombre,
-      //       ciudadano_id: data.ciudadano_id,
-      //       nombre_visita: ciudadano.apellido, 
-      //       edad: 30,
-      //       sexo_id: ciudadano.sexo_id,
-      //       parentesco_id: vinculo.parentesco_id,
-      //       categoria: "ADULTO",
-      //       ciudadano_tutor_id: null,
-      //       fecha_ingreso_principal: fecha_actual,
-      //       hora_ingreso_principal: hora_actual,
-      //       casillero: data.casillero,            
-      //       organismo_id: usuario.organismo_id,
-      //       usuario_id: usuario.id_usuario
-      //     });
+          // -----------------------------------
+          // REGISTRAR CAMBIO PARA SINCRONIZACION
+          // -----------------------------------
+          // const cambio = huellaCambioRepository.create({
+          //     huella_id: huellaGuardada.id_huella_ciudadano,
+          //     accion: 'ALTA',
+          //     organismo_id: user.organismo_id,
+          //     usuario_id: user.id_usuario
+          // });
   
-      //     const ingresoGuardado = await entradasSalidaRepository.save(nuevoIngreso);    
+          // await huellaCambioRepository.save(cambio);    
   
-      //     // -----------------------------------
-      //     // REGISTRAR CAMBIO PARA SINCRONIZACION
-      //     // -----------------------------------
-      //     // const cambio = huellaCambioRepository.create({
-      //     //     huella_id: huellaGuardada.id_huella_ciudadano,
-      //     //     accion: 'ALTA',
-      //     //     organismo_id: user.organismo_id,
-      //     //     usuario_id: user.id_usuario
-      //     // });
-  
-      //     // await huellaCambioRepository.save(cambio);    
-  
-      //     // -----------------------------------
-      //     // RESPUESTA
-      //     // -----------------------------------
-      //     return {
-      //         numero_ficha: ingresoGuardado.numero_ficha,
-      //         ciudadano: ingresoGuardado.nombre_visita,
-      //         interno: ingresoGuardado.nombre_interno,
-      //         casillero: "25",
-      //         parentesco: ingresoGuardado.parentesco.parentesco,
-      //         fecha_registro: ingresoGuardado.fecha_ingreso_principal,
-      //         hora_registro: ingresoGuardado.hora_ingreso_principal,
-      //     };
-      // });
+          // -----------------------------------
+          // 7 . RESPUESTA
+          // -----------------------------------
+          return {
+              numero_ficha: ingresoGuardado.numero_ficha,
+              ciudadano: ingresoGuardado.nombre_visita,
+              interno: ingresoGuardado.nombre_interno,
+              casillero: ingresoGuardado.casillero,
+              parentesco: vinculoAdulto.parentesco.parentesco,
+              fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+              hora_registro: ingresoGuardado.hora_ingreso_principal,
+          };
+          //return ingresoGuardado;
+      });
       
-      return;
     }
   
     async findAll() {
@@ -275,7 +377,7 @@ export class EntradasSalidasService {
             const menores = await menoresACargoRepository.find({
                 where: {
                     ciudadano_tutor_id: ciudadano.id_ciudadano,
-                    anulado: true,                    
+                    anulado: false,                    
                 }
             });
 
