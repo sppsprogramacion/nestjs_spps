@@ -13,6 +13,8 @@ import { MenorACargo } from '../menores_a_cargo/entities/menores_a_cargo.entity'
 import { DriveImagenesService } from 'src/drive-imagenes/drive-imagenes.service';
 import { EntradaSalidaResponseDto } from './dto/entrada-salida-response.dto';
 import { IngresoInterno } from 'src/ingresos-interno/entities/ingresos-interno.entity';
+import { Huella } from 'src/huellas/entities/huella.entity';
+import { ProhibicionVisita } from 'src/prohibiciones-visita/entities/prohibiciones-visita.entity';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -42,6 +44,7 @@ export class EntradasSalidasService {
           const ingresoInternoRepository = manager.getRepository(IngresoInterno);
           const internoRepository = manager.getRepository(Interno);
           const menoresACargoRepository = manager.getRepository(MenorACargo);
+          const prohibicionVisitaRepository = manager.getRepository(ProhibicionVisita);
           const visitaInternoRepository = manager.getRepository(VisitaInterno);
   
           // -----------------------------------
@@ -210,11 +213,29 @@ export class EntradasSalidasService {
               throw new BadRequestException("Estos menores no estan vinculados con el interno: " + nombreMenoresNoVinculados );
             }
           }
-   
+            
+
+          // -----------------------------------
+          // 5 . VALIDAR PROHIBICION
+          // -----------------------------------
+          let estaProhibido: boolean = false;
+          const listaProhibiciones = await prohibicionVisitaRepository.find({
+              where: {
+                  ciudadano_id: data.ciudadano_id,
+                  vigente: true,
+                  anulado: false
+              }
+          });
+
+
+          // -----------------------------------
+          // 5 . VALIDAR EXCEPCION INGRESO
+          // -----------------------------------
+          
           // -----------------------------------
           // 5 . VALIDAR CON REQUISITOS DE CANTIDAD DE DIRECTOS E INDIRECTOS
           // -----------------------------------
-          
+
           // -----------------------------------
           // 5 . VALIDAD INGRESO EN ENTRADA SALIDAS
           // -----------------------------------
@@ -234,9 +255,26 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 6 . GUARDAR INGRESO
           // -----------------------------------
+
+          //GENERAR NUMERO DE FICHA
+          const resultado = await entradasSalidaRepository
+              .createQueryBuilder('entrada')
+              .select('MAX(entrada.numero_aux)', 'maximo')
+              .where('entrada.fecha_ingreso_principal = :fecha AND entrada.organismo_id = :organismoId',
+                  {
+                      fecha: fecha_actual,
+                      organismoId: usuario.organismo_id
+                  }
+              )
+              .getRawOne();
+          
+          const numeroAux = (Number(resultado.maximo) || 0) + 1;
+          let numeroFicha = numeroAux.toString().padStart(4, '0');
+          numeroFicha = usuario.organismo_id + numeroFicha;
+
           const nuevoIngreso = entradasSalidaRepository.create({
-            numero_ficha: "105",
-            numero_aux: 1,
+            numero_ficha: numeroFicha,
+            numero_aux: numeroAux,
             interno_id: data.interno_id,
             nombre_interno: interno.apellido + " " + interno.nombre,
             ciudadano_id: data.ciudadano_id,
@@ -366,7 +404,7 @@ export class EntradasSalidasService {
 
             const ciudadanoRepository = manager.getRepository(Ciudadano);
             const menoresACargoRepository = manager.getRepository(MenorACargo);
-            const internosRepository = manager.getRepository(Interno);
+            const huellasRepository = manager.getRepository(Huella);
             const visitaInternoRepository = manager.getRepository(VisitaInterno);
 
             // ----------------------------------
@@ -418,6 +456,17 @@ export class EntradasSalidasService {
                 where: {
                     ciudadano_tutor_id: ciudadano.id_ciudadano,
                     anulado: false,                    
+                }
+            });
+
+            // ----------------------------------
+            // BUSCAR HUELLAS
+            // ----------------------------------
+
+            const huellas = await huellasRepository.find({
+                where: {
+                    ciudadano_id: ciudadano.id_ciudadano,
+                    activo: true,                    
                 }
             });
 
@@ -490,6 +539,12 @@ export class EntradasSalidasService {
                 tiene_discapacidad: ciudadano.tiene_discapacidad,
                 fecha_alta: ciudadano.fecha_alta
               }, 
+              huellasCiudadanoResponse: huellas.map(huella => ({
+                id_huella_ciudadano: huella.id_huella_ciudadano,
+                ciudadano_id: huella.ciudadano_id,
+                dedo_id: huella.dedo_id,
+                activo: huella.activo,
+              })),
               internosResponse: vinculos.map(vinculo=>({
                 id_interno: vinculo.interno_id,
                 apellido_nombre: vinculo.interno.apellido + " " + vinculo.interno.nombre,

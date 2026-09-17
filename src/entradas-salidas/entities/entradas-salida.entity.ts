@@ -4,10 +4,15 @@ import { Organismo } from "src/organismos/entities/organismo.entity";
 import { Parentesco } from "src/parentescos/entities/parentesco.entity";
 import { Sexo } from "src/sexo/entities/sexo.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('entradas_salida')
+@Index(
+    'UQ_fecha_numero_aux_organismo_id',
+    ['fecha_ingreso_principal', 'numero_aux', 'organismo_id'],
+    { unique: true }
+)
 export class EntradasSalida {
 
     @PrimaryGeneratedColumn()
@@ -16,7 +21,6 @@ export class EntradasSalida {
     @Column({
         type: 'varchar',
         length: 15,
-        unique: true,
         nullable: false,
     })
     numero_ficha: string
