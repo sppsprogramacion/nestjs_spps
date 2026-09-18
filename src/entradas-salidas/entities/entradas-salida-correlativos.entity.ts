@@ -4,8 +4,8 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('entradas_salida_correlativos')
 @Index(
-    'UQ_correlativo_organismo_fecha',
-    ['organismo_id', 'fecha'],
+    'UQ_correlativo_organismo',
+    ['organismo_id'],
     { unique: true }
 )
 export class EntradaSalidaCorrelativo {

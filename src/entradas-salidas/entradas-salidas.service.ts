@@ -15,6 +15,7 @@ import { EntradaSalidaResponseDto } from './dto/entrada-salida-response.dto';
 import { IngresoInterno } from 'src/ingresos-interno/entities/ingresos-interno.entity';
 import { Huella } from 'src/huellas/entities/huella.entity';
 import { ProhibicionVisita } from 'src/prohibiciones-visita/entities/prohibiciones-visita.entity';
+import { EntradaSalidaCorrelativo } from './entities/entradas-salida-correlativos.entity';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -41,6 +42,7 @@ export class EntradasSalidasService {
           
           const ciudadanoRepository = manager.getRepository(Ciudadano);
           const entradasSalidaRepository = manager.getRepository(EntradasSalida);
+          const entradasSalidaCorrelativosRepository = manager.getRepository(EntradaSalidaCorrelativo);
           const ingresoInternoRepository = manager.getRepository(IngresoInterno);
           const internoRepository = manager.getRepository(Interno);
           const menoresACargoRepository = manager.getRepository(MenorACargo);
@@ -246,10 +248,26 @@ export class EntradasSalidasService {
           //         cancelado: false,
           //     }
           // });    
+
+          //buscar numero correlativo para el numero de ficha
+          let entradasSalidas = await entradasSalidaRepository
+              .createQueryBuilder('entrada')
+              .where('entrada.organismo_id = :organismoId', {
+                  organismoId: usuario.organismo_id
+              })
+              .andWhere('entrada.ciudadano_id = :ciudadanoId', {
+                  ciudadanoId: ciudadano.id_ciudadano
+              })
+              .andWhere('entrada.fecha_ingreso_principal = :fechaIngresoPrincipal', {
+                  fechaIngresoPrincipal: fecha_actual
+              })
+              .getOne();   
   
-          // if (entradasSalidas) {
-          //     throw new BadRequestException('El ciudadano ya posee un ingreso este dia.')
-          // }
+          console.log("fecha actual", fecha_actual);
+          if (entradasSalidas) { 
+
+              throw new BadRequestException('El ciudadano ya posee un ingreso en esta unidad el dia de la fecha con el numero de ficha: ' + entradasSalidas.numero_ficha)
+          }
    
   
           // -----------------------------------
@@ -257,18 +275,43 @@ export class EntradasSalidasService {
           // -----------------------------------
 
           //GENERAR NUMERO DE FICHA
-          const resultado = await entradasSalidaRepository
-              .createQueryBuilder('entrada')
-              .select('MAX(entrada.numero_aux)', 'maximo')
-              .where('entrada.fecha_ingreso_principal = :fecha AND entrada.organismo_id = :organismoId',
-                  {
-                      fecha: fecha_actual,
-                      organismoId: usuario.organismo_id
-                  }
-              )
-              .getRawOne();
+          // const resultado = await entradasSalidaRepository
+          //     .createQueryBuilder('entrada')
+          //     .select('MAX(entrada.numero_aux)', 'maximo')
+          //     .where('entrada.fecha_ingreso_principal = :fecha AND entrada.organismo_id = :organismoId',
+          //         {
+          //             fecha: fecha_actual,
+          //             organismoId: usuario.organismo_id
+          //         }
+          //     )
+          //     .getRawOne();
+
+          //buscar numero correlativo para el numero de ficha
+          let correlativo = await entradasSalidaCorrelativosRepository
+              .createQueryBuilder('correlativo')
+              .setLock('pessimistic_write')
+              .where('correlativo.organismo_id = :organismoId', {
+                  organismoId: usuario.organismo_id
+              })
+              .getOne();          
           
-          const numeroAux = (Number(resultado.maximo) || 0) + 1;
+          if(!correlativo){
+            throw new BadRequestException("No se pudo generar el numero de ficha. No existe un numerador iniciado para esta unidad");
+          }
+              
+          if(correlativo.fecha == fecha_actual){
+            correlativo.ultimo_numero += 1;
+          }
+          else{
+            correlativo.fecha = fecha_actual;
+            correlativo.ultimo_numero = 1;
+          }
+        
+          //actualiza numero correlativo
+          await entradasSalidaCorrelativosRepository.save(correlativo);      
+          const numeroAux = correlativo.ultimo_numero;          
+          
+          //numeroAux = (Number(resultado.maximo) || 0) + 1;
           let numeroFicha = numeroAux.toString().padStart(4, '0');
           numeroFicha = usuario.organismo_id + numeroFicha;
 
