@@ -16,6 +16,7 @@ import { IngresoInterno } from 'src/ingresos-interno/entities/ingresos-interno.e
 import { Huella } from 'src/huellas/entities/huella.entity';
 import { ProhibicionVisita } from 'src/prohibiciones-visita/entities/prohibiciones-visita.entity';
 import { EntradaSalidaCorrelativo } from './entities/entradas-salida-correlativos.entity';
+import { MenorHabilitadoEntradaDto } from './dto/menor-habilitado-entrada.dto';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -109,9 +110,29 @@ export class EntradasSalidasService {
           }
 
           // -----------------------------------
-          // 3 . VALIDAR MENORES A CARGO
+          // 3 . VALIDAR VINCULOS 
           // -----------------------------------
-          let listaMenoresACargoValidos: MenorACargo[] = [];          
+          const listaVinculos = await visitaInternoRepository.find({
+              where: {
+                  interno_id: data.interno_id,
+                  vigente: true
+              }
+          });
+  
+          //VALIDAR VINCULO ADULTO
+          const vinculoAdulto = listaVinculos.find(v => v.ciudadano_id === data.ciudadano_id)
+          if (!vinculoAdulto) {
+              throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
+          }
+
+
+          // -----------------------------------
+          // 4 . VALIDAR MENORES A CARGO
+          // -----------------------------------
+          let listaMenoresACargoValidos2: MenorHabilitadoEntradaDto[] = [];
+          let listaMenoresValidosNombres: string = ""; 
+          let nombreMenoresNoVinculados: string = "";
+
           //solo se controla los menores si mando la lista con los ids con datos
           if(data.listaIdsMenores.length > 0){
             //buscar a los menores que tiene a cargo el adulto
@@ -147,23 +168,52 @@ export class EntradasSalidasService {
                 id => idsMenoresACargo.includes(id)
             );          
             
-            //controlar edad de los encontrados
+            //CONTROLAR EDAD DE LOS MENORES ENCONTRADOS
             let nombreNoMenores: string = "";
             for(const idMenor of listaIdsEncontrados){
-                const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
-                let edad: number = 0;
-                const fechaNac = new Date(menorAACargo.ciudadanoMenor.fecha_nac);
-                const hoy = new Date();
-                edad = hoy.getFullYear() - fechaNac.getFullYear();          
-                // Ajustar si el cumpleaños no ha pasado este año
-                const mes = hoy.getMonth() - fechaNac.getMonth();
-                if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-                  edad--;
-                }
+              const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
+              let edadMenor: number = 0;
+              const fechaNac = new Date(menorAACargo.ciudadanoMenor.fecha_nac);
+              const hoy = new Date();
+              edadMenor = hoy.getFullYear() - fechaNac.getFullYear();          
+              // Ajustar si el cumpleaños no ha pasado este año
+              const mes = hoy.getMonth() - fechaNac.getMonth();
+              if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                edadMenor--;
+              }
 
-                if(edad >=18){
-                  nombreNoMenores = nombreNoMenores + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre + " (" + edad + " años) // ";
+              //determinar si es menor o no
+              if(edadMenor >=18){
+                //crear lista de ciudadnos que NO SON menores
+                nombreNoMenores = nombreNoMenores + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre + " (" + edadMenor + " años) // ";
+              }
+              else{
+                
+                //VALIDAR VINCULO MENORES 
+                const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === menorAACargo.ciudadanoMenor.id_ciudadano)
+                
+                //determinar si esta vinculado con el interno
+                if (!vinculoMenor) {
+                  //crear lista de menores que NO estan vinculados con el interno
+                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre + " // ";
+                } 
+                else{
+                  //crear lista de menores que estan vinculados con el interno para incorporar a la ficha del adulto
+                  listaMenoresValidosNombres = listaMenoresValidosNombres + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre  + " (" + edadMenor + " A) - ";
+                  
+                  //cargar menores habilitados en la lista
+                  const menorValido: MenorHabilitadoEntradaDto = {
+                    id_menor: menorAACargo.ciudadanoMenor.id_ciudadano,
+                    apellido_nombre: menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre,
+                    edad: edadMenor,
+                    id_sexo: menorAACargo.ciudadanoMenor.sexo_id,
+                    id_parentesco: vinculoMenor.parentesco_id
+                  };
+
+                  listaMenoresACargoValidos2.push(menorValido);
                 }
+                
+              }
             }
 
             //cuando hay menores enviados que en realidadad NOO SON menores
@@ -171,53 +221,11 @@ export class EntradasSalidasService {
               throw new BadRequestException("Estos ciudadanos no son menores: " + nombreNoMenores );
             }
 
-            //formar lista con los menores que son validos
-            for(const idMenor of listaIdsEncontrados){
-
-              const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
-              listaMenoresACargoValidos.push(menorAACargo);
-
-            }
-          }
-
-          // -----------------------------------
-          // 4 . VALIDAR VINCULOS 
-          // -----------------------------------
-          const listaVinculos = await visitaInternoRepository.find({
-              where: {
-                  interno_id: data.interno_id,
-                  vigente: true
-              }
-          });
-  
-          //VALIDAR VINCULO ADULTO
-          const vinculoAdulto = listaVinculos.find(v => v.ciudadano_id === data.ciudadano_id)
-          if (!vinculoAdulto) {
-              throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
-          }    
-
-          //VALIDAR VINCULO MENORES 
-          let listaMenoresValidosNombres: string = "";      
-          if(data.listaIdsMenores.length > 0){
-            
-            let nombreMenoresNoVinculados: string = "";
-            for (const registro of listaMenoresACargoValidos) {
-                
-              const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === registro.ciudadanoMenor.id_ciudadano)
-              if (!vinculoMenor) {
-                nombreMenoresNoVinculados = nombreMenoresNoVinculados + registro.ciudadanoMenor.apellido + " " + registro.ciudadanoMenor.nombre + " // ";
-              } 
-              else{
-                listaMenoresValidosNombres = listaMenoresValidosNombres + registro.ciudadanoMenor.apellido + " " + registro.ciudadanoMenor.nombre  + " (" + edad + " año/s) - ";
-              }
-            }
-
             //cuando hay menores que no estan vinculados con el interno
             if(nombreMenoresNoVinculados != ""){
               throw new BadRequestException("Estos menores no estan vinculados con el interno: " + nombreMenoresNoVinculados );
             }
           }
-            
 
           // -----------------------------------
           // 5 . VALIDAR PROHIBICION
@@ -330,55 +338,23 @@ export class EntradasSalidasService {
           //INGRESAR MENORES
           if(data.listaIdsMenores.length > 0){
             let listaMenoresAIngresar: EntradasSalida[] = [];
-            for (const registro of listaMenoresACargoValidos) {
+            for (const menor of listaMenoresACargoValidos2) {
+              //GENERAR NUMERO DE FICHA
               correlativo.ultimo_numero += 1;
               numeroAux = correlativo.ultimo_numero; 
               numeroFicha = numeroAux.toString().padStart(4, '0');
               numeroFicha = usuario.organismo_id + numeroFicha;
-
-              const menor = registro.ciudadanoMenor;
-
-              // Obtener vínculo del menor con el interno
-              const vinculoMenor = listaVinculos.find(
-                  v => v.ciudadano_id === menor.id_ciudadano
-              );
-      
-              if (!vinculoMenor) {
-                  throw new BadRequestException(
-                      `El menor ${menor.apellido} ${menor.nombre} no tiene vínculo vigente con el interno.`
-                  );
-              }
-      
-              // Calcular edad del menor
-              let edadMenor = 0;
-      
-              if (menor.fecha_nac) {
-      
-                  const fechaNac = new Date(menor.fecha_nac);
-                  const hoy = new Date();
-      
-                  edadMenor = hoy.getFullYear() - fechaNac.getFullYear();
-      
-                  const mes = hoy.getMonth() - fechaNac.getMonth();
-      
-                  if (
-                      mes < 0 ||
-                      (mes === 0 && hoy.getDate() < fechaNac.getDate())
-                  ) {
-                      edadMenor--;
-                  }
-              }
   
               const nuevoIngresoMenor = entradasSalidaRepository.create({
                   numero_ficha: numeroFicha,
                   numero_aux: numeroAux,
                   interno_id: data.interno_id,
                   nombre_interno: interno.apellido + " " + interno.nombre,
-                  ciudadano_id: menor.id_ciudadano,
-                  nombre_visita: menor.apellido  + " " + menor.nombre, 
-                  edad: edadMenor,
-                  sexo_id: menor.sexo_id,
-                  parentesco_id: vinculoMenor.parentesco_id,
+                  ciudadano_id: menor.id_menor,
+                  nombre_visita: menor.apellido_nombre, 
+                  edad: menor.edad,
+                  sexo_id: menor.id_sexo,
+                  parentesco_id: menor.id_parentesco,
                   categoria: "MENOR",
                   entrada_salida_id_tutor: ingresoGuardado.id_entrada_salida,
                   fecha_ingreso_principal: fecha_actual,
@@ -397,19 +373,7 @@ export class EntradasSalidasService {
             // Guardar el último número correlativo utilizado
             await entradasSalidaCorrelativosRepository.save(correlativo);
 
-          }
-
-          // -----------------------------------
-          // REGISTRAR CAMBIO PARA SINCRONIZACION
-          // -----------------------------------
-          // const cambio = huellaCambioRepository.create({
-          //     huella_id: huellaGuardada.id_huella_ciudadano,
-          //     accion: 'ALTA',
-          //     organismo_id: user.organismo_id,
-          //     usuario_id: user.id_usuario
-          // });
-  
-          // await huellaCambioRepository.save(cambio);    
+          }         
   
           // -----------------------------------
           // 7 . RESPUESTA
