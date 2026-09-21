@@ -131,7 +131,6 @@ export class EntradasSalidasService {
             const idsMenoresACargo = listaMenoresACargo.map(
                 registro => registro.ciudadanoMenor.id_ciudadano
             );
-            console.log("idsMenoresACargo: " + idsMenoresACargo);
   
             // Buscar cuáles IDs enviados NO fueron encontrados
             const listaIdsNoEncontrados = data.listaIdsMenores.filter(
@@ -146,8 +145,7 @@ export class EntradasSalidasService {
             // Buscar cuáles IDs enviados fueron encontrados
             const listaIdsEncontrados = data.listaIdsMenores.filter(
                 id => idsMenoresACargo.includes(id)
-            );
-            console.log("ListaidsEncontrados: " + listaIdsEncontrados);           
+            );          
             
             //controlar edad de los encontrados
             let nombreNoMenores: string = "";
@@ -198,7 +196,8 @@ export class EntradasSalidasService {
               throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
           }    
 
-          //VALIDAR VINCULO MENORES       
+          //VALIDAR VINCULO MENORES 
+          let listaMenoresValidosNombres: string = "";      
           if(data.listaIdsMenores.length > 0){
             
             let nombreMenoresNoVinculados: string = "";
@@ -206,8 +205,11 @@ export class EntradasSalidasService {
                 
               const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === registro.ciudadanoMenor.id_ciudadano)
               if (!vinculoMenor) {
-                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + registro.ciudadanoMenor.apellido + " " + registro.ciudadanoMenor.nombre + " // ";
+                nombreMenoresNoVinculados = nombreMenoresNoVinculados + registro.ciudadanoMenor.apellido + " " + registro.ciudadanoMenor.nombre + " // ";
               } 
+              else{
+                listaMenoresValidosNombres = listaMenoresValidosNombres + registro.ciudadanoMenor.apellido + " " + registro.ciudadanoMenor.nombre  + " (" + edad + " año/s) - ";
+              }
             }
 
             //cuando hay menores que no estan vinculados con el interno
@@ -263,7 +265,6 @@ export class EntradasSalidasService {
               })
               .getOne();   
   
-          console.log("fecha actual", fecha_actual);
           if (entradasSalidas) { 
 
               throw new BadRequestException('El ciudadano ya posee un ingreso en esta unidad el dia de la fecha con el numero de ficha: ' + entradasSalidas.numero_ficha)
@@ -275,17 +276,6 @@ export class EntradasSalidasService {
           // -----------------------------------
 
           //GENERAR NUMERO DE FICHA
-          // const resultado = await entradasSalidaRepository
-          //     .createQueryBuilder('entrada')
-          //     .select('MAX(entrada.numero_aux)', 'maximo')
-          //     .where('entrada.fecha_ingreso_principal = :fecha AND entrada.organismo_id = :organismoId',
-          //         {
-          //             fecha: fecha_actual,
-          //             organismoId: usuario.organismo_id
-          //         }
-          //     )
-          //     .getRawOne();
-
           //buscar numero correlativo para el numero de ficha
           let correlativo = await entradasSalidaCorrelativosRepository
               .createQueryBuilder('correlativo')
@@ -309,7 +299,7 @@ export class EntradasSalidasService {
         
           //actualiza numero correlativo
           await entradasSalidaCorrelativosRepository.save(correlativo);      
-          const numeroAux = correlativo.ultimo_numero;          
+          let numeroAux = correlativo.ultimo_numero;          
           
           //numeroAux = (Number(resultado.maximo) || 0) + 1;
           let numeroFicha = numeroAux.toString().padStart(4, '0');
@@ -326,7 +316,8 @@ export class EntradasSalidasService {
             sexo_id: ciudadano.sexo_id,
             parentesco_id: vinculoAdulto.parentesco_id,
             categoria: "ADULTO",
-            ciudadano_tutor_id: null,
+            entrada_salida_id_tutor: null,
+            menores: listaMenoresValidosNombres,
             fecha_ingreso_principal: fecha_actual,
             hora_ingreso_principal: hora_actual,
             casillero: data.casillero,            
@@ -336,6 +327,78 @@ export class EntradasSalidasService {
   
           const ingresoGuardado = await entradasSalidaRepository.save(nuevoIngreso);    
   
+          //INGRESAR MENORES
+          if(data.listaIdsMenores.length > 0){
+            let listaMenoresAIngresar: EntradasSalida[] = [];
+            for (const registro of listaMenoresACargoValidos) {
+              correlativo.ultimo_numero += 1;
+              numeroAux = correlativo.ultimo_numero; 
+              numeroFicha = numeroAux.toString().padStart(4, '0');
+              numeroFicha = usuario.organismo_id + numeroFicha;
+
+              const menor = registro.ciudadanoMenor;
+
+              // Obtener vínculo del menor con el interno
+              const vinculoMenor = listaVinculos.find(
+                  v => v.ciudadano_id === menor.id_ciudadano
+              );
+      
+              if (!vinculoMenor) {
+                  throw new BadRequestException(
+                      `El menor ${menor.apellido} ${menor.nombre} no tiene vínculo vigente con el interno.`
+                  );
+              }
+      
+              // Calcular edad del menor
+              let edadMenor = 0;
+      
+              if (menor.fecha_nac) {
+      
+                  const fechaNac = new Date(menor.fecha_nac);
+                  const hoy = new Date();
+      
+                  edadMenor = hoy.getFullYear() - fechaNac.getFullYear();
+      
+                  const mes = hoy.getMonth() - fechaNac.getMonth();
+      
+                  if (
+                      mes < 0 ||
+                      (mes === 0 && hoy.getDate() < fechaNac.getDate())
+                  ) {
+                      edadMenor--;
+                  }
+              }
+  
+              const nuevoIngresoMenor = entradasSalidaRepository.create({
+                  numero_ficha: numeroFicha,
+                  numero_aux: numeroAux,
+                  interno_id: data.interno_id,
+                  nombre_interno: interno.apellido + " " + interno.nombre,
+                  ciudadano_id: menor.id_ciudadano,
+                  nombre_visita: menor.apellido  + " " + menor.nombre, 
+                  edad: edadMenor,
+                  sexo_id: menor.sexo_id,
+                  parentesco_id: vinculoMenor.parentesco_id,
+                  categoria: "MENOR",
+                  entrada_salida_id_tutor: ingresoGuardado.id_entrada_salida,
+                  fecha_ingreso_principal: fecha_actual,
+                  hora_ingreso_principal: hora_actual,
+                  casillero: data.casillero,            
+                  organismo_id: usuario.organismo_id,
+                  usuario_id: usuario.id_usuario
+              });
+
+              listaMenoresAIngresar.push(nuevoIngresoMenor);
+            }
+
+            // Guardar todos los menores
+            await entradasSalidaRepository.save(listaMenoresAIngresar);
+        
+            // Guardar el último número correlativo utilizado
+            await entradasSalidaCorrelativosRepository.save(correlativo);
+
+          }
+
           // -----------------------------------
           // REGISTRAR CAMBIO PARA SINCRONIZACION
           // -----------------------------------
@@ -355,10 +418,12 @@ export class EntradasSalidasService {
               numero_ficha: ingresoGuardado.numero_ficha,
               ciudadano: ingresoGuardado.nombre_visita,
               interno: ingresoGuardado.nombre_interno,
-              casillero: ingresoGuardado.casillero,
               parentesco: vinculoAdulto.parentesco.parentesco,
+              menores: ingresoGuardado.menores,
+              casillero: ingresoGuardado.casillero,
               fecha_registro: ingresoGuardado.fecha_ingreso_principal,
               hora_registro: ingresoGuardado.hora_ingreso_principal,
+              organismo: usuario.organismo.organismo
           };
           //return ingresoGuardado;
       });
@@ -579,7 +644,9 @@ export class EntradasSalidasService {
                 barrio: ciudadano.barrio,
                 direccion: ciudadano.direccion + " " + ciudadano.numero_dom,
                 foto: ciudadano.foto,
+                esta_prohibido: false,
                 tiene_discapacidad: ciudadano.tiene_discapacidad,
+                discapacidad_detalle: ciudadano.discapacidad_detalle,
                 fecha_alta: ciudadano.fecha_alta
               }, 
               huellasCiudadanoResponse: huellas.map(huella => ({

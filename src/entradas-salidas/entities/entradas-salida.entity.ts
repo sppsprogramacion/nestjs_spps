@@ -124,14 +124,8 @@ export class EntradasSalida {
         type: 'int',
         nullable: true
     })
-    ciudadano_tutor_id?: number;
+    entrada_salida_id_tutor: number;   
     
-    @ManyToOne(() => Ciudadano, {eager: true,nullable: true,onDelete: 'SET NULL',})
-    @JoinColumn({
-      name: 'ciudadano_tutor_id',
-      referencedColumnName: 'id_ciudadano',
-    })
-    ciudadano_tutor?: Ciudadano;
     //FIN CIUDADANO TUTOR
   
     //ingreso principal
