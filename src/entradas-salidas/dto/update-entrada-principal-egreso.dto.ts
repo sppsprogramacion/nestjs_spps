@@ -1,9 +1,8 @@
 
-import { IsInt } from 'class-validator';
+import { IsInt, IsOptional, Length } from 'class-validator';
 
 export class UpdateEntradaPrincipalEgresoDto {
 
-    @IsInt({message: "ciudadano_id debe ser un número entero."})
     id_entrada_salida: number;     
                
     ciudadano_id: number;
@@ -16,5 +15,7 @@ export class UpdateEntradaPrincipalEgresoDto {
     hora_egreso_principal: string;
     //fin ingreso principal
 
+    @IsOptional()
+    @Length(1,200,{message: "observaciones_usuarios debe tener entre $constraint1 y $constraint2 caracteres."})
     observaciones_usuarios: string;
 }

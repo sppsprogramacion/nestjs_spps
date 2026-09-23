@@ -470,7 +470,7 @@ export class EntradasSalidasService {
   //FIN BUSCAR  XFECHA..................................................................
 
   //BUSCAR  XNUMERO DE FICHA
-  async findParaIngresoSecundario(numeroFicha: string, usuario: Usuario) {    
+  async findCiudadanoIngresoControl(numeroFicha: string, usuario: Usuario) {    
     
     const fecha_actual: any = new Date().toISOString().split('T')[0];  
     
@@ -497,6 +497,9 @@ export class EntradasSalidasService {
                     'ciudadano.nombre',
                     'ciudadano.dni',
                     'ciudadano.fecha_nac',
+                    'ciudadano.tiene_discapacidad',
+                    'ciudadano.discapacidad_detalle',
+                    'ciudadano.fecha_alta',
                     'ciudadano.foto'
                 ])
             
@@ -520,14 +523,7 @@ export class EntradasSalidasService {
             // ----------------------------------
             // BUSCAR MENORES
             // ----------------------------------
-
-            // const ingresoMenores = await entradaSalidaRepository.find({
-            //     where: {
-            //         entrada_salida_id_tutor: ingresoGuardado.ciudadano.id_ciudadano,
-            //         cancelado: false,                    
-            //     }
-            // });
-
+            
             const ingresoMenores = await entradaSalidaRepository
                 .createQueryBuilder('entrada')
                 .leftJoinAndSelect('entrada.sexo', 'sexo')
@@ -543,10 +539,9 @@ export class EntradasSalidasService {
                     'ciudadano.dni',
                     'ciudadano.fecha_nac',
                     'ciudadano.foto'
-                ])
-            
-                .where('entrada.entrada_salida_id_tutor = :id_tutor', {
-                    id_tutor: ingresoGuardado.ciudadano.id_ciudadano
+                ])            
+                .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
+                    id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
                 })
                 .andWhere('entrada.fecha_ingreso_principal = :fecha', {
                     fecha: fecha_actual
@@ -584,12 +579,10 @@ export class EntradasSalidasService {
             else{
               ingresoGuardado.ciudadano.foto = null;
             }
-
-            
-
+           
             // lista de menores midificada y con edad
-            const menoresResponse = ingresoMenores.map(item => {
-              let edad = null;
+            const menoresIngresadosResponse = ingresoMenores.map(item => {
+              
           
               return {
                 id_ciudadano: item.ciudadano_id,
@@ -603,13 +596,14 @@ export class EntradasSalidasService {
 
             //formar respuesta 
             return {
+              id_entrada_salida: ingresoGuardado.id_entrada_salida,
               numero_ficha: ingresoGuardado.numero_ficha,
               nombre_visita: ingresoGuardado.nombre_visita,
-              sexo_visita: ingresoGuardado.sexo.sexo,
-              edad_visita: ingresoGuardado.edad,
               dni_visita: ingresoGuardado.ciudadano.dni,                  
-              foto_visita: ingresoGuardado.ciudadano.foto,
+              sexo_visita: ingresoGuardado.sexo.sexo,
               fecha_nacimiento_visita: ingresoGuardado.ciudadano.fecha_nac,
+              edad_visita: ingresoGuardado.edad,
+              foto_visita: ingresoGuardado.ciudadano.foto,
               tiene_discapacidad_visita: ingresoGuardado.ciudadano.tiene_discapacidad,
               discapacidad_detalle: ingresoGuardado.ciudadano.discapacidad_detalle,
               fecha_alta_visita: ingresoGuardado.ciudadano.fecha_alta,
@@ -625,7 +619,7 @@ export class EntradasSalidasService {
                 dedo_id: huella.dedo_id,
                 activo: huella.activo,
               })),
-              menoresResponse
+              menoresIngresadosResponse
               
               
             };
@@ -860,7 +854,7 @@ export class EntradasSalidasService {
     }
     
     data.hora_egreso_principal = hora_actual;
-    let obs: string= data.observaciones_usuarios + " - Usuario egreso principal: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre;
+    let obs: string= "Egreso principal: Usuario: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre + ". " + data.observaciones_usuarios;
     data.observaciones_usuarios = obs;
 
     //guardar
