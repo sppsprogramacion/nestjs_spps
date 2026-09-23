@@ -60,7 +60,19 @@ export class EntradasSalidasController {
 
     return this.entradasSalidasService.findCiudadanoParaVisita(+dni,user);
   }
-  //FIN BUSCAR  PENDIENTES SALIDA....................................................
+  //FIN BUSCAR PARA VISITA....................................................
+
+  //CIUDADANO PARA INGRESO PUERTAS SECUNDARIAS
+  @Get('buscar-ingreso-secundario/:numeroficha')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findCiudadanoParaIngresoSecundario(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('numeroficha', ParseIntPipe) numeroficha: string,
+  ) {        
+
+    return this.entradasSalidasService.findParaIngresoSecundario(numeroficha,user);
+  }
+  //FIN BUSCAR PARA INGRESO PUERTAS SECUNDARIAS....................................................
   
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
