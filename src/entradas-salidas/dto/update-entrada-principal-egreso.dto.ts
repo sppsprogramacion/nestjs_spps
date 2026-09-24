@@ -1,4 +1,5 @@
 
+import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, Length } from 'class-validator';
 
 export class UpdateEntradaPrincipalEgresoDto {
@@ -15,6 +16,7 @@ export class UpdateEntradaPrincipalEgresoDto {
     hora_egreso_principal: string;
     //fin ingreso principal
 
+    @Transform(({ value }) => value === '' ? undefined : value)
     @IsOptional()
     @Length(1,200,{message: "observaciones_usuarios debe tener entre $constraint1 y $constraint2 caracteres."})
     observaciones_usuarios: string;

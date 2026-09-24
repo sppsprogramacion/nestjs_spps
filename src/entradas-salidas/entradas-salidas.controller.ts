@@ -50,6 +50,18 @@ export class EntradasSalidasController {
   }
   //FIN BUSCAR  PENDIENTES SALIDA....................................................
 
+  //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
+  //..hora de salida
+  @Get('lista-ingresos-actuales')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findIngresosActuales(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {        
+
+    return this.entradasSalidasService.findIngresosDelDia(user);
+  }
+  //FIN BUSCAR  PENDIENTES SALIDA....................................................
+
   //CIUDADANO PARA VISITA
   @Get('buscar-ciudadano/:dni')  
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
@@ -90,7 +102,7 @@ export class EntradasSalidasController {
 
   //EGRESO REGISTRO
   @Put('egreso')
-  @Auth()
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
   updateEgreso(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
@@ -104,7 +116,7 @@ export class EntradasSalidasController {
 
   //CANCELAR REGISTRO
   @Put('cancelar')
-  @Auth()
+  @Auth(ValidRoles.visitaAdmin)
   updateAnular(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,

@@ -17,6 +17,7 @@ import { Huella } from 'src/huellas/entities/huella.entity';
 import { ProhibicionVisita } from 'src/prohibiciones-visita/entities/prohibiciones-visita.entity';
 import { EntradaSalidaCorrelativo } from './entities/entradas-salida-correlativos.entity';
 import { MenorHabilitadoEntradaDto } from './dto/menor-habilitado-entrada.dto';
+import { isNotEmpty } from 'class-validator';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -379,6 +380,7 @@ export class EntradasSalidasService {
           // 7 . RESPUESTA
           // -----------------------------------
           return {
+              id_entrada_salida: ingresoGuardado.id_entrada_salida,
               numero_ficha: ingresoGuardado.numero_ficha,
               ciudadano: ingresoGuardado.nombre_visita,
               interno: ingresoGuardado.nombre_interno,
@@ -387,6 +389,7 @@ export class EntradasSalidasService {
               casillero: ingresoGuardado.casillero,
               fecha_registro: ingresoGuardado.fecha_ingreso_principal,
               hora_registro: ingresoGuardado.hora_ingreso_principal,
+              hora_egreso: ingresoGuardado.hora_egreso_principal,
               organismo: usuario.organismo.organismo
           };
           //return ingresoGuardado;
@@ -467,8 +470,98 @@ export class EntradasSalidasService {
         
     return registros;    
   }
-  //FIN BUSCAR  XFECHA..................................................................
+  //FIN BUSCAR  XFECHA
+  //..................................................................
 
+  //BUSCAR INGRESOS DEL DIA
+   async findIngresosDelDia( usuario: Usuario) {    
+    
+    const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+    return await this.dataSource.transaction(
+        async manager => {
+
+            const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+            const huellasRepository = manager.getRepository(Huella);
+
+            // ----------------------------------
+            // BUSCAR INGRESO
+            // ----------------------------------
+            const ingresosGuardados = await entradaSalidaRepository
+                .createQueryBuilder('entrada')
+                .leftJoinAndSelect('entrada.sexo', 'sexo')
+                .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                .leftJoinAndSelect('entrada.organismo', 'organismo')
+                .leftJoinAndSelect('entrada.usuario', 'usuario')
+            
+                .leftJoin('entrada.ciudadano', 'ciudadano')
+                .addSelect([
+                    'ciudadano.id_ciudadano',
+                    'ciudadano.apellido',
+                    'ciudadano.nombre',
+                    'ciudadano.dni',
+                    'ciudadano.fecha_nac',
+                    'ciudadano.tiene_discapacidad',
+                    'ciudadano.discapacidad_detalle',
+                    'ciudadano.fecha_alta',
+                    'ciudadano.foto'
+                ])  
+                .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                    fecha: fecha_actual
+                })
+                .andWhere('entrada.organismo_id = :id_organismo', {
+                    id_organismo: usuario.organismo_id
+                })
+                .andWhere('entrada.cancelado = :cancelado', {
+                    cancelado: false
+                })            
+                .getMany();
+
+            if (!ingresosGuardados) {
+                throw new NotFoundException('No hay una ingreso registrado con este numero de ficha.');
+            }
+            
+            
+            //--------------------------------------------
+            //CONSTRUIR RESPUESTA
+            //--------------------------------------------
+            
+            // lista de menores midificada y con edad
+            const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
+              
+          
+              return {
+                
+                id_entrada_salida: ingresoGuardado.id_entrada_salida,
+                numero_ficha: ingresoGuardado.numero_ficha,
+                nombre_visita: ingresoGuardado.nombre_visita,
+                dni_visita: ingresoGuardado.ciudadano.dni,                  
+                sexo_visita: ingresoGuardado.sexo.sexo,
+                fecha_nacimiento_visita: ingresoGuardado.ciudadano.fecha_nac,
+                edad_visita: ingresoGuardado.edad,
+                foto_visita: ingresoGuardado.ciudadano.foto,
+                tiene_discapacidad_visita: ingresoGuardado.ciudadano.tiene_discapacidad,
+                discapacidad_detalle: ingresoGuardado.ciudadano.discapacidad_detalle,
+                fecha_alta_visita: ingresoGuardado.ciudadano.fecha_alta,
+                nombre_interno: ingresoGuardado.nombre_interno,
+                parentesco: ingresoGuardado.parentesco.parentesco,
+                casillero: ingresoGuardado.casillero,
+                fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+                hora_registro: ingresoGuardado.hora_ingreso_principal,
+                organismo: usuario.organismo.organismo,          
+              };
+            });
+
+            //formar respuesta 
+            return listaIngresosResponse;
+        }
+    );
+       
+  }
+  //FIN BUSCAR INGRESOS DEL DIA
+  //------------------------------------------------------------------------------------
+
+  
   //BUSCAR  XNUMERO DE FICHA
   async findCiudadanoIngresoControl(numeroFicha: string, usuario: Usuario) {    
     
@@ -845,6 +938,7 @@ export class EntradasSalidasService {
     const registro = await this.entradaSalidasRepository.findOneBy({id_entrada_salida: id_registro});
     if(registro){
       if(registro.cancelado) throw new NotFoundException("Este registro se encuentra cancelado");
+      if(registro.categoria != "ADULTO") throw new NotFoundException("El ciudadano que egresa debe ser Adulto");
       if(registro.fecha_ingreso_principal != fecha_actual) throw new NotFoundException("El registro al que desea dar egreso no es de la fecha de hoy");
       if(registro.hora_egreso_principal) throw new NotFoundException("Este registro ya tiene hora de egreso");
       if(registro.hora_ingreso_principal > hora_actual) throw new NotFoundException("La hora de egreso no puede ser menor que la hora de ingreso");
@@ -854,8 +948,19 @@ export class EntradasSalidasService {
     }
     
     data.hora_egreso_principal = hora_actual;
-    let obs: string= "Egreso principal: Usuario: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre + ". " + data.observaciones_usuarios;
-    data.observaciones_usuarios = obs;
+
+    let obserbaciones_enviadas: string = data.observaciones_usuarios?.trim()
+            ? data.observaciones_usuarios.trim() 
+            : 'S/N';
+    
+    let obs: string = "Egreso principal: Usuario: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre + ". Obs: " + obserbaciones_enviadas;
+    if( isNotEmpty(registro.observaciones_usuarios) ){
+
+      data.observaciones_usuarios = obs + " // " + registro.observaciones_usuarios;
+    }
+    else{
+      data.observaciones_usuarios = obs;
+    }
 
     //guardar
     
