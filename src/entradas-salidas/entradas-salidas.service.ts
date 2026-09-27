@@ -360,7 +360,7 @@ export class EntradasSalidasService {
                   entrada_salida_id_tutor: ingresoGuardado.id_entrada_salida,
                   fecha_ingreso_principal: fecha_actual,
                   hora_ingreso_principal: hora_actual,
-                  casillero: data.casillero,            
+                  casillero: data.casillero + " (a cargo de visita: " + ciudadano.apellido  + " " + ciudadano.nombre + " dni: "+ ciudadano.dni + ")",            
                   organismo_id: usuario.organismo_id,
                   usuario_id: usuario.id_usuario
               });
@@ -545,9 +545,11 @@ export class EntradasSalidasService {
                 fecha_alta_visita: ingresoGuardado.ciudadano.fecha_alta,
                 nombre_interno: ingresoGuardado.nombre_interno,
                 parentesco: ingresoGuardado.parentesco.parentesco,
+                menores: ingresoGuardado.menores,
                 casillero: ingresoGuardado.casillero,
                 fecha_registro: ingresoGuardado.fecha_ingreso_principal,
                 hora_registro: ingresoGuardado.hora_ingreso_principal,
+                hora_egreso: ingresoGuardado.hora_egreso_principal,
                 organismo: usuario.organismo.organismo,          
               };
             });
@@ -595,7 +597,6 @@ export class EntradasSalidasService {
                     'ciudadano.fecha_alta',
                     'ciudadano.foto'
                 ])
-            
                 .where('entrada.numero_ficha = :numeroFicha', {
                     numeroFicha
                 })
@@ -703,8 +704,10 @@ export class EntradasSalidasService {
               nombre_interno: ingresoGuardado.nombre_interno,
               parentesco: ingresoGuardado.parentesco.parentesco,
               casillero: ingresoGuardado.casillero,
+              menores: ingresoGuardado.menores,
               fecha_registro: ingresoGuardado.fecha_ingreso_principal,
               hora_registro: ingresoGuardado.hora_ingreso_principal,
+              hora_egreso: ingresoGuardado.hora_egreso_principal,
               organismo: usuario.organismo.organismo,              
               huellasCiudadanoResponse: huellas.map(huella => ({
                 id_huella_ciudadano: huella.id_huella_ciudadano,
