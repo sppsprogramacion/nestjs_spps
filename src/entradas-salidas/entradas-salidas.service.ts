@@ -28,6 +28,7 @@ export class EntradasSalidasService {
       private readonly driveImagenesService: DriveImagenesService,
     ){}
   
+    //CREAR ENTRADA
     async create(data: CreateEntradasSalidaDto, usuario: Usuario): Promise<EntradaSalidaResponseDto> {
   
       //cargar datos por defecto
@@ -54,15 +55,15 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 1 . VALIDAR INTERNO 
           // -----------------------------------
-          const interno = await internoRepository.findOne({
-              where: {
-                  id_interno: data.interno_id
-              }
-          });
+          // const interno = await internoRepository.findOne({
+          //     where: {
+          //         id_interno: data.interno_id
+          //     }
+          // });
   
-          if (!interno) {
-              throw new BadRequestException('El interno indicado no existe.');
-          }   
+          // if (!interno) {
+          //     throw new BadRequestException('El interno indicado no existe.');
+          // }   
 
           const ingresoInterno = await ingresoInternoRepository.findOne({
               where: {
@@ -78,6 +79,10 @@ export class EntradasSalidasService {
           if (ingresoInterno.organismo_alojamiento_id != usuario.organismo_id) {
               throw new BadRequestException('El interno indicado no se encuentra alojado en esta unidad.');
           }  
+          
+          //obtener interno
+          const interno = ingresoInterno.interno;
+
 
           // -----------------------------------
           // 2 . VALIDAR CIUDADANO
@@ -231,15 +236,20 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 5 . VALIDAR PROHIBICION
           // -----------------------------------
-          let estaProhibido: boolean = false;
           const listaProhibiciones = await prohibicionVisitaRepository.find({
-              where: {
-                  ciudadano_id: data.ciudadano_id,
-                  vigente: true,
-                  anulado: false
-              }
+            where: {
+              ciudadano_id: data.ciudadano_id,
+              vigente: true,
+              anulado: false
+            }
           });
-
+          
+          let estaProhibido: boolean = false;
+          for (const prohibicion of listaProhibiciones){
+            if(prohibicion.fecha_fin >= fecha_actual){
+              estaProhibido = true;
+            }
+          }
 
           // -----------------------------------
           // 5 . VALIDAR EXCEPCION INGRESO
@@ -252,15 +262,7 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 5 . VALIDAD INGRESO EN ENTRADA SALIDAS
           // -----------------------------------
-          // const entradasSalidas = await entradasSalidaRepository.find({
-          //     where: {
-          //         ciudadano_id: data.ciudadano_id,
-          //         fecha_ingreso_principal: fecha_actual,
-          //         cancelado: false,
-          //     }
-          // });    
-
-          //buscar numero correlativo para el numero de ficha
+          
           let entradasSalidas = await entradasSalidaRepository
               .createQueryBuilder('entrada')
               .where('entrada.organismo_id = :organismoId', {
@@ -396,7 +398,10 @@ export class EntradasSalidasService {
       });
       
     }
-  
+    //FIN CREAR ENTRADA
+    //-------------------------------------------------------------------------------
+
+
     async findAll() {
       return await this.entradaSalidasRepository.find(
         {
@@ -423,7 +428,8 @@ export class EntradasSalidasService {
             
         return prohibiciiones;    
     }
-    //FIN BUSCAR  XCIUDADANO..................................................................
+    //FIN BUSCAR  XCIUDADANO
+    //..................................................................
   
     //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
     //..hora de salida
@@ -447,10 +453,10 @@ export class EntradasSalidasService {
       );   
           
       return registros;    
-  }
-  //FIN BUSCAR  PENDIENTES SALIDA..................................................................
+    }
+    //FIN BUSCAR  PENDIENTES SALIDA..................................................................
   
-  //BUSCAR  XFECHA
+  //BUSCAR  XFECHA INGRESO
   async findXFechaIngreso(fecha_ingresox: string, usuario: Usuario) {    
     
     const f_ingreso: any = new Date(fecha_ingresox).toISOString().split('T')[0];
@@ -470,7 +476,7 @@ export class EntradasSalidasService {
         
     return registros;    
   }
-  //FIN BUSCAR  XFECHA
+  //FIN BUSCAR  XFECHA INGRESO
   //..................................................................
 
   //BUSCAR INGRESOS DEL DIA
@@ -564,7 +570,7 @@ export class EntradasSalidasService {
   //------------------------------------------------------------------------------------
 
   
-  //BUSCAR  XNUMERO DE FICHA
+  //BUSCAR ENTRADA XNUMERO DE FICHA
   async findCiudadanoIngresoControl(numeroFicha: string, usuario: Usuario) {    
     
     const fecha_actual: any = new Date().toISOString().split('T')[0];  
@@ -723,16 +729,19 @@ export class EntradasSalidasService {
     );
        
   }
-  //FIN BUSCAR  XNUMERO DE FICHA..................................................................
+  //FIN BUSCAR ENTRADA XNUMERO DE FICHA..................................................................
   
-  //CIUDADANO PARA VISITA
+  //BUSCAR CIUDADANO PARA VISITA
   async findCiudadanoParaVisita(dni: number,user: Usuario) {
+    let fecha_actual: any = new Date().toISOString().split('T')[0];
+
     return await this.dataSource.transaction(
         async manager => {
 
             const ciudadanoRepository = manager.getRepository(Ciudadano);
             const menoresACargoRepository = manager.getRepository(MenorACargo);
             const huellasRepository = manager.getRepository(Huella);
+            const prohibicionVisitaRepository = manager.getRepository(ProhibicionVisita);
             const visitaInternoRepository = manager.getRepository(VisitaInterno);
 
             // ----------------------------------
@@ -765,6 +774,25 @@ export class EntradasSalidasService {
             if (edad < 18) {
                 throw new NotFoundException('El ciudadano es menor. Debe ingresar con un adulto.');
             }
+
+            // -----------------------------------
+            //VALIDAR PROHIBICION
+            // -----------------------------------
+            const listaProhibiciones = await prohibicionVisitaRepository.find({
+              where: {
+                ciudadano_id: ciudadano.id_ciudadano,
+                vigente: true,
+                anulado: false
+              }
+            });
+            
+            let estaProhibido: boolean = false;
+            for (const prohibicion of listaProhibiciones){
+              if(prohibicion.fecha_fin >= fecha_actual){
+                estaProhibido = true;
+              }
+            }
+
 
             // ----------------------------------
             // BUSCAR INTERNOS VINCULADOS
@@ -864,7 +892,7 @@ export class EntradasSalidasService {
                 barrio: ciudadano.barrio,
                 direccion: ciudadano.direccion + " " + ciudadano.numero_dom,
                 foto: ciudadano.foto,
-                esta_prohibido: false,
+                esta_prohibido: estaProhibido,
                 tiene_discapacidad: ciudadano.tiene_discapacidad,
                 discapacidad_detalle: ciudadano.discapacidad_detalle,
                 fecha_alta: ciudadano.fecha_alta
@@ -886,7 +914,8 @@ export class EntradasSalidasService {
         }
     );
   }
-  //FIN CIUDADANO PARA VISITA
+  //FIN BUSCAR 
+  // CIUDADANO PARA VISITA
   //-------------------------------------------------------------------------------------
 
   //BUSCAR  XID

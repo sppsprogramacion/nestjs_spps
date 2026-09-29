@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
 import { EstadoCivil } from "src/estado-civil/entities/estado-civil.entity";
@@ -10,6 +10,10 @@ import { Provincia } from "src/provincias/entities/provincia.entity";
 import { Departamento } from "src/departamentos/entities/departamento.entity";
 import { Municipio } from "src/municipio/entities/municipio.entity";
 import { Organismo } from "src/organismos/entities/organismo.entity";
+import { MenorACargo } from "src/menores_a_cargo/entities/menores_a_cargo.entity";
+import { VisitaInterno } from "src/visitas-internos/entities/visitas-interno.entity";
+import { ProhibicionVisita } from "src/prohibiciones-visita/entities/prohibiciones-visita.entity";
+import { Huella } from "src/huellas/entities/huella.entity";
 
 @Entity('ciudadanos')
 export class Ciudadano {
@@ -267,5 +271,17 @@ export class Ciudadano {
     usuario_alta: Usuario;
     //FIN USUARIO ALTA
 
-
+    //RELACIONES 
+    @OneToMany(() => MenorACargo, menor => menor.ciudadanoTutor)
+    menores_acargo: MenorACargo[];
+    
+    @OneToMany(() => VisitaInterno,visita => visita.ciudadano)
+    visitas_internos: VisitaInterno[];
+    
+    @OneToMany(() => ProhibicionVisita,prohibicion => prohibicion.ciudadano)
+    prohibiciones_visita: ProhibicionVisita[];
+    
+    @OneToMany(() => Huella,huella => huella.ciudadano)
+    huellas: Huella[];
+    
 }
