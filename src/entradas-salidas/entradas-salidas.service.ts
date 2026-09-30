@@ -747,11 +747,64 @@ export class EntradasSalidasService {
             // ----------------------------------
             // BUSCAR CIUDADANO
             // ----------------------------------
-            const ciudadano = await ciudadanoRepository.findOne({
-                where: {
-                    dni: dni
-                }
-            });
+            // const ciudadano = await ciudadanoRepository.findOne({
+            //     where: {
+            //         dni: dni
+            //     }
+            // });
+            
+            const ciudadano = await ciudadanoRepository
+              .createQueryBuilder('ciudadano')     
+              .leftJoinAndSelect('ciudadano.sexo', 'sexo')
+              .leftJoinAndSelect('ciudadano.nacionalidad', 'nacionalidad')  
+              .leftJoinAndSelect('ciudadano.pais', 'pais') 
+              .leftJoinAndSelect('ciudadano.provincia', 'provincia') 
+              .leftJoinAndSelect('ciudadano.departamento', 'departamento')  
+              .leftJoinAndSelect('ciudadano.municipio', 'municipio') 
+              // DATOS DEL CIUDADANO MENOR
+              .leftJoinAndSelect(
+                  'ciudadano.menores_acargo','menor',
+                  'menor.anulado = :menorAnulado', { menorAnulado: false }
+              )        
+              .leftJoinAndSelect(
+                  'menor.ciudadanoMenor',
+                  'ciudadanoMenor'
+              )
+              .leftJoinAndSelect(
+                  'ciudadanoMenor.sexo',
+                  'sexoMenor'
+              )
+              //DATOS DE VINCULOS
+              .leftJoinAndSelect(
+                  'ciudadano.visitas_internos','vinculo',
+                  'vinculo.vigente = :vinculoVigente', { vinculoVigente: true }
+              ) 
+              .leftJoinAndSelect(
+                  'vinculo.interno','vinculoInterno'
+              )   
+              .leftJoinAndSelect(
+                  'vinculo.parentesco','vinculoParentesco'
+              )     
+
+              //DATOS DE PROHIBICIONES
+              .leftJoinAndSelect(
+                  'ciudadano.prohibiciones_visita','prohibicion',
+                  `
+                  prohibicion.anulado = :prohibicionAnulado
+                  AND prohibicion.fecha_fin >= :fechaActual
+                  `,
+                  {
+                      prohibicionAnulado: false,
+                      fechaActual: fecha_actual
+                  }
+              )        
+              //DATOS DE HUELLAS
+              .leftJoinAndSelect(
+                  'ciudadano.huellas','huella',
+                  'huella.activo = :huellaActiva', { huellaActiva: true }
+              )        
+              .where('ciudadano.dni = :dni', { dni })        
+              .getOne();
 
             if (!ciudadano) {
                 throw new NotFoundException('No hay una persona registrada con este numero de documento.');
@@ -778,53 +831,60 @@ export class EntradasSalidasService {
             // -----------------------------------
             //VALIDAR PROHIBICION
             // -----------------------------------
-            const listaProhibiciones = await prohibicionVisitaRepository.find({
-              where: {
-                ciudadano_id: ciudadano.id_ciudadano,
-                vigente: true,
-                anulado: false
-              }
-            });
-            
-            let estaProhibido: boolean = false;
-            for (const prohibicion of listaProhibiciones){
-              if(prohibicion.fecha_fin >= fecha_actual){
-                estaProhibido = true;
-              }
-            }
+            // const listaProhibiciones = await prohibicionVisitaRepository.find({
+            //   where: {
+            //     ciudadano_id: ciudadano.id_ciudadano,
+            //     vigente: true,
+            //     anulado: false
+            //   }
+            // });
 
+            // let estaProhibido: boolean = false;
+            // for (const prohibicion of listaProhibiciones){
+              //   if(prohibicion.fecha_fin >= fecha_actual){
+                //     estaProhibido = true;
+                //   }
+                // }
+                
+            const listaProhibiciones = ciudadano.prohibiciones_visita;
+            //FALTA VALIDAR QUE LA PROHIBICION SEA DEL ORGANISMO DEL USUARIO
+            const estaProhibido = listaProhibiciones.length > 0;
 
             // ----------------------------------
             // BUSCAR INTERNOS VINCULADOS
             // ----------------------------------
-            const vinculos = await visitaInternoRepository.find({
-                where: {
-                    ciudadano_id: ciudadano.id_ciudadano,
-                    vigente: true,                    
-                }
-            });
+            // const vinculos = await visitaInternoRepository.find({
+            //     where: {
+            //         ciudadano_id: ciudadano.id_ciudadano,
+            //         vigente: true,                    
+            //     }
+            // });
+            const vinculos = ciudadano.visitas_internos;
 
             // ----------------------------------
             // BUSCAR MENORES
             // ----------------------------------
 
-            const menores = await menoresACargoRepository.find({
-                where: {
-                    ciudadano_tutor_id: ciudadano.id_ciudadano,
-                    anulado: false,                    
-                }
-            });
+            // const menores = await menoresACargoRepository.find({
+            //     where: {
+            //         ciudadano_tutor_id: ciudadano.id_ciudadano,
+            //         anulado: false,                    
+            //     }
+            // });
+            const menores = ciudadano.menores_acargo;
 
             // ----------------------------------
             // BUSCAR HUELLAS
             // ----------------------------------
 
-            const huellas = await huellasRepository.find({
-                where: {
-                    ciudadano_id: ciudadano.id_ciudadano,
-                    activo: true,                    
-                }
-            });
+            // const huellas = await huellasRepository.find({
+            //     where: {
+            //         ciudadano_id: ciudadano.id_ciudadano,
+            //         activo: true,                    
+            //     }
+            // });
+
+            const huellas = ciudadano.huellas;
 
             //--------------------------------------------
             //CONSTRUIR RESPUESTA
