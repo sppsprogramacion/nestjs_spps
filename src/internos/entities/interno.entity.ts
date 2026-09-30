@@ -18,6 +18,7 @@ import { IngresoInterno } from "src/ingresos-interno/entities/ingresos-interno.e
 import { NivelEducacion } from "src/niveles-educacion/entities/niveles-educacion.entity";
 import { Religion } from "src/religiones/entities/religione.entity";
 import { Ocupacion } from "src/ocupaciones/entities/ocupacione.entity";
+import { VisitaInterno } from "src/visitas-internos/entities/visitas-interno.entity";
 
 @Entity('internos')
 export class Interno {
@@ -465,7 +466,13 @@ export class Interno {
     organismo_carga: Organismo;
     //FIN ORGANISMO
 
+    //RELACIONES 
     @OneToMany(() => IngresoInterno, ingreso => ingreso.interno)
     ingresos: IngresoInterno[];
+    
+    @OneToMany(() => VisitaInterno,visitaInterno => visitaInterno.interno)
+    visitas_internos: VisitaInterno[];
+
+    
 
 }

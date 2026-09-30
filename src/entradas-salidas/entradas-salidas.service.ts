@@ -18,6 +18,7 @@ import { ProhibicionVisita } from 'src/prohibiciones-visita/entities/prohibicion
 import { EntradaSalidaCorrelativo } from './entities/entradas-salida-correlativos.entity';
 import { MenorHabilitadoEntradaDto } from './dto/menor-habilitado-entrada.dto';
 import { isNotEmpty } from 'class-validator';
+import { use } from 'passport';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -767,12 +768,10 @@ export class EntradasSalidasService {
                   'menor.anulado = :menorAnulado', { menorAnulado: false }
               )        
               .leftJoinAndSelect(
-                  'menor.ciudadanoMenor',
-                  'ciudadanoMenor'
+                  'menor.ciudadanoMenor','ciudadanoMenor'
               )
               .leftJoinAndSelect(
-                  'ciudadanoMenor.sexo',
-                  'sexoMenor'
+                  'ciudadanoMenor.sexo','sexoMenor'
               )
               //DATOS DE VINCULOS
               .leftJoinAndSelect(
@@ -780,7 +779,11 @@ export class EntradasSalidasService {
                   'vinculo.vigente = :vinculoVigente', { vinculoVigente: true }
               ) 
               .leftJoinAndSelect(
-                  'vinculo.interno','vinculoInterno'
+                  'vinculo.interno','interno',
+              )   
+              .leftJoinAndSelect(
+                  'interno.ingresos','internoIngresos',
+                  
               )   
               .leftJoinAndSelect(
                   'vinculo.parentesco','vinculoParentesco'
@@ -792,10 +795,12 @@ export class EntradasSalidasService {
                   `
                   prohibicion.anulado = :prohibicionAnulado
                   AND prohibicion.fecha_fin >= :fechaActual
+                  AND prohibicion.organismo_id = :idOrganismo
                   `,
                   {
                       prohibicionAnulado: false,
-                      fechaActual: fecha_actual
+                      fechaActual: fecha_actual,
+                      idOrganismo: user.organismo_id
                   }
               )        
               //DATOS DE HUELLAS
@@ -830,60 +835,37 @@ export class EntradasSalidasService {
 
             // -----------------------------------
             //VALIDAR PROHIBICION
-            // -----------------------------------
-            // const listaProhibiciones = await prohibicionVisitaRepository.find({
-            //   where: {
-            //     ciudadano_id: ciudadano.id_ciudadano,
-            //     vigente: true,
-            //     anulado: false
-            //   }
-            // });
-
-            // let estaProhibido: boolean = false;
-            // for (const prohibicion of listaProhibiciones){
-              //   if(prohibicion.fecha_fin >= fecha_actual){
-                //     estaProhibido = true;
-                //   }
-                // }
-                
+            // -----------------------------------            
             const listaProhibiciones = ciudadano.prohibiciones_visita;
+
             //FALTA VALIDAR QUE LA PROHIBICION SEA DEL ORGANISMO DEL USUARIO
             const estaProhibido = listaProhibiciones.length > 0;
 
             // ----------------------------------
             // BUSCAR INTERNOS VINCULADOS
-            // ----------------------------------
-            // const vinculos = await visitaInternoRepository.find({
-            //     where: {
-            //         ciudadano_id: ciudadano.id_ciudadano,
-            //         vigente: true,                    
-            //     }
-            // });
+            // ----------------------------------            
             const vinculos = ciudadano.visitas_internos;
+
+            //obtener vinculos con interns que esten alojados en la unidad del usuario
+            let listaVinculosValidos: VisitaInterno[] = [];
+            for(const vinculo of vinculos){
+                const ingresoInterno = vinculo.interno.ingresos.find(ingreso => ingreso.eliminado === false && ingreso.esta_liberado === false);
+                if(ingresoInterno){
+                  if(ingresoInterno.organismo_alojamiento_id === user.organismo_id){
+                    listaVinculosValidos.push(vinculo);
+                  }
+                }
+            }
 
             // ----------------------------------
             // BUSCAR MENORES
-            // ----------------------------------
-
-            // const menores = await menoresACargoRepository.find({
-            //     where: {
-            //         ciudadano_tutor_id: ciudadano.id_ciudadano,
-            //         anulado: false,                    
-            //     }
-            // });
+            // ----------------------------------           
             const menores = ciudadano.menores_acargo;
+
 
             // ----------------------------------
             // BUSCAR HUELLAS
             // ----------------------------------
-
-            // const huellas = await huellasRepository.find({
-            //     where: {
-            //         ciudadano_id: ciudadano.id_ciudadano,
-            //         activo: true,                    
-            //     }
-            // });
-
             const huellas = ciudadano.huellas;
 
             //--------------------------------------------
@@ -963,7 +945,7 @@ export class EntradasSalidasService {
                 dedo_id: huella.dedo_id,
                 activo: huella.activo,
               })),
-              internosResponse: vinculos.map(vinculo=>({
+              internosResponse: listaVinculosValidos.map(vinculo=>({
                 id_interno: vinculo.interno_id,
                 apellido_nombre: vinculo.interno.apellido + " " + vinculo.interno.nombre,
                 prontuario: vinculo.interno.prontuario,
