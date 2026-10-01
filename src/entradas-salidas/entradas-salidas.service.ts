@@ -88,11 +88,87 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 2 . VALIDAR CIUDADANO
           // -----------------------------------
-          const ciudadano = await ciudadanoRepository.findOne({
-              where: {
-                  id_ciudadano: data.ciudadano_id
-              }
-          });
+          // const ciudadano = await ciudadanoRepository.findOne({
+          //     where: {
+          //         id_ciudadano: data.ciudadano_id
+          //     }
+          // });
+
+          const ciudadano = await ciudadanoRepository
+              .createQueryBuilder('ciudadano')     
+              .leftJoinAndSelect('ciudadano.sexo', 'sexo')
+              .leftJoinAndSelect('ciudadano.nacionalidad', 'nacionalidad')  
+              .leftJoinAndSelect('ciudadano.pais', 'pais') 
+              .leftJoinAndSelect('ciudadano.provincia', 'provincia') 
+              .leftJoinAndSelect('ciudadano.departamento', 'departamento')  
+              .leftJoinAndSelect('ciudadano.municipio', 'municipio') 
+              // DATOS DE MENORES A CARGO
+              .leftJoinAndSelect(
+                  'ciudadano.menores_acargo','menor',
+                  'menor.anulado = :menorAnulado', { menorAnulado: false }
+              )        
+              .leftJoinAndSelect(
+                  'menor.ciudadanoMenor','ciudadanoMenor'
+              )
+              .leftJoinAndSelect(
+                  'ciudadanoMenor.sexo','sexoMenor'
+              )
+              //DATOS DE VINCULOS
+              .leftJoinAndSelect(
+                  'ciudadano.visitas_internos','vinculo',
+                  'vinculo.vigente = :vinculoVigente', { vinculoVigente: true }
+              ) 
+              .leftJoinAndSelect(
+                  'vinculo.interno','interno',
+              )   
+              .leftJoinAndSelect(
+                  'interno.ingresos','internoIngresos',
+                  
+              )   
+              .leftJoinAndSelect(
+                  'vinculo.parentesco','vinculoParentesco'
+              )     
+              //DATOS DE PROHIBICIONES
+              .leftJoinAndSelect(
+                  'ciudadano.prohibiciones_visita','prohibicion',
+                  `
+                  prohibicion.anulado = :prohibicionAnulado
+                  AND prohibicion.fecha_fin >= :fechaActual
+                  AND prohibicion.organismo_id = :idOrganismo
+                  `,
+                  {
+                      prohibicionAnulado: false,
+                      fechaActual: fecha_actual,
+                      idOrganismo: usuario.organismo_id
+                  }
+              )        
+              //DATOS DE PROHIBICIONES
+              .leftJoinAndSelect(
+                  'ciudadano.excepciones_visita','excepcion',
+                  `
+                  excepcion.cumplimentado = :excepcionCumplimentado
+                  AND excepcion.es_visita_ordinaria = :excepcionEsOrdinaria
+                  AND excepcion.anulado = :excepcionAnulado
+                  AND excepcion.fecha_excepcion = :fechaActual
+                  AND prohibicion.organismo_id = :idOrganismo
+                  `,
+                  {
+                    excepcionCumplimentado: false,
+                    excepcionEsOrdinaria: true,
+                    excepcionAnulado: false,
+                    fechaActual: fecha_actual,
+                    idOrganismo: usuario.organismo_id
+                  }
+              )       
+              //DATOS DE HUELLAS
+              .leftJoinAndSelect(
+                  'ciudadano.huellas','huella',
+                  'huella.activo = :huellaActiva', { huellaActiva: true }
+              )        
+              .where('ciudadano.id_ciudadano = :idCiudadano', { idCiudadano: data.ciudadano_id })        
+              .getOne();
+
+            
   
           if (!ciudadano) {
               throw new BadRequestException('El ciudadano indicado no existe.');
@@ -142,13 +218,14 @@ export class EntradasSalidasService {
 
           //solo se controla los menores si mando la lista con los ids con datos
           if(data.listaIdsMenores.length > 0){
-            //buscar a los menores que tiene a cargo el adulto
-            const listaMenoresACargo = await menoresACargoRepository.find({
-                where: {
-                  ciudadano_tutor_id: ciudadano.id_ciudadano,
-                  anulado: false
-                }
-            }); 
+            //buscar a los menores que tiene a cargo el adulto  
+            // const listaMenoresACargo = await menoresACargoRepository.find({
+            //     where: {
+            //       ciudadano_tutor_id: ciudadano.id_ciudadano,
+            //       anulado: false
+            //     }
+            // }); 
+            const listaMenoresACargo = ciudadano.menores_acargo;
 
             //cuando el adulto no tiene menores a cargo
             if(listaMenoresACargo.length === 0){
@@ -237,13 +314,14 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 5 . VALIDAR PROHIBICION
           // -----------------------------------
-          const listaProhibiciones = await prohibicionVisitaRepository.find({
-            where: {
-              ciudadano_id: data.ciudadano_id,
-              vigente: true,
-              anulado: false
-            }
-          });
+          // const listaProhibiciones = await prohibicionVisitaRepository.find({
+          //   where: {
+          //     ciudadano_id: data.ciudadano_id,
+          //     vigente: true,
+          //     anulado: false
+          //   }
+          // });
+          const listaProhibiciones = ciudadano.prohibiciones_visita;
           
           let estaProhibido: boolean = false;
           for (const prohibicion of listaProhibiciones){
@@ -748,12 +826,7 @@ export class EntradasSalidasService {
             // ----------------------------------
             // BUSCAR CIUDADANO
             // ----------------------------------
-            // const ciudadano = await ciudadanoRepository.findOne({
-            //     where: {
-            //         dni: dni
-            //     }
-            // });
-            
+                        
             const ciudadano = await ciudadanoRepository
               .createQueryBuilder('ciudadano')     
               .leftJoinAndSelect('ciudadano.sexo', 'sexo')
@@ -788,7 +861,6 @@ export class EntradasSalidasService {
               .leftJoinAndSelect(
                   'vinculo.parentesco','vinculoParentesco'
               )     
-
               //DATOS DE PROHIBICIONES
               .leftJoinAndSelect(
                   'ciudadano.prohibiciones_visita','prohibicion',
@@ -803,6 +875,24 @@ export class EntradasSalidasService {
                       idOrganismo: user.organismo_id
                   }
               )        
+              //DATOS DE PROHIBICIONES
+              .leftJoinAndSelect(
+                  'ciudadano.excepciones_visita','excepcion',
+                  `
+                  excepcion.cumplimentado = :excepcionCumplimentado
+                  AND excepcion.es_visita_ordinaria = :excepcionEsOrdinaria
+                  AND excepcion.anulado = :excepcionAnulado
+                  AND excepcion.fecha_excepcion = :fechaActual
+                  AND prohibicion.organismo_id = :idOrganismo
+                  `,
+                  {
+                    excepcionCumplimentado: false,
+                    excepcionEsOrdinaria: true,
+                    excepcionAnulado: false,
+                    fechaActual: fecha_actual,
+                    idOrganismo: user.organismo_id
+                  }
+              )       
               //DATOS DE HUELLAS
               .leftJoinAndSelect(
                   'ciudadano.huellas','huella',
@@ -810,6 +900,7 @@ export class EntradasSalidasService {
               )        
               .where('ciudadano.dni = :dni', { dni })        
               .getOne();
+
 
             if (!ciudadano) {
                 throw new NotFoundException('No hay una persona registrada con este numero de documento.');
@@ -840,6 +931,13 @@ export class EntradasSalidasService {
 
             //FALTA VALIDAR QUE LA PROHIBICION SEA DEL ORGANISMO DEL USUARIO
             const estaProhibido = listaProhibiciones.length > 0;
+            
+            //verificar si tiene excepciones de ingreso
+            let tieneExcepcion: boolean = false;
+            if(estaProhibido){
+              const listaExcepcionesVisita = ciudadano.excepciones_visita;
+              tieneExcepcion = listaExcepcionesVisita.length > 0;
+            }
 
             // ----------------------------------
             // BUSCAR INTERNOS VINCULADOS
@@ -889,7 +987,7 @@ export class EntradasSalidasService {
             
 
             // lista de menores midificada y con edad
-            const menoresResponse = menores.map(item => {
+            const listaMenoresConEdad = menores.map(item => {
               let edad = null;
           
               if (item.ciudadanoMenor.fecha_nac) {
@@ -903,7 +1001,7 @@ export class EntradasSalidasService {
                   edad--;
                 }
               }          
-
+              
               return {
                 id_ciudadano: item.ciudadanoMenor.id_ciudadano,
                 apellido: item.ciudadanoMenor.apellido,
@@ -912,6 +1010,8 @@ export class EntradasSalidasService {
                 sexo: item.ciudadanoMenor.sexo.sexo,
                 edad
               };
+              
+              
             });
 
             //formar respuesta 
@@ -935,6 +1035,7 @@ export class EntradasSalidasService {
                 direccion: ciudadano.direccion + " " + ciudadano.numero_dom,
                 foto: ciudadano.foto,
                 esta_prohibido: estaProhibido,
+                tiene_excepcion_ingreso: tieneExcepcion,
                 tiene_discapacidad: ciudadano.tiene_discapacidad,
                 discapacidad_detalle: ciudadano.discapacidad_detalle,
                 fecha_alta: ciudadano.fecha_alta
@@ -951,13 +1052,12 @@ export class EntradasSalidasService {
                 prontuario: vinculo.interno.prontuario,
                 parentesco: vinculo.parentesco.parentesco
               })), 
-              menoresResponse
+              menoresResponse: listaMenoresConEdad.filter(menor => menor.edad < 18)
             };
         }
     );
   }
-  //FIN BUSCAR 
-  // CIUDADANO PARA VISITA
+  //FIN BUSCAR CIUDADANO PARA VISITA
   //-------------------------------------------------------------------------------------
 
   //BUSCAR  XID
