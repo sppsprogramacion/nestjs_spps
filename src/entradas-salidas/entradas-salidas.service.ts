@@ -66,12 +66,65 @@ export class EntradasSalidasService {
           //     throw new BadRequestException('El interno indicado no existe.');
           // }   
 
-          const ingresoInterno = await ingresoInternoRepository.findOne({
+          const ingresoInterno2 = await ingresoInternoRepository.findOne({
               where: {
                   interno_id: data.interno_id,
                   esta_liberado: false
               }
           });
+
+          const ingresoInterno = await ingresoInternoRepository
+              .createQueryBuilder('ingreso')     
+              .leftJoinAndSelect('ingreso.interno', 'interno')             
+              //DATOS DE VINCULOS
+              .leftJoinAndSelect(
+                  'interno.visitas_internos','vinculo',
+                  'vinculo.vigente = :vinculoVigente', { vinculoVigente: true }
+              ) 
+              .leftJoinAndSelect(
+                  'vinculo.parentesco','vinculoParentesco'
+              ) 
+              .leftJoinAndSelect(
+                  'vinculo.ciudadano','ciudadano',
+              )   
+              //DATOS DE PROHIBICIONES
+              .leftJoinAndSelect(
+                  'ciudadano.prohibiciones_visita','prohibicion',
+                  `
+                  prohibicion.anulado = :prohibicionAnulado
+                  AND prohibicion.fecha_fin >= :fechaActual
+                  AND prohibicion.organismo_id = :idOrganismo
+                  `,
+                  {
+                      prohibicionAnulado: false,
+                      fechaActual: fecha_actual,
+                      idOrganismo: usuario.organismo_id
+                  }
+              )        
+              //DATOS DE EXCEPCIONES
+              .leftJoinAndSelect(
+                  'ciudadano.excepciones_visita','excepcion',
+                  `
+                  excepcion.cumplimentado = :excepcionCumplimentado
+                  AND excepcion.es_visita_ordinaria = :excepcionEsOrdinaria
+                  AND excepcion.anulado = :excepcionAnulado
+                  AND excepcion.fecha_excepcion = :fechaActual
+                  AND prohibicion.organismo_id = :idOrganismo
+                  `,
+                  {
+                    excepcionCumplimentado: false,
+                    excepcionEsOrdinaria: true,
+                    excepcionAnulado: false,
+                    fechaActual: fecha_actual,
+                    idOrganismo: usuario.organismo_id
+                  }
+              )    
+              .where('ingreso.interno_id = :idInterno', { idInterno: data.interno_id })    
+              .andWhere('ingreso.esta_liberado = :estaLiberado', {
+                  esta_liberado: false
+              })    
+              .getOne();
+
           
           if (!ingresoInterno) {
               throw new BadRequestException('El interno indicado no se encuentra alojado en esta unidad.');
@@ -167,7 +220,6 @@ export class EntradasSalidasService {
               )        
               .where('ciudadano.id_ciudadano = :idCiudadano', { idCiudadano: data.ciudadano_id })        
               .getOne();
-
             
   
           if (!ciudadano) {
@@ -195,17 +247,24 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 3 . VALIDAR VINCULOS 
           // -----------------------------------
-          const listaVinculos = await visitaInternoRepository.find({
-              where: {
-                  interno_id: data.interno_id,
-                  vigente: true
-              }
-          });
+          // const listaVinculos = await visitaInternoRepository.find({
+          //     where: {
+          //         interno_id: data.interno_id,
+          //         vigente: true
+          //     }
+          // });
+          const listaVinculos = ingresoInterno.interno.visitas_internos;
   
           //VALIDAR VINCULO ADULTO
           const vinculoAdulto = listaVinculos.find(v => v.ciudadano_id === data.ciudadano_id)
           if (!vinculoAdulto) {
               throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
+          }
+          if (vinculoAdulto.anulado) {
+              throw new BadRequestException('El ciudadano no tiene un vinculo vigente con el interno.');
+          }
+          if (vinculoAdulto.prohibido) {
+              throw new BadRequestException('El ciudadano tiene restriccion de visita con este interno.');
           }
 
 
@@ -214,8 +273,7 @@ export class EntradasSalidasService {
           // -----------------------------------
           let listaMenoresACargoValidos2: MenorHabilitadoEntradaDto[] = [];
           let listaMenoresValidosNombres: string = ""; 
-          let nombreMenoresNoVinculados: string = "";
-
+          
           //solo se controla los menores si mando la lista con los ids con datos
           if(data.listaIdsMenores.length > 0){
             //buscar a los menores que tiene a cargo el adulto  
@@ -252,45 +310,83 @@ export class EntradasSalidasService {
                 id => idsMenoresACargo.includes(id)
             );          
             
-            //CONTROLAR EDAD DE LOS MENORES ENCONTRADOS
+            //CONTROLAR VALIDEZ DE LOS MENORES ENCONTRADOS
             let nombreNoMenores: string = "";
-            for(const idMenor of listaIdsEncontrados){
-              const menorAACargo = listaMenoresACargo.find(registro => registro.ciudadano_menor_id === idMenor)
-              let edadMenor: number = 0;
-              const fechaNac = new Date(menorAACargo.ciudadanoMenor.fecha_nac);
-              const hoy = new Date();
-              edadMenor = hoy.getFullYear() - fechaNac.getFullYear();          
-              // Ajustar si el cumpleaños no ha pasado este año
-              const mes = hoy.getMonth() - fechaNac.getMonth();
-              if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-                edadMenor--;
-              }
+            let nombreMenoresNoVinculados: string = "";
+            let nombreMenoresVinculoRestringido: string = "";
+            let nombreMenoresProhibidos: string = "";
+            let menorEsValido: boolean = true;
 
-              //determinar si es menor o no
-              if(edadMenor >=18){
-                //crear lista de ciudadnos que NO SON menores
-                nombreNoMenores = nombreNoMenores + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre + " (" + edadMenor + " años) // ";
-              }
+            for(const idMenor of listaIdsEncontrados){
+              const vinculoMenor = listaVinculos.find(registro => registro.ciudadano_id === idMenor)
+              
+              //VALIDAR EDAD
+              if (!vinculoMenor) {
+                  //crear lista de menores que NO estan vinculados con el interno
+                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " // ";
+                  menorEsValido = false;
+              } 
               else{
                 
                 //VALIDAR VINCULO MENORES 
-                const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === menorAACargo.ciudadanoMenor.id_ciudadano)
+                const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === vinculoMenor.ciudadano.id_ciudadano)
                 
-                //determinar si esta vinculado con el interno
-                if (!vinculoMenor) {
+                //determinar si el vinculo esta anulado              
+                if (vinculoMenor.anulado) {
                   //crear lista de menores que NO estan vinculados con el interno
-                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre + " // ";
+                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " // ";
+                  menorEsValido = false;
                 } 
-                else{
+                if (vinculoMenor.prohibido) {
+                  //lista de menores que tienen el vinculo restringido
+                  nombreMenoresVinculoRestringido = nombreMenoresVinculoRestringido + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " // ";
+                  menorEsValido = false;
+                } 
+
+                //VALIDAR EDAD
+                //obtener edad del menor
+                let edadMenor: number = 0;
+                const fechaNac = new Date(vinculoMenor.ciudadano.fecha_nac);
+                const hoy = new Date();
+                edadMenor = hoy.getFullYear() - fechaNac.getFullYear();          
+                // Ajustar si el cumpleaños no ha pasado este año
+                const mes = hoy.getMonth() - fechaNac.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edadMenor--;
+                }  
+                
+                if(edadMenor >=18){
+                  //crear lista de ciudadnos que NO SON menores
+                  nombreNoMenores = nombreNoMenores + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " (" + edadMenor + " años) // ";
+                  menorEsValido = false;
+                }
+                
+                //VALIDAR PRHOBICION DEL MENOR
+                const listaProhibicionesMenor = vinculoMenor.ciudadano.prohibiciones_visita;
+
+                const estaProhibidoMenor = listaProhibicionesMenor.length > 0;                
+                //verificar si tiene excepciones de ingreso
+                let tieneExcepcionMEnor: boolean = false;
+                if(estaProhibidoMenor){
+                  const listaExcepcionesVisitaMenor = ciudadano.excepciones_visita;
+                  tieneExcepcionMEnor = listaExcepcionesVisitaMenor.length > 0;
+                  if(!tieneExcepcionMEnor){
+                    //lista de menores que tienen el vinculo restringido
+                    nombreMenoresProhibidos = nombreMenoresProhibidos + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " // ";
+                    menorEsValido = false;
+                  }
+                }
+
+                if(menorEsValido){
                   //crear lista de menores que estan vinculados con el interno para incorporar a la ficha del adulto
-                  listaMenoresValidosNombres = listaMenoresValidosNombres + menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre  + " (" + edadMenor + " A) - ";
+                  listaMenoresValidosNombres = listaMenoresValidosNombres + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre  + " (" + edadMenor + " A) - ";
                   
                   //cargar menores habilitados en la lista
                   const menorValido: MenorHabilitadoEntradaDto = {
-                    id_menor: menorAACargo.ciudadanoMenor.id_ciudadano,
-                    apellido_nombre: menorAACargo.ciudadanoMenor.apellido + " " + menorAACargo.ciudadanoMenor.nombre,
+                    id_menor: vinculoMenor.ciudadano.id_ciudadano,
+                    apellido_nombre: vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre,
                     edad: edadMenor,
-                    id_sexo: menorAACargo.ciudadanoMenor.sexo_id,
+                    id_sexo: vinculoMenor.ciudadano.sexo_id,
                     id_parentesco: vinculoMenor.parentesco_id
                   };
 
@@ -308,6 +404,16 @@ export class EntradasSalidasService {
             //cuando hay menores que no estan vinculados con el interno
             if(nombreMenoresNoVinculados != ""){
               throw new BadRequestException("Estos menores no estan vinculados con el interno: " + nombreMenoresNoVinculados );
+            }
+
+            //cuando hay menores que no estan vinculados con el interno
+            if(nombreMenoresVinculoRestringido != ""){
+              throw new BadRequestException("Estos menores tienen el vinculo restringido con el interno: " + nombreMenoresNoVinculados );
+            }
+
+            //cuando hay menores que no estan vinculados con el interno
+            if(nombreMenoresProhibidos != ""){
+              throw new BadRequestException("Estos menores estan prohibidos: " + nombreMenoresNoVinculados );
             }
           }
 
@@ -875,7 +981,7 @@ export class EntradasSalidasService {
                       idOrganismo: user.organismo_id
                   }
               )        
-              //DATOS DE PROHIBICIONES
+              //DATOS DE EXCEPCIONES
               .leftJoinAndSelect(
                   'ciudadano.excepciones_visita','excepcion',
                   `
