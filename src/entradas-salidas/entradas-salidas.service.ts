@@ -121,7 +121,7 @@ export class EntradasSalidasService {
               )    
               .where('ingreso.interno_id = :idInterno', { idInterno: data.interno_id })    
               .andWhere('ingreso.esta_liberado = :estaLiberado', {
-                  esta_liberado: false
+                  estaLiberado: false
               })    
               .getOne();
 
@@ -318,7 +318,7 @@ export class EntradasSalidasService {
             let menorEsValido: boolean = true;
 
             for(const idMenor of listaIdsEncontrados){
-              const vinculoMenor = listaVinculos.find(registro => registro.ciudadano_id === idMenor)
+              const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === idMenor)
               
               //VALIDAR EDAD
               if (!vinculoMenor) {
@@ -329,7 +329,7 @@ export class EntradasSalidasService {
               else{
                 
                 //VALIDAR VINCULO MENORES 
-                const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === vinculoMenor.ciudadano.id_ciudadano)
+                //const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === vinculoMenor.ciudadano.id_ciudadano)
                 
                 //determinar si el vinculo esta anulado              
                 if (vinculoMenor.anulado) {
@@ -401,19 +401,19 @@ export class EntradasSalidasService {
               throw new BadRequestException("Estos ciudadanos no son menores: " + nombreNoMenores );
             }
 
-            //cuando hay menores que no estan vinculados con el interno
+            //cuando hay menores que no estan vinculados con el interno            
             if(nombreMenoresNoVinculados != ""){
               throw new BadRequestException("Estos menores no estan vinculados con el interno: " + nombreMenoresNoVinculados );
             }
 
-            //cuando hay menores que no estan vinculados con el interno
+            //cuando hay menores enviados que estan vinculados pero el vinculo esta restringido
             if(nombreMenoresVinculoRestringido != ""){
-              throw new BadRequestException("Estos menores tienen el vinculo restringido con el interno: " + nombreMenoresNoVinculados );
+              throw new BadRequestException("Estos menores tienen el vinculo restringido con el interno: " + nombreMenoresVinculoRestringido );
             }
 
-            //cuando hay menores que no estan vinculados con el interno
+            //cuando hay menores que estan prohibidos
             if(nombreMenoresProhibidos != ""){
-              throw new BadRequestException("Estos menores estan prohibidos: " + nombreMenoresNoVinculados );
+              throw new BadRequestException("Estos menores estan prohibidos: " + nombreMenoresProhibidos );
             }
           }
 
@@ -429,23 +429,34 @@ export class EntradasSalidasService {
           // });
           const listaProhibiciones = ciudadano.prohibiciones_visita;
           
-          let estaProhibido: boolean = false;
-          for (const prohibicion of listaProhibiciones){
-            if(prohibicion.fecha_fin >= fecha_actual){
-              estaProhibido = true;
-            }
-          }
+          // let estaProhibido: boolean = false;
+          // for (const prohibicion of listaProhibiciones){
+          //   if(prohibicion.fecha_fin >= fecha_actual){
+          //     estaProhibido = true;
+          //   }
+          // }
 
-          // -----------------------------------
-          // 5 . VALIDAR EXCEPCION INGRESO
-          // -----------------------------------
+          //determina si tiene prohibiciones
+          const estaProhibido = listaProhibiciones.length > 0;
           
           // -----------------------------------
-          // 5 . VALIDAR CON REQUISITOS DE CANTIDAD DE DIRECTOS E INDIRECTOS
+          // 6 . VALIDAR EXCEPCION INGRESO
+          // -----------------------------------
+          //verificar si tiene excepciones de ingreso cuando esta prohibido
+          let tieneExcepcion: boolean = false;
+          if(estaProhibido){
+            const listaExcepcionesVisita = ciudadano.excepciones_visita;
+            tieneExcepcion = listaExcepcionesVisita.length > 0;
+          }
+
+          
+          
+          // -----------------------------------
+          // 7 . VALIDAR CON REQUISITOS DE CANTIDAD DE DIRECTOS E INDIRECTOS
           // -----------------------------------
 
           // -----------------------------------
-          // 5 . VALIDAD INGRESO EN ENTRADA SALIDAS
+          // 8 . VALIDAD INGRESO EN ENTRADA SALIDAS
           // -----------------------------------
           
           let entradasSalidas = await entradasSalidaRepository
@@ -468,7 +479,7 @@ export class EntradasSalidasService {
    
   
           // -----------------------------------
-          // 6 . GUARDAR INGRESO
+          // 9 . GUARDAR INGRESO
           // -----------------------------------
 
           //GENERAR NUMERO DE FICHA
@@ -564,7 +575,7 @@ export class EntradasSalidasService {
           }         
   
           // -----------------------------------
-          // 7 . RESPUESTA
+          // 10 . RESPUESTA
           // -----------------------------------
           return {
               id_entrada_salida: ingresoGuardado.id_entrada_salida,
@@ -1034,11 +1045,10 @@ export class EntradasSalidasService {
             //VALIDAR PROHIBICION
             // -----------------------------------            
             const listaProhibiciones = ciudadano.prohibiciones_visita;
-
-            //FALTA VALIDAR QUE LA PROHIBICION SEA DEL ORGANISMO DEL USUARIO
+            //determina si tiene prohibiciones
             const estaProhibido = listaProhibiciones.length > 0;
             
-            //verificar si tiene excepciones de ingreso
+            //verificar si tiene excepciones de ingreso cuando esta prohibido
             let tieneExcepcion: boolean = false;
             if(estaProhibido){
               const listaExcepcionesVisita = ciudadano.excepciones_visita;
