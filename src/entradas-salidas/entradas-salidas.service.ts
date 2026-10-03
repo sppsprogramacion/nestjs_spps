@@ -195,7 +195,7 @@ export class EntradasSalidasService {
                       idOrganismo: usuario.organismo_id
                   }
               )        
-              //DATOS DE PROHIBICIONES
+              //DATOS DE EXCEPCIONES
               .leftJoinAndSelect(
                   'ciudadano.excepciones_visita','excepcion',
                   `
@@ -212,7 +212,21 @@ export class EntradasSalidasService {
                     fechaActual: fecha_actual,
                     idOrganismo: usuario.organismo_id
                   }
-              )       
+              )     
+              //DATOS DE ENTRADAS SALIDAS
+              .leftJoinAndSelect(
+                  'ciudadano.entradas_salidas','entradasSalidas',
+                  `
+                  entradasSalidas.cancelado = :entradaSalidaCancelado
+                  AND entradasSalidas.fecha_ingreso_principal = :fechaActual
+                  AND entradasSalidas.organismo_id = :idOrganismo
+                  `,
+                  {
+                      entradaSalidaCancelado: false,
+                      fechaActual: fecha_actual,
+                      idOrganismo: usuario.organismo_id
+                  }
+              )                  
               //DATOS DE HUELLAS
               .leftJoinAndSelect(
                   'ciudadano.huellas','huella',
@@ -247,12 +261,7 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 3 . VALIDAR VINCULOS 
           // -----------------------------------
-          // const listaVinculos = await visitaInternoRepository.find({
-          //     where: {
-          //         interno_id: data.interno_id,
-          //         vigente: true
-          //     }
-          // });
+         
           const listaVinculos = ingresoInterno.interno.visitas_internos;
   
           //VALIDAR VINCULO ADULTO
@@ -276,13 +285,7 @@ export class EntradasSalidasService {
           
           //solo se controla los menores si mando la lista con los ids con datos
           if(data.listaIdsMenores.length > 0){
-            //buscar a los menores que tiene a cargo el adulto  
-            // const listaMenoresACargo = await menoresACargoRepository.find({
-            //     where: {
-            //       ciudadano_tutor_id: ciudadano.id_ciudadano,
-            //       anulado: false
-            //     }
-            // }); 
+            //obtener a los menores que tiene a cargo el adulto              
             const listaMenoresACargo = ciudadano.menores_acargo;
 
             //cuando el adulto no tiene menores a cargo
@@ -320,7 +323,7 @@ export class EntradasSalidasService {
             for(const idMenor of listaIdsEncontrados){
               const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === idMenor)
               
-              //VALIDAR EDAD
+              //VALIDAR VINCULO DE MENORES
               if (!vinculoMenor) {
                   //crear lista de menores que NO estan vinculados con el interno
                   nombreMenoresNoVinculados = nombreMenoresNoVinculados + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " // ";
@@ -328,9 +331,7 @@ export class EntradasSalidasService {
               } 
               else{
                 
-                //VALIDAR VINCULO MENORES 
-                //const vinculoMenor = listaVinculos.find(vinculo => vinculo.ciudadano_id === vinculoMenor.ciudadano.id_ciudadano)
-                
+                //VALIDAR VINCULO MENORES      
                 //determinar si el vinculo esta anulado              
                 if (vinculoMenor.anulado) {
                   //crear lista de menores que NO estan vinculados con el interno
@@ -368,7 +369,7 @@ export class EntradasSalidasService {
                 //verificar si tiene excepciones de ingreso
                 let tieneExcepcionMEnor: boolean = false;
                 if(estaProhibidoMenor){
-                  const listaExcepcionesVisitaMenor = ciudadano.excepciones_visita;
+                  const listaExcepcionesVisitaMenor = vinculoMenor.ciudadano.excepciones_visita;
                   tieneExcepcionMEnor = listaExcepcionesVisitaMenor.length > 0;
                   if(!tieneExcepcionMEnor){
                     //lista de menores que tienen el vinculo restringido
@@ -420,22 +421,9 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 5 . VALIDAR PROHIBICION
           // -----------------------------------
-          // const listaProhibiciones = await prohibicionVisitaRepository.find({
-          //   where: {
-          //     ciudadano_id: data.ciudadano_id,
-          //     vigente: true,
-          //     anulado: false
-          //   }
-          // });
+          
           const listaProhibiciones = ciudadano.prohibiciones_visita;
           
-          // let estaProhibido: boolean = false;
-          // for (const prohibicion of listaProhibiciones){
-          //   if(prohibicion.fecha_fin >= fecha_actual){
-          //     estaProhibido = true;
-          //   }
-          // }
-
           //determina si tiene prohibiciones
           const estaProhibido = listaProhibiciones.length > 0;
           
@@ -448,8 +436,6 @@ export class EntradasSalidasService {
             const listaExcepcionesVisita = ciudadano.excepciones_visita;
             tieneExcepcion = listaExcepcionesVisita.length > 0;
           }
-
-          
           
           // -----------------------------------
           // 7 . VALIDAR CON REQUISITOS DE CANTIDAD DE DIRECTOS E INDIRECTOS
@@ -459,22 +445,26 @@ export class EntradasSalidasService {
           // 8 . VALIDAD INGRESO EN ENTRADA SALIDAS
           // -----------------------------------
           
-          let entradasSalidas = await entradasSalidaRepository
-              .createQueryBuilder('entrada')
-              .where('entrada.organismo_id = :organismoId', {
-                  organismoId: usuario.organismo_id
-              })
-              .andWhere('entrada.ciudadano_id = :ciudadanoId', {
-                  ciudadanoId: ciudadano.id_ciudadano
-              })
-              .andWhere('entrada.fecha_ingreso_principal = :fechaIngresoPrincipal', {
-                  fechaIngresoPrincipal: fecha_actual
-              })
-              .getOne();   
-  
-          if (entradasSalidas) { 
+          // let entradasSalidas = await entradasSalidaRepository
+          //     .createQueryBuilder('entrada')
+          //     .where('entrada.organismo_id = :organismoId', {
+          //         organismoId: usuario.organismo_id
+          //     })
+          //     .andWhere('entrada.ciudadano_id = :ciudadanoId', {
+          //         ciudadanoId: ciudadano.id_ciudadano
+          //     })
+          //     .andWhere('entrada.fecha_ingreso_principal = :fechaIngresoPrincipal', {
+          //         fechaIngresoPrincipal: fecha_actual
+          //     })
+          //     .getOne();   
 
-              throw new BadRequestException('El ciudadano ya posee un ingreso en esta unidad el dia de la fecha con el numero de ficha: ' + entradasSalidas.numero_ficha)
+          let entradasSalidas = ciudadano.entradas_salidas;
+          if(entradasSalidas){
+            let entrada = entradasSalidas.find(entrada => entrada.organismo_id == usuario.organismo_id && entrada.cancelado == false)
+            if (entrada) { 
+  
+                throw new BadRequestException('El ciudadano ya posee un ingreso en esta unidad el dia de la fecha con el numero de ficha: ' + entrada.numero_ficha)
+            }
           }
    
   

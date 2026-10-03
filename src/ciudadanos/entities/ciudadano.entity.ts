@@ -15,6 +15,7 @@ import { VisitaInterno } from "src/visitas-internos/entities/visitas-interno.ent
 import { ProhibicionVisita } from "src/prohibiciones-visita/entities/prohibiciones-visita.entity";
 import { Huella } from "src/huellas/entities/huella.entity";
 import { ExcepcionIngresoVisita } from "src/excepciones-ingreso-visita/entities/excepciones-ingreso-visita.entity";
+import { EntradasSalida } from '../../entradas-salidas/entities/entradas-salida.entity';
 
 @Entity('ciudadanos')
 export class Ciudadano {
@@ -273,19 +274,26 @@ export class Ciudadano {
     //FIN USUARIO ALTA
 
     //RELACIONES 
-    @OneToMany(() => MenorACargo, menor => menor.ciudadanoTutor)
-    menores_acargo: MenorACargo[];
-    
-    @OneToMany(() => VisitaInterno,visita => visita.ciudadano)
-    visitas_internos: VisitaInterno[];
-    
-    @OneToMany(() => ProhibicionVisita,prohibicion => prohibicion.ciudadano)
-    prohibiciones_visita: ProhibicionVisita[];
+    @OneToMany(() => EntradasSalida, entradaSalida => entradaSalida.ciudadano)
+    entradas_salidas: EntradasSalida[];
 
     @OneToMany(() => ExcepcionIngresoVisita, excepcion => excepcion.ciudadano)
     excepciones_visita: ExcepcionIngresoVisita[];
     
     @OneToMany(() => Huella,huella => huella.ciudadano)
     huellas: Huella[];
+
+    @OneToMany(() => MenorACargo, menor => menor.ciudadanoTutor)
+    menores_acargo: MenorACargo[];
+    
+    @OneToMany(() => ProhibicionVisita,prohibicion => prohibicion.ciudadano)
+    prohibiciones_visita: ProhibicionVisita[];
+
+    @OneToMany(() => VisitaInterno,visita => visita.ciudadano)
+    visitas_internos: VisitaInterno[];
+    
+
+
+    
     
 }
