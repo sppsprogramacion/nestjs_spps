@@ -775,8 +775,7 @@ export class EntradasSalidasService {
                 .leftJoinAndSelect('entrada.sexo', 'sexo')
                 .leftJoinAndSelect('entrada.parentesco', 'parentesco')
                 .leftJoinAndSelect('entrada.organismo', 'organismo')
-                .leftJoinAndSelect('entrada.usuario', 'usuario')
-            
+                .leftJoinAndSelect('entrada.usuario', 'usuario')            
                 .leftJoin('entrada.ciudadano', 'ciudadano')
                 .addSelect([
                     'ciudadano.id_ciudadano',
@@ -789,6 +788,11 @@ export class EntradasSalidasService {
                     'ciudadano.fecha_alta',
                     'ciudadano.foto'
                 ])
+                //DATOS DE HUELLAS
+                .leftJoinAndSelect(
+                    'ciudadano.huellas','huella',
+                    'huella.activo = :huellaActiva', { huellaActiva: true }
+                )    
                 .where('entrada.numero_ficha = :numeroFicha', {
                     numeroFicha
                 })
@@ -825,7 +829,7 @@ export class EntradasSalidasService {
                     'ciudadano.dni',
                     'ciudadano.fecha_nac',
                     'ciudadano.foto'
-                ])            
+                ])                                
                 .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
                     id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
                 })
@@ -841,12 +845,14 @@ export class EntradasSalidasService {
             // BUSCAR HUELLAS
             // ----------------------------------
 
-            const huellas = await huellasRepository.find({
-                where: {
-                    ciudadano_id: ingresoGuardado.ciudadano.id_ciudadano,
-                    activo: true,                    
-                }
-            });
+            // const huellas = await huellasRepository.find({
+            //     where: {
+            //         ciudadano_id: ingresoGuardado.ciudadano.id_ciudadano,
+            //         activo: true,                    
+            //     }
+            // });
+
+            const huellas = ingresoGuardado.ciudadano.huellas;
 
             //--------------------------------------------
             //CONSTRUIR RESPUESTA
