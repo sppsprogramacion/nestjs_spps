@@ -28,15 +28,15 @@ export class EntradasSalidasController {
     return this.entradasSalidasService.findAll();
   }
 
-  //BUSCAR  XID CIUDADANO
+  //BUSCAR  LISTA XID CIUDADANO
   @Get('lista-xciudadano')  
   async findXCiudadano(
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string    
   ) {    
     
-    return this.entradasSalidasService.findXCiudadano(+id_ciudadano);
+    return this.entradasSalidasService.findListaXCiudadano(+id_ciudadano);
   }
-  //FIN BUSCAR  XID CIUDADANO....................................................
+  //FIN BUSCAR LISTA XID CIUDADANO....................................................
 
   //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
@@ -85,6 +85,18 @@ export class EntradasSalidasController {
     return this.entradasSalidasService.findCiudadanoIngresoControl(numeroficha,user);
   }
   //FIN BUSCAR INGRESO SECUNDARIO....................................................
+
+  //BUSCAR INGRESO XCIUDADANO
+  @Get('buscar-entrada-control-idciudadano/:idCiudadano')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findEntradaXCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('idCiudadano', ParseIntPipe) idCiudadano: string,
+  ) {        
+
+    return this.entradasSalidasService.findIngresoXCiudadano(+idCiudadano,user);
+  }
+  //FIN BUSCAR PARA VISITA....................................................
   
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    

@@ -598,8 +598,8 @@ export class EntradasSalidasService {
       );
     }
   
-    //BUSCAR  XCIUDADANO
-    async findXCiudadano(id_ciudadanox: number) {    
+    //BUSCAR LISTA INGRESOS XCIUDADANO
+    async findListaXCiudadano(id_ciudadanox: number) {    
         const prohibiciiones = await this.entradaSalidasRepository.find(
           {        
             where: {
@@ -614,7 +614,7 @@ export class EntradasSalidasService {
             
         return prohibiciiones;    
     }
-    //FIN BUSCAR  XCIUDADANO
+    //FIN BUSCAR  LISTA INGRESOS XCIUDADANO
     //..................................................................
   
     //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
@@ -756,7 +756,7 @@ export class EntradasSalidasService {
   //------------------------------------------------------------------------------------
 
   
-  //BUSCAR ENTRADA XNUMERO DE FICHA
+  //BUSCAR ENTRADA XNUMERO DE FICHA INGRES PARA CONTROL
   async findCiudadanoIngresoControl(numeroFicha: string, usuario: Usuario) {    
     
     const fecha_actual: any = new Date().toISOString().split('T')[0];  
@@ -1171,6 +1171,173 @@ export class EntradasSalidasService {
   }
   //FIN BUSCAR CIUDADANO PARA VISITA
   //-------------------------------------------------------------------------------------
+
+  //BUSCAR  XCIUDADANO
+    async findIngresoXCiudadano(id_ciudadanox: number, usuario: Usuario) {    
+        const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+        return await this.dataSource.transaction(
+            async manager => {
+    
+                const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+                const huellasRepository = manager.getRepository(Huella);
+    
+                // ----------------------------------
+                // BUSCAR INGRESO
+                // ----------------------------------
+                const ingresoGuardado = await entradaSalidaRepository
+                    .createQueryBuilder('entrada')
+                    .leftJoinAndSelect('entrada.sexo', 'sexo')
+                    .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                    .leftJoinAndSelect('entrada.organismo', 'organismo')
+                    .leftJoinAndSelect('entrada.usuario', 'usuario')            
+                    .leftJoin('entrada.ciudadano', 'ciudadano')
+                    .addSelect([
+                        'ciudadano.id_ciudadano',
+                        'ciudadano.apellido',
+                        'ciudadano.nombre',
+                        'ciudadano.dni',
+                        'ciudadano.fecha_nac',
+                        'ciudadano.tiene_discapacidad',
+                        'ciudadano.discapacidad_detalle',
+                        'ciudadano.fecha_alta',
+                        'ciudadano.foto'
+                    ])
+                    //DATOS DE HUELLAS
+                    .leftJoinAndSelect(
+                        'ciudadano.huellas','huella',
+                        'huella.activo = :huellaActiva', { huellaActiva: true }
+                    )    
+                    .where('entrada.ciudadano_id = :idCiudadano', {
+                        idCiudadano: id_ciudadanox
+                    })
+                    .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                        fecha: fecha_actual
+                    })
+                    .andWhere('entrada.cancelado = :cancelado', {
+                        cancelado: false
+                    })            
+                    .getOne();
+    
+                if (!ingresoGuardado) {
+                    throw new NotFoundException('No hay una ingreso registrado de este ciudadano.');
+                }
+    
+                
+                
+                // ----------------------------------
+                // BUSCAR MENORES
+                // ----------------------------------
+                
+                const ingresoMenores = await entradaSalidaRepository
+                    .createQueryBuilder('entrada')
+                    .leftJoinAndSelect('entrada.sexo', 'sexo')
+                    .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                    .leftJoinAndSelect('entrada.organismo', 'organismo')
+                    .leftJoinAndSelect('entrada.usuario', 'usuario')
+                
+                    .leftJoin('entrada.ciudadano', 'ciudadano')
+                    .addSelect([
+                        'ciudadano.id_ciudadano',
+                        'ciudadano.apellido',
+                        'ciudadano.nombre',
+                        'ciudadano.dni',
+                        'ciudadano.fecha_nac',
+                        'ciudadano.foto'
+                    ])                                
+                    .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
+                        id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
+                    })
+                    .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                        fecha: fecha_actual
+                    })
+                    .andWhere('entrada.cancelado = :cancelado', {
+                        cancelado: false
+                    })
+                    .getMany();
+    
+                // ----------------------------------
+                // BUSCAR HUELLAS
+                // ----------------------------------
+    
+                // const huellas = await huellasRepository.find({
+                //     where: {
+                //         ciudadano_id: ingresoGuardado.ciudadano.id_ciudadano,
+                //         activo: true,                    
+                //     }
+                // });
+    
+                const huellas = ingresoGuardado.ciudadano.huellas;
+    
+                //--------------------------------------------
+                //CONSTRUIR RESPUESTA
+                //--------------------------------------------
+    
+                //buscar foto del ciudadano
+                let imgUrl: string = "";
+                let foto_nombre = ingresoGuardado.ciudadano.foto;
+                
+                //obtener url de la imagen en drive y agregado en la respuesta
+                const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
+                if(file){
+                  imgUrl = await file.webContentLink;
+                  ingresoGuardado.ciudadano.foto = imgUrl;
+                }
+                else{
+                  ingresoGuardado.ciudadano.foto = null;
+                }
+               
+                // lista de menores midificada y con edad
+                const menoresIngresadosResponse = ingresoMenores.map(item => {
+                  
+              
+                  return {
+                    id_ciudadano: item.ciudadano_id,
+                    nombre_menor: item.nombre_visita,
+                    nombre_interno: item.nombre_interno,                
+                    dni: item.ciudadano.dni,
+                    sexo: item.sexo.sexo,
+                    edad: item.edad
+                  };
+                });
+    
+                //formar respuesta 
+                return {
+                  id_entrada_salida: ingresoGuardado.id_entrada_salida,
+                  numero_ficha: ingresoGuardado.numero_ficha,
+                  nombre_visita: ingresoGuardado.nombre_visita,
+                  dni_visita: ingresoGuardado.ciudadano.dni,                  
+                  sexo_visita: ingresoGuardado.sexo.sexo,
+                  fecha_nacimiento_visita: ingresoGuardado.ciudadano.fecha_nac,
+                  edad_visita: ingresoGuardado.edad,
+                  foto_visita: ingresoGuardado.ciudadano.foto,
+                  tiene_discapacidad_visita: ingresoGuardado.ciudadano.tiene_discapacidad,
+                  discapacidad_detalle: ingresoGuardado.ciudadano.discapacidad_detalle,
+                  fecha_alta_visita: ingresoGuardado.ciudadano.fecha_alta,
+                  nombre_interno: ingresoGuardado.nombre_interno,
+                  parentesco: ingresoGuardado.parentesco.parentesco,
+                  casillero: ingresoGuardado.casillero,
+                  menores: ingresoGuardado.menores,
+                  fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+                  hora_registro: ingresoGuardado.hora_ingreso_principal,
+                  hora_egreso: ingresoGuardado.hora_egreso_principal,
+                  organismo: usuario.organismo.organismo,              
+                  huellasCiudadanoResponse: huellas.map(huella => ({
+                    id_huella_ciudadano: huella.id_huella_ciudadano,
+                    ciudadano_id: huella.ciudadano_id,
+                    dedo_id: huella.dedo_id,
+                    activo: huella.activo,
+                  })),
+                  menoresIngresadosResponse
+                  
+                  
+                };
+            }
+        );
+       
+    }
+    //FIN BUSCAR  XCIUDADANO
+    //..................................................................
 
   //BUSCAR  XID
   async findOne(id: number) {
