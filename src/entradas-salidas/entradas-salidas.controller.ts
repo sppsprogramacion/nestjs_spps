@@ -62,7 +62,7 @@ export class EntradasSalidasController {
   }
   //FIN BUSCAR  PENDIENTES SALIDA....................................................
 
-  //CIUDADANO PARA VISITA
+  //BUSCAR CIUDADANO PARA VISITA
   @Get('buscar-ciudadano/:dni')  
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
   async findCiudadanoParaVisita(
@@ -72,31 +72,31 @@ export class EntradasSalidasController {
 
     return this.entradasSalidasService.findCiudadanoParaVisita(+dni,user);
   }
-  //FIN BUSCAR PARA VISITA....................................................
+  //FIN BUSCAR CIUDADANO PARA VISITA....................................................
 
-  //CIUDADANO PARA INGRESO SECUNDARIO
-  @Get('buscar-ciudadano-ingreso-control/:numeroficha')  
+  //BUSCAR ENTRADA PARA CONTROL XFICHA
+  @Get('buscar-entrada-control-ficha/:numeroficha')  
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
-  async findIngresoSecundario(
+  async findEntradaControlXFicha(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Param('numeroficha', ParseIntPipe) numeroficha: string,
   ) {        
 
-    return this.entradasSalidasService.findCiudadanoIngresoControl(numeroficha,user);
+    return this.entradasSalidasService.findIngresoControlXNumFicha(numeroficha,user);
   }
-  //FIN BUSCAR INGRESO SECUNDARIO....................................................
+  //FIN BUSCAR ENTRADA PARA CONTROL XFICHA....................................................
 
-  //BUSCAR INGRESO XCIUDADANO
-  @Get('buscar-entrada-control-idciudadano/:idCiudadano')  
+  //BUSCAR ENTRADA PARA CONTROL XCIUDADANO
+  @Get('buscar-entrada-control-ciudadano/:idCiudadano')  
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
-  async findEntradaXCiudadano(
+  async findEntradaControlXIdCiudadano(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Param('idCiudadano', ParseIntPipe) idCiudadano: string,
   ) {        
 
-    return this.entradasSalidasService.findIngresoXCiudadano(+idCiudadano,user);
+    return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,user);
   }
-  //FIN BUSCAR PARA VISITA....................................................
+  //FIN BUSCAR ENTRADA PARA CONTROL XCIUDADANO....................................................
   
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
