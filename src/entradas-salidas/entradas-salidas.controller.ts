@@ -86,18 +86,54 @@ export class EntradasSalidasController {
   }
   //FIN BUSCAR ENTRADA PARA CONTROL XFICHA....................................................
 
-  //BUSCAR ENTRADA PARA CONTROL XCIUDADANO
-  @Get('buscar-entrada-control-ciudadano/:idCiudadano')  
+  //BUSCAR ENTRADA PARA CONTROL PUERTA PRINCIPAL XCIUDADANO
+  @Get('buscar-entrada-control-pp-xciudadano/:idCiudadano')  
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
-  async findEntradaControlXIdCiudadano(
+  async findEntradaControlPPrincipalXIdCiudadano(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Param('idCiudadano', ParseIntPipe) idCiudadano: string,
   ) {        
-
-    return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,user);
+    
+    return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,"puerta_principal",user);
   }
-  //FIN BUSCAR ENTRADA PARA CONTROL XCIUDADANO....................................................
+  //FIN BUSCAR ENTRADA PARA CONTROL PUERTA PRINCIPAL XCIUDADANO....................................................
+
+  //BUSCAR ENTRADA PARA CONTROL PORTON 4 XCIUDADANO
+  @Get('buscar-entrada-control-porton4-xciudadano/:idCiudadano')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findEntradaControlPorton4XIdCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('idCiudadano', ParseIntPipe) idCiudadano: string,
+  ) {        
+    
+    return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,"porton_4",user);
+  }
+  //FIN BUSCAR ENTRADA PARA CONTROL PORTON 4 XCIUDADANO....................................................
+
+  //BUSCAR ENTRADA PARA CONTROL MESA_CONTROL XCIUDADANO
+  @Get('buscar-entrada-control-mesacontrol-xciudadano/:idCiudadano')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findEntradaControlMesaControlXIdCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('idCiudadano', ParseIntPipe) idCiudadano: string,
+  ) {        
+    
+    return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,"mesa_control",user);
+  }
+  //FIN BUSCAR ENTRADA PARA CONTROL MESA_CONTROL4 XCIUDADANO....................................................
   
+  //BUSCAR ENTRADA PARA CONTROL CONTROL_INTERNO XCIUDADANO
+  @Get('buscar-entrada-control-controlinterno-xciudadano/:idCiudadano')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findEntradaControlControlIdCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('idCiudadano', ParseIntPipe) idCiudadano: string,
+  ) {        
+    
+    return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,"control_interno",user);
+  }
+  //FIN BUSCAR ENTRADA PARA CONTROL CONTROL_INTERNO XCIUDADANO....................................................
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
     
@@ -125,6 +161,31 @@ export class EntradasSalidasController {
     return this.entradasSalidasService.registrarEgreso(+id_registro, dataDto, user);
   }
   //FIN EGRESO REGISTRO.................................
+
+  //REGISTRAR CONTROL PORTON 4
+  @Put('registrar-controlingreso-porton4')
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
+  updateRegistarControlIngresoPorton4(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+  ) {
+
+    
+    return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "porton_4", "ingreso", user);
+  }
+
+  @Put('registrar-controlegreso-porton4')
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
+  updateRegistarControlegresoPorton4(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+  ) {
+
+    
+    return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "porton_4", "egreso", user);
+  }
+  //FIN REGISTRAR CONTROL PORTON 4.................................
+  //----------------------------------------------------
 
   //CANCELAR REGISTRO
   @Put('cancelar')

@@ -19,6 +19,7 @@ import { EntradaSalidaCorrelativo } from './entities/entradas-salida-correlativo
 import { MenorHabilitadoEntradaDto } from './dto/menor-habilitado-entrada.dto';
 import { isNotEmpty } from 'class-validator';
 import { use } from 'passport';
+import { UpdateEntradaRegistrarControlDto } from './dto/update-entrada-registrar-control.dto';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -756,7 +757,7 @@ export class EntradasSalidasService {
   //------------------------------------------------------------------------------------
 
   
-  //BUSCAR ENTRADA XNUMERO DE FICHA INGRES PARA CONTROL
+  //BUSCAR INGRESO CONTROL XNUMERO DE FICHA INGRES PARA CONTROL
   async findIngresoControlXNumFicha(numeroFicha: string, usuario: Usuario) {    
     
     const fecha_actual: any = new Date().toISOString().split('T')[0];  
@@ -1172,8 +1173,8 @@ export class EntradasSalidasService {
   //FIN BUSCAR CIUDADANO PARA VISITA
   //-------------------------------------------------------------------------------------
 
-  //BUSCAR INGRESO XCIUDADANO
-  async findIngresoControlXIdCiudadano(id_ciudadanox: number, usuario: Usuario) {    
+  //BUSCAR INGRESO CONTROL XCIUDADANO (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
+  async findIngresoControlXIdCiudadano(id_ciudadanox: number, tipoControl: string, usuario: Usuario) {    
       const fecha_actual: any = new Date().toISOString().split('T')[0];  
   
       return await this.dataSource.transaction(
@@ -1301,6 +1302,28 @@ export class EntradasSalidasService {
                 };
               });
   
+              //establecer horarios a retornar
+              //puerta_principal, porton_4, mesa_control, control_interno
+              let hora_ingreso_aux: string = "";
+              let hora_egreso_aux: string = "";
+              if(tipoControl === "puerta_principal"){
+                hora_ingreso_aux = ingresoGuardado.hora_ingreso_principal;
+                hora_egreso_aux = ingresoGuardado.hora_egreso_principal;
+              }
+              if(tipoControl === "porton_4"){
+                hora_ingreso_aux = ingresoGuardado.hora_ingreso_acceso_4;
+                hora_egreso_aux = ingresoGuardado.hora_egreso_acceso_4;
+              }
+              if(tipoControl === "mesa_control"){
+                hora_ingreso_aux = ingresoGuardado.hora_ingreso_mesa_control;
+                hora_egreso_aux = ingresoGuardado.hora_egreso_mesa_control;
+              }
+              if(tipoControl === "control_interno"){
+                hora_ingreso_aux = ingresoGuardado.hora_ingreso_control_interno;
+                hora_egreso_aux = ingresoGuardado.hora_egreso_control_interno;
+              }
+
+
               //formar respuesta 
               return {
                 id_entrada_salida: ingresoGuardado.id_entrada_salida,
@@ -1319,8 +1342,8 @@ export class EntradasSalidasService {
                 casillero: ingresoGuardado.casillero,
                 menores: ingresoGuardado.menores,
                 fecha_registro: ingresoGuardado.fecha_ingreso_principal,
-                hora_registro: ingresoGuardado.hora_ingreso_principal,
-                hora_egreso: ingresoGuardado.hora_egreso_principal,
+                hora_registro: hora_ingreso_aux,
+                hora_egreso: hora_egreso_aux,
                 organismo: usuario.organismo.organismo,              
                 huellasCiudadanoResponse: huellas.map(huella => ({
                   id_huella_ciudadano: huella.id_huella_ciudadano,
@@ -1429,6 +1452,207 @@ export class EntradasSalidasService {
   }  
   //FIN REGISTRAR EGRESO
   
+  //REGISTRAR HORARIO PASO CONTROL XCIUDADANO (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
+  async registrarHorarioControlXIdEntrada(id_entrada: number, tipoControl: string, tipoAcceso: string, usuario: Usuario) {    
+      const fecha_actual: any = new Date().toISOString().split('T')[0];  
+  
+      return await this.dataSource.transaction(
+          async manager => {
+  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+  
+              // ----------------------------------
+              // BUSCAR INGRESO
+              // ----------------------------------
+              const ingresoGuardado = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .leftJoinAndSelect('entrada.sexo', 'sexo')
+                  .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                  .leftJoinAndSelect('entrada.organismo', 'organismo')
+                  .leftJoinAndSelect('entrada.usuario', 'usuario')            
+                  .leftJoin('entrada.ciudadano', 'ciudadano')
+                  .addSelect([
+                      'ciudadano.id_ciudadano',
+                      'ciudadano.apellido',
+                      'ciudadano.nombre',
+                      'ciudadano.dni',
+                      'ciudadano.fecha_nac',
+                      'ciudadano.tiene_discapacidad',
+                      'ciudadano.discapacidad_detalle',
+                      'ciudadano.fecha_alta',
+                      'ciudadano.foto'
+                  ])
+                  //DATOS DE HUELLAS
+                  .leftJoinAndSelect(
+                      'ciudadano.huellas','huella',
+                      'huella.activo = :huellaActiva', { huellaActiva: true }
+                  )    
+                  .where('entrada.id_entrada_salida = :idEntradaSalida', {
+                      idEntradaSalida: id_entrada
+                  })
+                  .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                      fecha: fecha_actual
+                  })
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })            
+                  .getOne();
+  
+              if (!ingresoGuardado) {
+                  throw new NotFoundException('No hay una ingreso registrado de este ciudadano.');
+              }
+  
+                            
+              // ----------------------------------
+              // BUSCAR MENORES
+              // ----------------------------------
+              
+              const ingresoMenores = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .leftJoinAndSelect('entrada.sexo', 'sexo')
+                  .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                  .leftJoinAndSelect('entrada.organismo', 'organismo')
+                  .leftJoinAndSelect('entrada.usuario', 'usuario')
+              
+                  .leftJoin('entrada.ciudadano', 'ciudadano')
+                  .addSelect([
+                      'ciudadano.id_ciudadano',
+                      'ciudadano.apellido',
+                      'ciudadano.nombre',
+                      'ciudadano.dni',
+                      'ciudadano.fecha_nac',
+                      'ciudadano.foto'
+                  ])                                
+                  .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
+                      id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
+                  })
+                  .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                      fecha: fecha_actual
+                  })
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })
+                  .getMany();
+  
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
+              let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS 
+              let entradaEditar: UpdateEntradaRegistrarControlDto = new UpdateEntradaRegistrarControlDto();
+              
+              //establecer horarios
+              //puerta_principal, porton_4, mesa_control, control_interno
+              let hora_ingreso_aux: string = "";
+              let hora_egreso_aux: string = "";
+              let obs: string = "";
+              
+              //control porton 4
+              if(tipoControl === "porton_4"){
+                if(tipoAcceso == "ingreso"){
+                  if(ingresoGuardado.hora_ingreso_acceso_4){
+                    
+                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');
+                                      
+                  }
+
+                  entradaEditar.fecha_ingreso_acceso_4 = fecha_actual;
+                  entradaEditar.hora_ingreso_acceso_4 = hora_actual;   
+                  obs = "Ingreso Porton 4: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
+                                              
+                }
+
+                if(tipoAcceso == "egreso"){
+
+                  if(!ingresoGuardado.hora_ingreso_acceso_4){
+                    throw new NotFoundException('No puede registrar el egreso por este sector porue el visitante NO registro el ingreso por este sector.');
+                  }
+
+                  if(ingresoGuardado.hora_egreso_acceso_4){
+                    throw new NotFoundException('El visitante ya registro el egreso por este sector.');
+                  }
+
+                  entradaEditar.hora_egreso_acceso_4 = hora_actual;
+                  obs = "Egreso Porton 4: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
+                
+                }
+              }
+              //fin control porton 4
+
+              if(tipoControl === "mesa_control"){
+                if(ingresoGuardado.hora_ingreso_mesa_control){
+                  entradaEditar.hora_egreso_mesa_control = hora_actual;
+                  obs = "Egreso Mesa Control: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
+              
+                }
+                else{
+                  entradaEditar.fecha_ingreso_mesa_control = fecha_actual;
+                  entradaEditar.hora_ingreso_mesa_control = hora_actual;      
+                  obs = "Ingreso Mesa Control: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
+              
+                }
+              }
+              if(tipoControl === "control_interno"){
+                if(ingresoGuardado.hora_ingreso_control_interno){
+                  entradaEditar.hora_egreso_control_interno = hora_actual;
+                  obs = "Egreso Control Interno: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
+              
+                }
+                else{
+                  entradaEditar.fecha_ingreso_control_interno = fecha_actual;
+                  entradaEditar.hora_ingreso_control_interno = hora_actual; 
+                  obs = "Ingreso Control Interno: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
+                            
+                }
+              }
+              
+              if(isNotEmpty(obs)){
+                if( isNotEmpty(ingresoGuardado.observaciones_usuarios) ){
+          
+                  entradaEditar.observaciones_usuarios = obs + " // " + ingresoGuardado.observaciones_usuarios;
+                }
+                else{
+                  entradaEditar.observaciones_usuarios = obs;
+                }
+              }
+              
+
+              const respuesta = await this.entradaSalidasRepository.update(id_entrada, entradaEditar);
+              
+              //formar respuesta 
+              return {
+                id_entrada_salida: id_entrada,
+                ///ingreso principal    
+                fecha_ingreso_principal: entradaEditar.fecha_ingreso_principal,               
+                hora_ingreso_principal: entradaEditar.hora_ingreso_principal,            
+                hora_egreso_principal: entradaEditar.hora_egreso_principal,
+                //fin ingreso principal
+            
+                //control interno   
+                fecha_ingreso_control_interno: entradaEditar.fecha_ingreso_control_interno,                
+                hora_ingreso_control_interno: entradaEditar.hora_ingreso_control_interno,                
+                hora_egreso_control_interno: entradaEditar.hora_egreso_control_interno,
+                //fin control interno
+            
+                //mesa de control    
+                fecha_ingreso_mesa_control: entradaEditar.fecha_ingreso_mesa_control,                
+                hora_ingreso_mesa_control: entradaEditar.hora_ingreso_mesa_control,            
+                hora_egreso_mesa_control: entradaEditar.hora_egreso_mesa_control,
+                //fin mesa de control
+                
+                //acceso 4
+                fecha_ingreso_acceso_4: entradaEditar.fecha_ingreso_acceso_4,                
+                hora_ingreso_acceso_4: entradaEditar.hora_ingreso_acceso_4,                
+                hora_egreso_acceso_4: entradaEditar.hora_egreso_acceso_4,
+                //fin acceso 4 
+                
+              };
+          }
+      );
+      
+  }
+  //FIN BUSCAR INGRESO XCIUDADANO
+  //..................................................................
+
   //MANEJO DE ERRORES
   private handleDBErrors(error: any): never {
     if(error.code === "ER_DUP_ENTRY"){
