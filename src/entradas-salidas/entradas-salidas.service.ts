@@ -1482,38 +1482,7 @@ export class EntradasSalidasService {
                   throw new NotFoundException('No hay una ingreso registrado de este ciudadano.');
               }
   
-                            
-              // ----------------------------------
-              // BUSCAR MENORES
-              // ----------------------------------
-              
-              // const ingresoMenores = await entradaSalidaRepository
-              //     .createQueryBuilder('entrada')
-              //     .leftJoinAndSelect('entrada.sexo', 'sexo')
-              //     .leftJoinAndSelect('entrada.parentesco', 'parentesco')
-              //     .leftJoinAndSelect('entrada.organismo', 'organismo')
-              //     .leftJoinAndSelect('entrada.usuario', 'usuario')
-              
-              //     .leftJoin('entrada.ciudadano', 'ciudadano')
-              //     .addSelect([
-              //         'ciudadano.id_ciudadano',
-              //         'ciudadano.apellido',
-              //         'ciudadano.nombre',
-              //         'ciudadano.dni',
-              //         'ciudadano.fecha_nac',
-              //         'ciudadano.foto'
-              //     ])                                
-              //     .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
-              //         id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
-              //     })
-              //     .andWhere('entrada.fecha_ingreso_principal = :fecha', {
-              //         fecha: fecha_actual
-              //     })
-              //     .andWhere('entrada.cancelado = :cancelado', {
-              //         cancelado: false
-              //     })
-              //     .getMany();
-  
+                
               //--------------------------------------------
               //CONSTRUIR RESPUESTA
               //--------------------------------------------
@@ -1521,8 +1490,7 @@ export class EntradasSalidasService {
               //puerta_principal, porton_4, mesa_control, control_interno
               let entradaEditar = new UpdateEntradaRegistrarControlDto();
               let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS               
-              let hora_ingreso_aux: string = "";
-              let hora_egreso_aux: string = "";
+              
               let obs: string = "";
               const datosUsuario = `Usuario: (id: ${usuario.id_usuario}) ${usuario.apellido} ${usuario.nombre}`;
               
@@ -1544,7 +1512,7 @@ export class EntradasSalidasService {
                 if(tipoAcceso == "egreso"){
 
                   if(!ingresoGuardado.hora_ingreso_acceso_4){
-                    throw new NotFoundException('No puede registrar el egreso por este sector porue el visitante NO registro el ingreso por este sector.');
+                    throw new NotFoundException('No puede registrar el egreso por este sector porque el visitante NO registro el ingreso por este sector.');
                   }
 
                   if(ingresoGuardado.hora_egreso_acceso_4){
