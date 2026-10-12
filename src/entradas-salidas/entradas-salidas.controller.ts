@@ -163,7 +163,7 @@ export class EntradasSalidasController {
   //FIN EGRESO REGISTRO.................................
 
   //REGISTRAR CONTROL PORTON 4
-  @Put('registrar-controlingreso-porton4')
+  @Put('registrar-controlingreso-acceso4')
   @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
   updateRegistarControlIngresoPorton4(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
@@ -174,7 +174,7 @@ export class EntradasSalidasController {
     return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "porton_4", "ingreso", user);
   }
 
-  @Put('registrar-controlegreso-porton4')
+  @Put('registrar-controlegreso-acceso4')
   @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
   updateRegistarControlegresoPorton4(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado

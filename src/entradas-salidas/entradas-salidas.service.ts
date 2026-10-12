@@ -846,12 +846,6 @@ export class EntradasSalidasService {
             // BUSCAR HUELLAS
             // ----------------------------------
 
-            // const huellas = await huellasRepository.find({
-            //     where: {
-            //         ciudadano_id: ingresoGuardado.ciudadano.id_ciudadano,
-            //         activo: true,                    
-            //     }
-            // });
 
             const huellas = ingresoGuardado.ciudadano.huellas;
 
@@ -1494,7 +1488,7 @@ export class EntradasSalidasService {
               let obs: string = "";
               const datosUsuario = `Usuario: (id: ${usuario.id_usuario}) ${usuario.apellido} ${usuario.nombre}`;
               
-              //control porton 4
+              //control acceso 4
               if(tipoControl === "porton_4"){
                 if(tipoAcceso == "ingreso"){
                   if(ingresoGuardado.hora_ingreso_acceso_4){
@@ -1505,7 +1499,7 @@ export class EntradasSalidasService {
 
                   entradaEditar.fecha_ingreso_acceso_4 = fecha_actual;
                   entradaEditar.hora_ingreso_acceso_4 = hora_actual;   
-                  obs = `Ingreso Portón 4: ${datosUsuario}`;
+                  obs = `Ingreso Acceso 4: ${datosUsuario}`;
 
                 }
 
@@ -1520,52 +1514,222 @@ export class EntradasSalidasService {
                   }
 
                   entradaEditar.hora_egreso_acceso_4 = hora_actual;
-                  obs = `Egreso Portón 4: ${datosUsuario}`;
+                  obs = `Egreso Acesso 4: ${datosUsuario}`;
                 }
               }
-              //fin control porton 4
+              //fin acceso porton 4
 
               //mesa de control
               if(tipoControl === "mesa_control"){
-                if(ingresoGuardado.hora_ingreso_mesa_control){
-                  entradaEditar.hora_egreso_mesa_control = hora_actual;
-                  obs = "Egreso Mesa Control: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
-              
-                }
-                else{
+                if(tipoAcceso == "ingreso"){
+                  if(ingresoGuardado.hora_ingreso_mesa_control){
+                    
+                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');
+                                      
+                  }
+
                   entradaEditar.fecha_ingreso_mesa_control = fecha_actual;
-                  entradaEditar.hora_ingreso_mesa_control = hora_actual;      
-                  obs = "Ingreso Mesa Control: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
-              
+                  entradaEditar.hora_ingreso_mesa_control = hora_actual;   
+                  obs = `Ingreso Mesa de Control: ${datosUsuario}`;
+
+                }
+
+                if(tipoAcceso == "egreso"){
+
+                  if(!ingresoGuardado.hora_ingreso_mesa_control){
+                    throw new NotFoundException('No puede registrar el egreso por este sector porque el visitante NO registro el ingreso por este sector.');
+                  }
+
+                  if(ingresoGuardado.hora_egreso_mesa_control){
+                    throw new NotFoundException('El visitante ya registro el egreso por este sector.');
+                  }
+
+                  entradaEditar.hora_egreso_mesa_control = hora_actual;
+                  obs = `Egreso Mesa de Control: ${datosUsuario}`;
                 }
               }
               //fin mesa de control
 
               //control interno
               if(tipoControl === "control_interno"){
-                if(ingresoGuardado.hora_ingreso_control_interno){
-                  entradaEditar.hora_egreso_control_interno = hora_actual;
-                  obs = "Egreso Control Interno: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
-              
-                }
-                else{
+                if(tipoAcceso == "ingreso"){
+                  if(ingresoGuardado.hora_ingreso_control_interno){
+                    
+                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');
+                                      
+                  }
+
                   entradaEditar.fecha_ingreso_control_interno = fecha_actual;
-                  entradaEditar.hora_ingreso_control_interno = hora_actual; 
-                  obs = "Ingreso Control Interno: Usuario: (id: " + usuario.id_usuario + ") " + usuario. apellido + " " + usuario.nombre;
-                            
+                  entradaEditar.hora_ingreso_control_interno = hora_actual;   
+                  obs = `Ingreso Control Interno: ${datosUsuario}`;
+
+                }
+
+                if(tipoAcceso == "egreso"){
+
+                  if(!ingresoGuardado.hora_ingreso_control_interno){
+                    throw new NotFoundException('No puede registrar el egreso por este sector porque el visitante NO registro el ingreso por este sector.');
+                  }
+
+                  if(ingresoGuardado.hora_egreso_control_interno){
+                    throw new NotFoundException('El visitante ya registro el egreso por este sector.');
+                  }
+
+                  entradaEditar.hora_egreso_control_interno = hora_actual;
+                  obs = `Egreso Control Interno: ${datosUsuario}`;
                 }
               }
               //fin control interno
-                            
-              entradaEditar.observaciones_usuarios = ingresoGuardado.observaciones_usuarios
+              
+            // ----------------------------------
+            // BUSCAR MENORES
+            // ----------------------------------
+            
+            const ingresosMenores = await entradaSalidaRepository
+                .createQueryBuilder('entrada')
+                .leftJoin('entrada.ciudadano', 'ciudadano')
+                .addSelect([
+                    'ciudadano.id_ciudadano',
+                    'ciudadano.apellido',
+                    'ciudadano.nombre',
+                    'ciudadano.dni',
+                    'ciudadano.fecha_nac',
+                    'ciudadano.foto'
+                ])                                
+                .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
+                    id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
+                })
+                .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                    fecha: fecha_actual
+                })
+                .andWhere('entrada.cancelado = :cancelado', {
+                    cancelado: false
+                })
+                .getMany();
+              
+              //control ingresos de menores
+              let listaEntradasEditarMenores: UpdateEntradaRegistrarControlDto[] = [];
+              for(const ingresoMenor of ingresosMenores){
+                let entradaEditarMenor = new UpdateEntradaRegistrarControlDto();
+                
+                entradaEditarMenor.id_entrada_salida = ingresoMenor.id_entrada_salida;
+                //control acceso 4
+                if(tipoControl === "porton_4"){
+                  if(tipoAcceso == "ingreso"){
+                    if(ingresoMenor.hora_ingreso_acceso_4){
+                      
+                      throw new NotFoundException('El menor ya registro el ingreso por este sector.');
+                                        
+                    }
+  
+                    entradaEditarMenor.fecha_ingreso_acceso_4 = fecha_actual;
+                    entradaEditarMenor.hora_ingreso_acceso_4 = hora_actual;   
+                    obs = `Ingreso Acceso 4: ${datosUsuario}`;
+  
+                  }
+  
+                  if(tipoAcceso == "egreso"){
+  
+                    if(!ingresoMenor.hora_ingreso_acceso_4){
+                      throw new NotFoundException('No puede registrar el egreso por este sector porque el menor NO registro el ingreso por este sector.');
+                    }
+  
+                    if(ingresoMenor.hora_egreso_acceso_4){
+                      throw new NotFoundException('El menor ya registro el egreso por este sector.');
+                    }
+  
+                    entradaEditarMenor.hora_egreso_acceso_4 = hora_actual;
+                    obs = `Egreso Acesso 4: ${datosUsuario}`;
+                  }
+                }
+                //fin acceso porton 4
+
+                //mesa de control
+                if(tipoControl === "mesa_control"){
+                  if(tipoAcceso == "ingreso"){
+                    if(ingresoMenor.hora_ingreso_mesa_control){
+                      
+                      throw new NotFoundException('El menor ya registro el ingreso por este sector.');
+                                        
+                    }
+  
+                    entradaEditarMenor.fecha_ingreso_mesa_control = fecha_actual;
+                    entradaEditarMenor.hora_ingreso_mesa_control = hora_actual;   
+                    obs = `Ingreso Mesa de Control: ${datosUsuario}`;
+  
+                  }
+  
+                  if(tipoAcceso == "egreso"){
+  
+                    if(!ingresoMenor.hora_ingreso_mesa_control){
+                      throw new NotFoundException('No puede registrar el egreso por este sector porque el menor NO registro el ingreso por este sector.');
+                    }
+  
+                    if(ingresoMenor.hora_egreso_mesa_control){
+                      throw new NotFoundException('El menor ya registro el egreso por este sector.');
+                    }
+  
+                    entradaEditarMenor.hora_egreso_mesa_control = hora_actual;
+                    obs = `Egreso Mesa de Control: ${datosUsuario}`;
+                  }
+                }
+                //fin mesa de control
+
+                //control interno
+                if(tipoControl === "control_interno"){
+                  if(tipoAcceso == "ingreso"){
+                    if(ingresoMenor.hora_ingreso_control_interno){
+                      
+                      throw new NotFoundException('El menor ya registro el ingreso por este sector.');
+                                        
+                    }
+  
+                    entradaEditarMenor.fecha_ingreso_control_interno = fecha_actual;
+                    entradaEditarMenor.hora_ingreso_control_interno = hora_actual;   
+                    obs = `Ingreso Control Interno: ${datosUsuario}`;
+  
+                  }
+  
+                  if(tipoAcceso == "egreso"){
+  
+                    if(!ingresoMenor.hora_ingreso_control_interno){
+                      throw new NotFoundException('No puede registrar el egreso por este sector porque el menor NO registro el ingreso por este sector.');
+                    }
+  
+                    if(ingresoMenor.hora_egreso_control_interno){
+                      throw new NotFoundException('El menor ya registro el egreso por este sector.');
+                    }
+  
+                    entradaEditarMenor.hora_egreso_control_interno = hora_actual;
+                    obs = `Egreso Control Interno: ${datosUsuario}`;
+                  }
+                }
+                //fin control interno
+                entradaEditarMenor.observaciones_usuarios = ingresoGuardado.observaciones_usuarios
                             ? `${obs} // ${ingresoGuardado.observaciones_usuarios}`
                             : obs;
 
+                listaEntradasEditarMenores.push(entradaEditarMenor);            
+
+              }
+
+              
+              //ACTUALIZAR ADULTO
               const respuesta = await entradaSalidaRepository.update(id_entrada, entradaEditar);
               
               if (respuesta.affected === 0) {
                   throw new NotFoundException( 'No se pudo registrar el horario.');
               }
+              
+              //ACTUALIZAR MENORES
+              for(const entradaEditarMenor of listaEntradasEditarMenores){
+                const respuestaMenor = await entradaSalidaRepository.update(entradaEditarMenor.id_entrada_salida, entradaEditarMenor);
+              
+                if (respuestaMenor.affected === 0) {
+                    throw new NotFoundException( 'No se pudo registrar el horario del menor.');
+                }
+              }
+              
 
               //formar respuesta 
               return {
