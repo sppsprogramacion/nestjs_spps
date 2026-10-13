@@ -1488,19 +1488,22 @@ export class EntradasSalidasService {
               let obs: string = "";
               const datosUsuario = `Usuario: (id: ${usuario.id_usuario}) ${usuario.apellido} ${usuario.nombre}`;
               
-              //control acceso 4
+              //CONTROL ACCESO 4
               if(tipoControl === "porton_4"){
+                //control si paso por mesa de control
+                if(ingresoGuardado.fecha_ingreso_mesa_control){
+                  throw new NotFoundException('No puede registrar el ingreso o egreso en este sector. El visitante paso anteriormente por el Sector Mesa de control.');
+                }
+
                 if(tipoAcceso == "ingreso"){
                   if(ingresoGuardado.hora_ingreso_acceso_4){
                     
-                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');
-                                      
+                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');                                      
                   }
 
                   entradaEditar.fecha_ingreso_acceso_4 = fecha_actual;
                   entradaEditar.hora_ingreso_acceso_4 = hora_actual;   
                   obs = `Ingreso Acceso 4: ${datosUsuario}`;
-
                 }
 
                 if(tipoAcceso == "egreso"){
@@ -1517,41 +1520,14 @@ export class EntradasSalidasService {
                   obs = `Egreso Acesso 4: ${datosUsuario}`;
                 }
               }
-              //fin acceso porton 4
+              //fin CONTROL ACCESO 4
 
-              //mesa de control
-              if(tipoControl === "mesa_control"){
-                if(tipoAcceso == "ingreso"){
-                  if(ingresoGuardado.hora_ingreso_mesa_control){
-                    
-                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');
-                                      
-                  }
-
-                  entradaEditar.fecha_ingreso_mesa_control = fecha_actual;
-                  entradaEditar.hora_ingreso_mesa_control = hora_actual;   
-                  obs = `Ingreso Mesa de Control: ${datosUsuario}`;
-
-                }
-
-                if(tipoAcceso == "egreso"){
-
-                  if(!ingresoGuardado.hora_ingreso_mesa_control){
-                    throw new NotFoundException('No puede registrar el egreso por este sector porque el visitante NO registro el ingreso por este sector.');
-                  }
-
-                  if(ingresoGuardado.hora_egreso_mesa_control){
-                    throw new NotFoundException('El visitante ya registro el egreso por este sector.');
-                  }
-
-                  entradaEditar.hora_egreso_mesa_control = hora_actual;
-                  obs = `Egreso Mesa de Control: ${datosUsuario}`;
-                }
-              }
-              //fin mesa de control
-
-              //control interno
+              //CONTROL INTERNO
               if(tipoControl === "control_interno"){
+                //control si paso antes por mesa de control
+                if(ingresoGuardado.fecha_ingreso_mesa_control ){
+                  throw new NotFoundException('No puede registrar el ingreso o egreso en este sector. El visitante paso anteriormente por el Sector Mesa de Control.');
+                }
                 if(tipoAcceso == "ingreso"){
                   if(ingresoGuardado.hora_ingreso_control_interno){
                     
@@ -1579,7 +1555,43 @@ export class EntradasSalidasService {
                   obs = `Egreso Control Interno: ${datosUsuario}`;
                 }
               }
-              //fin control interno
+              //fin CONTROL INTERNO
+
+              //MESA DE CONTROL
+              if(tipoControl === "mesa_control"){
+                //controlar si paso por control interno y acceso 4
+                if(ingresoGuardado.fecha_ingreso_control_interno || ingresoGuardado.fecha_ingreso_acceso_4){
+                  throw new NotFoundException('No puede registrar el ingreso o egreso en este sector. El visitante paso anteriormente por el Sector control Interno o por el Sector Acceso 4.');
+                }
+
+                if(tipoAcceso == "ingreso"){
+                  if(ingresoGuardado.hora_ingreso_mesa_control){
+                    
+                    throw new NotFoundException('El visitante ya registro el ingreso por este sector.');
+                                      
+                  }
+
+                  entradaEditar.fecha_ingreso_mesa_control = fecha_actual;
+                  entradaEditar.hora_ingreso_mesa_control = hora_actual;   
+                  obs = `Ingreso Mesa de Control: ${datosUsuario}`;
+
+                }
+
+                if(tipoAcceso == "egreso"){
+
+                  if(!ingresoGuardado.hora_ingreso_mesa_control){
+                    throw new NotFoundException('No puede registrar el egreso por este sector porque el visitante NO registro el ingreso por este sector.');
+                  }
+
+                  if(ingresoGuardado.hora_egreso_mesa_control){
+                    throw new NotFoundException('El visitante ya registro el egreso por este sector.');
+                  }
+
+                  entradaEditar.hora_egreso_mesa_control = hora_actual;
+                  obs = `Egreso Mesa de Control: ${datosUsuario}`;
+                }
+              }
+              //fin MESA DE CONTROL
               
             // ----------------------------------
             // BUSCAR MENORES

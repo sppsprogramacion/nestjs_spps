@@ -121,6 +121,7 @@ export class EntradasSalidasController {
     return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,"mesa_control",user);
   }
   //FIN BUSCAR ENTRADA PARA CONTROL MESA_CONTROL4 XCIUDADANO....................................................
+  //-----------------------------------------------------------------------------------------------------------
   
   //BUSCAR ENTRADA PARA CONTROL CONTROL_INTERNO XCIUDADANO
   @Get('buscar-entrada-control-controlinterno-xciudadano/:idCiudadano')  
@@ -132,7 +133,8 @@ export class EntradasSalidasController {
     
     return this.entradasSalidasService.findIngresoControlXIdCiudadano(+idCiudadano,"control_interno",user);
   }
-  //FIN BUSCAR ENTRADA PARA CONTROL CONTROL_INTERNO XCIUDADANO....................................................
+  //FIN BUSCAR ENTRADA PARA CONTROL CONTROL_INTERNO XCIUDADANO
+  //...........................................................................................
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
@@ -162,7 +164,7 @@ export class EntradasSalidasController {
   }
   //FIN EGRESO REGISTRO.................................
 
-  //REGISTRAR CONTROL PORTON 4
+  //REGISTRAR CONTROL INGRESO ACCESO 4 - (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
   @Put('registrar-controlingreso-acceso4')
   @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
   updateRegistarControlIngresoPorton4(
@@ -173,19 +175,76 @@ export class EntradasSalidasController {
     
     return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "porton_4", "ingreso", user);
   }
+  //FIN REGISTRAR CONTROL INGRESO ACCESO 4
+  //-------------------------------------------------------------------------------------
 
+  //REGISTRAR CONTROL EGRESO ACCESO 4 - (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
   @Put('registrar-controlegreso-acceso4')
   @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
   updateRegistarControlegresoPorton4(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
   ) {
-
     
     return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "porton_4", "egreso", user);
   }
-  //FIN REGISTRAR CONTROL PORTON 4.................................
-  //----------------------------------------------------
+  //FIN REGISTRAR CONTROL EGRESO PORTON 4.................................
+  //----------------------------------------------------.-----------------
+
+   //REGISTRAR CONTROL INGRESO CONTROL INTERNO - (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
+  @Put('registrar-controlingreso-controlinterno')
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
+  updateRegistarControlIngresoControlInterno(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+  ) {
+
+    
+    return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "control_interno", "ingreso", user);
+  }
+  //FIN REGISTRAR CONTROL INGRESO CONTROL INTERNO
+  //-------------------------------------------------------------------------------------
+
+  //REGISTRAR CONTROL EGRESO CONTROL INTERNO - (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
+  @Put('registrar-controlegreso-controlinterno')
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
+  updateRegistarControlegresoControlInterno(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+  ) {
+
+    
+    return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "control_interno", "egreso", user);
+  }
+  //FIN REGISTRAR CONTROL EGRESO CONTROL INTERNO................................
+  //----------------------------------------------------.-----------------
+
+  //REGISTRAR CONTROL INGRESO MESA CONTROL (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
+  @Put('registrar-controlingreso-mesacontrol')
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
+  updateRegistarControlIngresoMesaConntrol(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+  ) {
+    
+    return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "mesa_control", "ingreso", user);
+  }
+  //FIN REGISTRAR CONTROL INGRESO  MESA CONTROL
+  //-------------------------------------------------------------------------------------
+
+  //REGISTRAR CONTROL EGRESO  MESA CONTROL - (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
+  @Put('registrar-controlegreso-mesacontrol')
+  @Auth(ValidRoles.visitaAdmin, ValidRoles.visitaOperador,)
+  updateRegistarControlegresoMesaControl(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_registro', ParseIntPipe) id_registro: string ,
+  ) {
+
+    
+    return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "mesa_control", "egreso", user);
+  }
+  //FIN REGISTRAR CONTROL EGRESO  MESA CONTROL................................
+  //----------------------------------------------------.-----------------
 
   //CANCELAR REGISTRO
   @Put('cancelar')
