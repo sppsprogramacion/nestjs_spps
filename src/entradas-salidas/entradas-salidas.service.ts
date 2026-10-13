@@ -298,7 +298,8 @@ export class EntradasSalidasService {
             const idsMenoresACargo = listaMenoresACargo.map(
                 registro => registro.ciudadanoMenor.id_ciudadano
             );
-  
+            
+              
             // Buscar cuáles IDs enviados NO fueron encontrados
             const listaIdsNoEncontrados = data.listaIdsMenores.filter(
                 id => !idsMenoresACargo.includes(id)
@@ -313,6 +314,7 @@ export class EntradasSalidasService {
             const listaIdsEncontrados = data.listaIdsMenores.filter(
                 id => idsMenoresACargo.includes(id)
             );          
+
             
             //CONTROLAR VALIDEZ DE LOS MENORES ENCONTRADOS
             let nombreNoMenores: string = "";
@@ -326,8 +328,9 @@ export class EntradasSalidasService {
               
               //VALIDAR VINCULO DE MENORES
               if (!vinculoMenor) {
+                  const menorACargoAux = listaMenoresACargo.find(menor => menor.ciudadano_menor_id === idMenor)
                   //crear lista de menores que NO estan vinculados con el interno
-                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + vinculoMenor.ciudadano.apellido + " " + vinculoMenor.ciudadano.nombre + " // ";
+                  nombreMenoresNoVinculados = nombreMenoresNoVinculados + menorACargoAux.ciudadanoMenor.apellido + " " + menorACargoAux.ciudadanoMenor.nombre + " // ";
                   menorEsValido = false;
               } 
               else{
@@ -1356,6 +1359,121 @@ export class EntradasSalidasService {
   //FIN BUSCAR INGRESO XCIUDADANO
   //..................................................................
 
+  //BUSCAR  X CONTAR ORGANISMO
+  async obtenerComputo(id_organismox: number) {
+    const fecha_actual: any = new Date().toISOString().split('T')[0]; 
+
+    return await this.dataSource.transaction(
+          async manager => {
+            const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+
+            const cantidades = await entradaSalidaRepository
+              .createQueryBuilder('entrada')
+              .select('entrada.sexo_id', 'sexo_id')
+              .addSelect('entrada.categoria', 'categoria')
+              .addSelect('COUNT(*)', 'cantidad')
+              .where('entrada.organismo_id = :idOrganismo', {
+                idOrganismo: id_organismox
+              })
+              .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                      fecha: fecha_actual
+                  })
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })      
+              .groupBy('entrada.sexo_id')
+              .addGroupBy('entrada.categoria')
+              .orderBy('entrada.categoria', 'ASC')
+              .getRawMany();
+
+            
+            // Estados posibles
+            const sexos = [1, 2, 3];
+          
+            // Jurisdicciones posibles
+            const categorias = ['ADULTO', 'MENOR' ];
+
+
+            // Armar resultado completo
+            const resultadoFinal = [];
+          
+            for (const idSexo of sexos) {
+          
+              for (const categoria of categorias) {
+          
+                const encontrado = cantidades.find(
+                  x =>
+                    x.sexo_id === idSexo &&
+                    x.categoria === categoria
+                );
+          
+                resultadoFinal.push({
+                  sexo_id: idSexo,
+                  categoria: categoria,
+                  cantidad: encontrado
+                    ? Number(encontrado.cantidad)
+                    : 0
+                });
+
+              }
+            }
+
+            return resultadoFinal;
+
+          }
+    );
+        
+    //   // Consulta agrupada
+    //   const cantidades = await this.ingresossInternoRepository
+    //     .createQueryBuilder('i')
+    //     .select('i.estado_procesal_id', 'estado_procesal_id')
+    //     .addSelect('i.jurisdiccion_id', 'jurisdiccion_id')
+    //     .addSelect('COUNT(*)', 'cantidad')
+    //     .where('i.organismo_alojamiento_id = :id', {
+    //       id: id_organismox
+    //     })
+    //     .andWhere('i.esta_liberado = :liberado', {
+    //       liberado: false
+    //     })
+    //     .groupBy('i.estado_procesal_id')
+    //     .addGroupBy('i.jurisdiccion_id')
+    //     .orderBy('i.estado_procesal_id', 'ASC')
+    //     .getRawMany();
+    
+    //   // Estados posibles
+    //   const estadosProcesales = ['A', 'P', 'PROC'];
+    
+    //   // Jurisdicciones posibles
+    //   const jurisdicciones = ['P', 'F'];
+    
+    //   // Armar resultado completo
+    //   const resultadoFinal = [];
+    
+    //   for (const estado of estadosProcesales) {
+    
+    //     for (const jurisdiccion of jurisdicciones) {
+    
+    //       const encontrado = cantidades.find(
+    //         x =>
+    //           x.estado_procesal_id === estado &&
+    //           x.jurisdiccion_id === jurisdiccion
+    //       );
+    
+    //       resultadoFinal.push({
+    //         estado_procesal_id: estado,
+    //         jurisdiccion_id: jurisdiccion,
+    //         cantidad: encontrado
+    //           ? Number(encontrado.cantidad)
+    //           : 0
+    //       });
+    //     }
+    //   }
+  
+    // return resultadoFinal;
+  }
+  //FIN BUSCAR  X CONTAR ORGANISMO..................................................................
+
+
   //BUSCAR  XID
   async findOne(id: number) {
 
@@ -1398,51 +1516,162 @@ export class EntradasSalidasService {
   //FIN CANCELAR
   
   //REGISTRAR EGRESO
-  async registrarEgreso(id_registro: number, data: UpdateEntradaPrincipalEgresoDto, usuariox: Usuario) {
-    //cargar datos por defecto
-    let fecha_actual: any = new Date().toISOString().split('T')[0];    
-    let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS 
+  async registrarEgreso(id_entrada: number, data: UpdateEntradaPrincipalEgresoDto, usuariox: Usuario) {
+    // //cargar datos por defecto
+    // let fecha_actual: any = new Date().toISOString().split('T')[0];    
+    // let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS 
           
   
-    //controlar si el resgistro ya tiene egreso o esta anulado
-    const registro = await this.entradaSalidasRepository.findOneBy({id_entrada_salida: id_registro});
-    if(registro){
-      if(registro.cancelado) throw new NotFoundException("Este registro se encuentra cancelado");
-      if(registro.categoria != "ADULTO") throw new NotFoundException("El ciudadano que egresa debe ser Adulto");
-      if(registro.fecha_ingreso_principal != fecha_actual) throw new NotFoundException("El registro al que desea dar egreso no es de la fecha de hoy");
-      if(registro.hora_egreso_principal) throw new NotFoundException("Este registro ya tiene hora de egreso");
-      if(registro.hora_ingreso_principal > hora_actual) throw new NotFoundException("La hora de egreso no puede ser menor que la hora de ingreso");
-    }
-    else{
-      throw new NotFoundException("El elemento solicitado no existe.");
-    }
+    // //controlar si el resgistro ya tiene egreso o esta anulado
+    // const registro = await this.entradaSalidasRepository.findOneBy({id_entrada_salida: id_registro});
+    // if(registro){
+    //   if(registro.cancelado) throw new NotFoundException("Este registro se encuentra cancelado");
+    //   if(registro.categoria != "ADULTO") throw new NotFoundException("El ciudadano que egresa debe ser Adulto");
+    //   if(registro.fecha_ingreso_principal != fecha_actual) throw new NotFoundException("El registro al que desea dar egreso no es de la fecha de hoy");
+    //   if(registro.hora_egreso_principal) throw new NotFoundException("Este registro ya tiene hora de egreso");
+    //   if(registro.hora_ingreso_principal > hora_actual) throw new NotFoundException("La hora de egreso no puede ser menor que la hora de ingreso");
+    // }
+    // else{
+    //   throw new NotFoundException("El elemento solicitado no existe.");
+    // }
     
-    data.hora_egreso_principal = hora_actual;
+    // data.hora_egreso_principal = hora_actual;
 
-    let obserbaciones_enviadas: string = data.observaciones_usuarios?.trim()
-            ? data.observaciones_usuarios.trim() 
-            : 'S/N';
+    // let obserbaciones_enviadas: string = data.observaciones_usuarios?.trim()
+    //         ? data.observaciones_usuarios.trim() 
+    //         : 'S/N';
     
-    let obs: string = "Egreso principal: Usuario: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre + ". Obs: " + obserbaciones_enviadas;
-    if( isNotEmpty(registro.observaciones_usuarios) ){
+    // let obs: string = "Egreso principal: Usuario: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre + ". Obs: " + obserbaciones_enviadas;
+    // if( isNotEmpty(registro.observaciones_usuarios) ){
 
-      data.observaciones_usuarios = obs + " // " + registro.observaciones_usuarios;
-    }
-    else{
-      data.observaciones_usuarios = obs;
-    }
+    //   data.observaciones_usuarios = obs + " // " + registro.observaciones_usuarios;
+    // }
+    // else{
+    //   data.observaciones_usuarios = obs;
+    // }
 
-    //guardar
+    // //guardar
     
-    try{
-      const respuesta = await this.entradaSalidasRepository.update(id_registro, data);
+    // try{
+    //   const respuesta = await this.entradaSalidasRepository.update(id_registro, data);
       
-      return respuesta;
-    }
-    catch(error){
+    //   return respuesta;
+    // }
+    // catch(error){
       
-      this.handleDBErrors(error); 
-    }   
+    //   this.handleDBErrors(error); 
+    // }   
+
+    const fecha_actual: any = new Date().toISOString().split('T')[0];  
+  
+      return await this.dataSource.transaction(
+          async manager => {
+  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+  
+              // ----------------------------------
+              // BUSCAR INGRESO
+              // ----------------------------------
+              const ingresoGuardado = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .setLock('pessimistic_write')                  
+                  .where('entrada.id_entrada_salida = :idEntradaSalida', {
+                      idEntradaSalida: id_entrada
+                  })
+                  .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                      fecha: fecha_actual
+                  })
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })            
+                  .getOne();
+  
+              if (!ingresoGuardado) {
+                  throw new NotFoundException('No hay una ingreso registrado de este ciudadano.');
+              }
+  
+                
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
+              //establecer horarios
+              //puerta_principal, porton_4, mesa_control, control_interno
+              let entradaEditar = new UpdateEntradaRegistrarControlDto();
+              let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS               
+              
+              let obs: string = "";
+              const datosUsuario = `Usuario: (id: ${usuariox.id_usuario}) ${usuariox.apellido} ${usuariox.nombre}`;
+              entradaEditar.hora_egreso_principal = hora_actual;
+              obs = `Egreso entrada principal: ${datosUsuario}`;
+              
+              
+            // ----------------------------------
+            // BUSCAR MENORES
+            // ----------------------------------
+            
+            const ingresosMenores = await entradaSalidaRepository
+                .createQueryBuilder('entrada')
+                .leftJoin('entrada.ciudadano', 'ciudadano')
+                .addSelect([
+                    'ciudadano.id_ciudadano',
+                    'ciudadano.apellido',
+                    'ciudadano.nombre',
+                    'ciudadano.dni',
+                    'ciudadano.fecha_nac',
+                    'ciudadano.foto'
+                ])                                
+                .where('entrada.entrada_salida_id_tutor = :id_entrada_salita_tutor', {
+                    id_entrada_salita_tutor: ingresoGuardado.id_entrada_salida
+                })
+                .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                    fecha: fecha_actual
+                })
+                .andWhere('entrada.cancelado = :cancelado', {
+                    cancelado: false
+                })
+                .getMany();
+              
+              //control ingresos de menores
+              let listaEntradasEditarMenores: UpdateEntradaRegistrarControlDto[] = [];
+              for(const ingresoMenor of ingresosMenores){
+                let entradaEditarMenor = new UpdateEntradaRegistrarControlDto();
+                
+                entradaEditarMenor.id_entrada_salida = ingresoMenor.id_entrada_salida;
+                entradaEditarMenor.hora_egreso_principal = hora_actual;
+                obs = `Egreso puerta principal: ${datosUsuario}`;
+                
+                entradaEditarMenor.observaciones_usuarios = ingresoGuardado.observaciones_usuarios
+                            ? `${obs} // ${ingresoGuardado.observaciones_usuarios}`
+                            : obs;
+
+                listaEntradasEditarMenores.push(entradaEditarMenor);            
+
+              }
+
+              
+              //ACTUALIZAR ADULTO
+              const respuesta = await entradaSalidaRepository.update(id_entrada, entradaEditar);
+              
+              if (respuesta.affected === 0) {
+                  throw new NotFoundException( 'No se pudo registrar el horario.');
+              }
+              
+              //ACTUALIZAR MENORES
+              for(const entradaEditarMenor of listaEntradasEditarMenores){
+                const respuestaMenor = await entradaSalidaRepository.update(entradaEditarMenor.id_entrada_salida, entradaEditarMenor);
+              
+                if (respuestaMenor.affected === 0) {
+                    throw new NotFoundException( 'No se pudo registrar el horario del menor.');
+                }
+              }
+              
+
+              //formar respuesta 
+              return respuesta;
+                
+          }
+      );
+
   }  
   //FIN REGISTRAR EGRESO
   

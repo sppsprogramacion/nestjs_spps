@@ -136,6 +136,19 @@ export class EntradasSalidasController {
   //FIN BUSCAR ENTRADA PARA CONTROL CONTROL_INTERNO XCIUDADANO
   //...........................................................................................
 
+  //OBTENER COMPUTO POR ORGANISMO
+  @Get('computo-xorganismo')  
+  @Auth(ValidRoles.visitaOperador, ValidRoles.visitaAdmin, ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoConsulta, ValidRoles.ciudadanoAdmin)
+  async obtenerComputoXOrganismo(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    //@Query('id_interno', ParseIntPipe) id_interno: string
+    
+  ) {    
+    
+    return this.entradasSalidasService.obtenerComputo(user.organismo_id);
+  }
+  //FIN OBTENER COMPUTO POR ORGANISMO....................................................
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {    
     
