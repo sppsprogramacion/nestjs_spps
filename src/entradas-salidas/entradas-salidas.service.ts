@@ -1320,7 +1320,6 @@ export class EntradasSalidasService {
                 hora_egreso_aux = ingresoGuardado.hora_egreso_control_interno;
               }
 
-
               //formar respuesta 
               return {
                 id_entrada_salida: ingresoGuardado.id_entrada_salida,
