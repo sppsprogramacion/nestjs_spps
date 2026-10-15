@@ -28,7 +28,7 @@ export class EntradasSalidasController {
     return this.entradasSalidasService.findAll();
   }
 
-  //BUSCAR  LISTA XID CIUDADANO
+  //LISTA XID CIUDADANO
   @Get('lista-xciudadano')  
   async findXCiudadano(
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string    
@@ -36,9 +36,9 @@ export class EntradasSalidasController {
     
     return this.entradasSalidasService.findListaXCiudadano(+id_ciudadano);
   }
-  //FIN BUSCAR LISTA XID CIUDADANO....................................................
+  //FIN LISTA XID CIUDADANO....................................................
 
-  //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
+  //LISTA PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-pendientes-salida')  
   @Auth()
@@ -48,19 +48,31 @@ export class EntradasSalidasController {
 
     return this.entradasSalidasService.findPendientesSalidaFechaActual(user);
   }
-  //FIN BUSCAR  PENDIENTES SALIDA....................................................
+  //FIN LISTA  PENDIENTES SALIDA....................................................
 
-  //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
+  //LISTA INGRESOS ACTUALES - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-ingresos-actuales')  
   @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
   async findIngresosActuales(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {        
-
+    
     return this.entradasSalidasService.findIngresosDelDia(user);
   }
-  //FIN BUSCAR  PENDIENTES SALIDA....................................................
+  //FIN LISTA  INGRESOS ACTUALES....................................................
+
+  //LISTA INGRESOS ACTUALES PARA CONTROL- fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
+  //..hora de salida
+  @Get('lista-ingresos-actuales-minimizado')  
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
+  async findIngresosActualesControlHuella(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {        
+    
+    return this.entradasSalidasService.findIngresosDelDiaMinimizado(user);
+  }
+  //FIN LISTA  INGRESOS ACTUALES PARA CONTROL....................................................
 
   //BUSCAR CIUDADANO PARA VISITA
   @Get('buscar-ciudadano/:dni')  

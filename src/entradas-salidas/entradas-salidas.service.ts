@@ -714,7 +714,7 @@ export class EntradasSalidasService {
                 .getMany();
 
             if (!ingresosGuardados) {
-                throw new NotFoundException('No hay una ingreso registrado con este numero de ficha.');
+                throw new NotFoundException('No hay una ingreso registrado .');
             }
             
             
@@ -722,7 +722,6 @@ export class EntradasSalidasService {
             //CONSTRUIR RESPUESTA
             //--------------------------------------------
             
-            // lista de menores midificada y con edad
             const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
               
           
@@ -757,6 +756,67 @@ export class EntradasSalidasService {
        
   }
   //FIN BUSCAR INGRESOS DEL DIA
+  //------------------------------------------------------------------------------------
+
+  //BUSCAR LISTA INGRESOS DEL DIA MINIMIZADO
+   async findIngresosDelDiaMinimizado( usuario: Usuario) {    
+    
+    const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+    return await this.dataSource.transaction(
+        async manager => {
+
+            const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+            const huellasRepository = manager.getRepository(Huella);
+
+            // ----------------------------------
+            // BUSCAR INGRESOS
+            // ----------------------------------
+            const ingresosGuardados = await entradaSalidaRepository
+                .createQueryBuilder('entrada')
+                
+                .andWhere('entrada.fecha_ingreso_principal = :fecha', {
+                    fecha: fecha_actual
+                })
+                .andWhere('entrada.organismo_id = :id_organismo', {
+                    id_organismo: usuario.organismo_id
+                })
+                .andWhere('entrada.cancelado = :cancelado', {
+                    cancelado: false
+                })            
+                .getMany();
+
+            if (!ingresosGuardados) {
+                throw new NotFoundException('No hay una ingresos registrados.');
+            }
+            
+            
+            //--------------------------------------------
+            //CONSTRUIR RESPUESTA
+            //--------------------------------------------
+            
+            const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
+              
+          
+              return {
+                
+                id_entrada_salida: ingresoGuardado.id_entrada_salida,
+                numero_ficha: ingresoGuardado.numero_ficha,
+                ciudadano_id: ingresoGuardado.ciudadano_id,
+                fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+                hora_registro: ingresoGuardado.hora_ingreso_principal,
+                hora_egreso: ingresoGuardado.hora_egreso_principal,
+                organismo: usuario.organismo.organismo,          
+              };
+            });
+
+            //retornar respuesta 
+            return listaIngresosResponse;
+        }
+    );
+       
+  }
+  //FIN LISTA INGRESOS DEL DIA MINIMIZADO
   //------------------------------------------------------------------------------------
 
   
