@@ -14,7 +14,7 @@ export class EntradasSalidasController {
   constructor(private readonly entradasSalidasService: EntradasSalidasService) {}
 
   @Post()
-  @Auth()
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateEntradasSalidaDto
@@ -41,7 +41,7 @@ export class EntradasSalidasController {
   //LISTA PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-pendientes-salida')  
-  @Auth()
+  @Auth(ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoOperador, ValidRoles.visitaOperador, ValidRoles.visitaAdmin)
   async findPendientesSalida(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {        
@@ -237,7 +237,6 @@ export class EntradasSalidasController {
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
   ) {
-
     
     return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "control_interno", "egreso", user);
   }
@@ -264,7 +263,6 @@ export class EntradasSalidasController {
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
   ) {
-
     
     return this.entradasSalidasService.registrarHorarioControlXIdEntrada(+id_registro, "mesa_control", "egreso", user);
   }
@@ -278,8 +276,7 @@ export class EntradasSalidasController {
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
     @Body() dataDto: UpdateEntradaSalidasCancelarDto
-  ) {
-    
+  ) {    
 
     return this.entradasSalidasService.cancelarRegistro(+id_registro, dataDto, user);
   }
