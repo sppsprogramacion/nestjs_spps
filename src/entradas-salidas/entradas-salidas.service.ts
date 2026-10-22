@@ -620,6 +620,140 @@ export class EntradasSalidasService {
     }
     //FIN BUSCAR  LISTA INGRESOS XCIUDADANO
     //..................................................................
+
+    //BUSCAR LISTA SABANA XCIUDADANO
+    async findListaSabanaXCiudadano(id_ciudadanox: number, fecha_inicio: string, fecha_fin: string) {    
+        const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+      return await this.dataSource.transaction(
+          async manager => {
+  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+  
+              // ----------------------------------
+              // BUSCAR INGRESOS
+              // ----------------------------------
+              const ingresosGuardados = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                  .leftJoinAndSelect('entrada.organismo', 'organismo')            
+                  .where('entrada.ciudadano_id = :idCiudadano', {
+                      idCiudadano: id_ciudadanox
+                  })
+                  .andWhere(
+                      'entrada.fecha_ingreso_principal BETWEEN :fecha_inicio AND :fecha_fin',
+                      {
+                          fecha_inicio: fecha_inicio,
+                          fecha_fin: fecha_fin
+                      }
+                  )
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })            
+                  .orderBy('entrada.fecha_ingreso_principal', 'DESC')
+                  .getMany();
+  
+              // if (!ingresosGuardados) {
+              //     throw new NotFoundException('No hay una ingreso registrado .');
+              // }
+              
+              
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
+              
+              const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
+                
+            
+                return {
+                  
+                  id_entrada_salida: ingresoGuardado.id_entrada_salida,
+                  numero_ficha: ingresoGuardado.numero_ficha,  
+                  nombre_interno: ingresoGuardado.nombre_interno,
+                  parentesco: ingresoGuardado.parentesco.parentesco,
+                  menores: ingresoGuardado.menores,
+                  fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+                  hora_registro: ingresoGuardado.hora_ingreso_principal,
+                  hora_egreso: ingresoGuardado.hora_egreso_principal,   
+                  organismo: ingresoGuardado.organismo.organismo            
+                };
+              });
+  
+              //formar respuesta 
+              return listaIngresosResponse;
+          }
+      );
+
+    }
+    //FIN BUSCAR  LISTA SABANA XCIUDADANO
+    //..................................................................
+
+    //BUSCAR LISTA SABANA XINTERNO
+    async findListaSabanaXInterno(id_internox: number, fecha_inicio: string, fecha_fin: string) {    
+        const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+      return await this.dataSource.transaction(
+          async manager => {
+  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+  
+              // ----------------------------------
+              // BUSCAR INGRESOS
+              // ----------------------------------
+              const ingresosGuardados = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                  .leftJoinAndSelect('entrada.organismo', 'organismo')            
+                  .where('entrada.interno_id = :idInterno', {
+                      idInterno: id_internox
+                  })
+                  .andWhere(
+                      'entrada.fecha_ingreso_principal BETWEEN :fecha_inicio AND :fecha_fin',
+                      {
+                          fecha_inicio: fecha_inicio,
+                          fecha_fin: fecha_fin
+                      }
+                  )
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })           
+                  .orderBy('entrada.fecha_ingreso_principal', 'DESC') 
+                  .getMany();
+  
+              // if (!ingresosGuardados) {
+              //     throw new NotFoundException('No hay una ingreso registrado .');
+              // }
+              
+              
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
+              
+              const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
+                
+            
+                return {
+                  
+                  id_entrada_salida: ingresoGuardado.id_entrada_salida,
+                  numero_ficha: ingresoGuardado.numero_ficha,  
+                  nombre_interno: ingresoGuardado.nombre_interno,
+                  parentesco: ingresoGuardado.parentesco.parentesco,
+                  menores: ingresoGuardado.menores,
+                  fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+                  hora_registro: ingresoGuardado.hora_ingreso_principal,
+                  hora_egreso: ingresoGuardado.hora_egreso_principal, 
+                  organismo: ingresoGuardado.organismo.organismo        
+                };
+              });
+  
+              //formar respuesta 
+              return listaIngresosResponse;
+          }
+      );
+
+    }
+    //FIN BUSCAR  LISTA SABANA XINTERNO
+    //..................................................................
   
     //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
     //..hora de salida

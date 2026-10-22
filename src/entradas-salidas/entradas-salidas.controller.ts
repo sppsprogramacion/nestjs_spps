@@ -38,6 +38,19 @@ export class EntradasSalidasController {
   }
   //FIN LISTA XID CIUDADANO....................................................
 
+  //LISTA SABANA XID CIUDADANO
+  @Get('lista-sabana-xciudadano')  
+  @Auth()
+  async findListaSabanaXCiudadano(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+    @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string, 
+    @Query('fecha_fin', DateValidationPipe) fecha_fin: string       
+  ) {    
+    
+    return this.entradasSalidasService.findListaSabanaXCiudadano(+id_ciudadano, fecha_inicio, fecha_fin);
+  }
+  //FIN LISTA SABANA XID CIUDADANO....................................................
+
   //LISTA PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-pendientes-salida')  
