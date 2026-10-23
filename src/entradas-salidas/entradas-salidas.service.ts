@@ -20,6 +20,7 @@ import { MenorHabilitadoEntradaDto } from './dto/menor-habilitado-entrada.dto';
 import { isNotEmpty } from 'class-validator';
 import { use } from 'passport';
 import { UpdateEntradaRegistrarControlDto } from './dto/update-entrada-registrar-control.dto';
+import { Jurisdiccion } from '../jurisdiccion/entities/jurisdiccion.entity';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -57,23 +58,7 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 1 . VALIDAR INTERNO 
           // -----------------------------------
-          // const interno = await internoRepository.findOne({
-          //     where: {
-          //         id_interno: data.interno_id
-          //     }
-          // });
-  
-          // if (!interno) {
-          //     throw new BadRequestException('El interno indicado no existe.');
-          // }   
-
-          const ingresoInterno2 = await ingresoInternoRepository.findOne({
-              where: {
-                  interno_id: data.interno_id,
-                  esta_liberado: false
-              }
-          });
-
+                   
           const ingresoInterno = await ingresoInternoRepository
               .createQueryBuilder('ingreso')     
               .leftJoinAndSelect('ingreso.interno', 'interno')             
@@ -695,12 +680,74 @@ export class EntradasSalidasService {
       return await this.dataSource.transaction(
           async manager => {
   
-              const entradaSalidaRepository = manager.getRepository(EntradasSalida);
-  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);  
+              const ingresoInternoRepository = manager.getRepository(IngresoInterno);
+              const internoRepository = manager.getRepository(Interno);
+
+              // -----------------------------------
+              // 1 . VALIDAR INGRESO DEL INTERNO 
+              // -----------------------------------
+              
+              const ingresoInterno = await ingresoInternoRepository
+                  .createQueryBuilder('ingreso')     
+                  .leftJoinAndSelect('ingreso.interno', 'interno')   
+                  .leftJoinAndSelect('ingreso.organismo_alojamiento', 'organismo')  
+                  .leftJoinAndSelect('ingreso.estado_procesal', 'estado_procesal') 
+                  .leftJoinAndSelect('ingreso.jurisdiccion', 'jurisdiccion') 
+                  .where('ingreso.interno_id = :idInterno', { idInterno: id_internox })    
+                  .andWhere('ingreso.esta_liberado = :estaLiberado', {
+                      estaLiberado: false
+                  })    
+                  .getOne();
+    
+              let organismoInterno ="";
+              let estadoProcesal = "";
+              let Jurisdiccion = "";
+              let fechaAlojamiento;
+
+              if (ingresoInterno) {
+                   organismoInterno = ingresoInterno.organismo_alojamiento.organismo;
+                   estadoProcesal = ingresoInterno.estado_procesal.estado_procesal;
+                   Jurisdiccion = ingresoInterno.jurisdiccion.jurisdiccion;
+                   fechaAlojamiento = ingresoInterno.fecha_alojamiento;
+              } 
+    
+              // if (ingresoInterno.organismo_alojamiento_id != usuario.organismo_id) {
+              //     throw new BadRequestException('El interno indicado no se encuentra alojado en esta unidad.');
+              // }  
+              
+
               // ----------------------------------
-              // BUSCAR INGRESOS
+              // BUSCAR INTERNO
               // ----------------------------------
-              const ingresosGuardados = await entradaSalidaRepository
+              const interno = await internoRepository
+                  .createQueryBuilder('interno')                
+                  //DATOS DE VINCULOS
+                  .leftJoinAndSelect(
+                      'interno.visitas_internos','vinculo',
+                      'vinculo.vigente = :vinculoVigente', { vinculoVigente: true }
+                  ) 
+                  .leftJoinAndSelect(
+                      'vinculo.parentesco','vinculoParentesco'
+                  ) 
+                  .leftJoinAndSelect(
+                      'vinculo.ciudadano','ciudadano',
+                  )                     
+                  .where('id_interno = :idInterno', { idInterno: id_internox })                      
+                  .getOne();
+
+              if (!interno) {
+                  throw new NotFoundException('El interno no existe.');
+              }
+
+
+              // ----------------------------------
+              // OBTENER VINCULOS
+              // ----------------------------------
+              const listaVinculos = interno.visitas_internos;
+
+
+              const entradasGuardados = await entradaSalidaRepository
                   .createQueryBuilder('entrada')
                   .leftJoinAndSelect('entrada.parentesco', 'parentesco')
                   .leftJoinAndSelect('entrada.organismo', 'organismo')            
@@ -720,34 +767,46 @@ export class EntradasSalidasService {
                   .orderBy('entrada.fecha_ingreso_principal', 'DESC') 
                   .getMany();
   
-              // if (!ingresosGuardados) {
-              //     throw new NotFoundException('No hay una ingreso registrado .');
-              // }
-              
               
               //--------------------------------------------
               //CONSTRUIR RESPUESTA
               //--------------------------------------------
               
-              const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
-                
+              const listaEntradasResponse = entradasGuardados.map(entradaGuardado => {               
             
                 return {
                   
-                  id_entrada_salida: ingresoGuardado.id_entrada_salida,
-                  numero_ficha: ingresoGuardado.numero_ficha,  
-                  nombre_interno: ingresoGuardado.nombre_interno,
-                  parentesco: ingresoGuardado.parentesco.parentesco,
-                  menores: ingresoGuardado.menores,
-                  fecha_registro: ingresoGuardado.fecha_ingreso_principal,
-                  hora_registro: ingresoGuardado.hora_ingreso_principal,
-                  hora_egreso: ingresoGuardado.hora_egreso_principal, 
-                  organismo: ingresoGuardado.organismo.organismo        
+                  id_entrada_salida: entradaGuardado.id_entrada_salida,
+                  numero_ficha: entradaGuardado.numero_ficha,  
+                  nombre_interno: entradaGuardado.nombre_interno,
+                  parentesco: entradaGuardado.parentesco.parentesco,
+                  menores: entradaGuardado.menores,
+                  fecha_registro: entradaGuardado.fecha_ingreso_principal,
+                  hora_registro: entradaGuardado.hora_ingreso_principal,
+                  hora_egreso: entradaGuardado.hora_egreso_principal, 
+                  organismo: entradaGuardado.organismo.organismo        
                 };
               });
   
+
+              return {
+              
+                internoResponse: {
+                  id_interno: interno.id_interno,
+                  nombre_interno: interno.apellido + " " + interno.nombre,
+                  prontuario: interno.prontuario,                  
+                  estado_procesal: estadoProcesal,
+                  jurisdiccion: Jurisdiccion,
+                  organismo: organismoInterno,
+                  fecha_alojamiento: fechaAlojamiento,
+                  
+                },                 
+                listaEntradasResponse: listaEntradasResponse, 
+                listaVinculosResponse: listaVinculos
+              };
+              
               //formar respuesta 
-              return listaIngresosResponse;
+              //return listaEntradasResponse;
           }
       );
 
