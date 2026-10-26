@@ -15,6 +15,7 @@ import { TrasladosInternoService } from 'src/traslados-interno/traslados-interno
 import { HistorialProcesal } from 'src/historial-procesal/entities/historial-procesal.entity';
 import { UpdateEgresoDto } from 'src/registro-diario/dto/update-egreso.dto';
 import { UpdateEgresoInternoDto } from './dto/update-egreso-interno.dto';
+import { Interno } from 'src/internos/entities/interno.entity';
 
 @Injectable()
 export class IngresosInternoService {
@@ -36,38 +37,72 @@ export class IngresosInternoService {
     
     let fecha_actual: any = new Date().toISOString().split('T')[0];     
     
-    //buscar ingreso antes de crear uno nuevo
-    const ingresoVigente = await this.ingresossInternoRepository.findOne(
-      {        
-        where: {
-          interno_id: data.interno_id,
-          eliminado: false,
-          esta_liberado: false
-        }
-      }
-    ); 
-    
-    //verificar si hay un ingreso vigente para este interno
-    if(ingresoVigente) 
-      throw new NotFoundException("El interno tiene un ingreso vigente actualmente.");
-    
+    try{
+      return await this.dataSource.transaction(async manager => {
         
-    //cargar datos por defecto
-    data.fecha_carga = fecha_actual;
-    data.organismo_alojamiento_id = usuario.organismo_id;
-    data.usuario_carga_id = usuario.id_usuario;
-    data.organismo_carga_id = usuario.organismo_id;
+          const ingresosInternoRepository = manager.getRepository(IngresoInterno);
+          const internoRepository = manager.getRepository(Interno);
+  
+          // -----------------------------------
+          // VALIDAR INGRESO
+          // -----------------------------------
+          const ingresoVigente = await ingresosInternoRepository.findOne(
+            {        
+              where: {
+                interno_id: data.interno_id,
+                eliminado: false,
+                esta_liberado: false
+              }
+            }
+          ); 
     
-    try {
-      
-      const nuevo = await this.ingresossInternoRepository.create(data);
-      let respuesta = await this.ingresossInternoRepository.save(nuevo);
-      
-      return respuesta;
-    }catch (error) {
-      
-      this.handleDBErrors(error);  
-    }     
+          //verificar si hay un ingreso vigente para este interno
+          if(ingresoVigente) 
+            throw new NotFoundException("El interno tiene un ingreso vigente actualmente.");
+          
+              
+          //cargar datos por defecto
+          data.fecha_carga = fecha_actual;
+          data.organismo_alojamiento_id = usuario.organismo_id;
+          data.usuario_carga_id = usuario.id_usuario;
+          data.organismo_carga_id = usuario.organismo_id;
+          
+  
+  
+          // -----------------------------------
+          // GUARDAR INGRESO
+          // -----------------------------------
+          const nuevaHuella = ingresosInternoRepository.create(data);
+  
+          const ingresoGuardado = await ingresosInternoRepository.save(nuevaHuella);    
+  
+          // -----------------------------------
+          // REGISTRAR CAMBIO EN ORGANISMO DE INTERNO
+          // -----------------------------------
+          const resultado = await internoRepository.update(
+              { id_interno: data.interno_id },
+              { organismo_id: usuario.organismo_id }
+          );
+  
+          if (resultado.affected !== 1) {
+              throw new NotFoundException(
+                  "No se encontró el interno para actualizar su organismo."
+              );
+          }
+  
+          // -----------------------------------
+          // RESPUESTA
+          // -----------------------------------
+          return ingresoGuardado;
+
+      });
+    } catch (error) {
+
+      this.handleDBErrors(error);
+      throw error;
+
+    }
+    
   }
   //FIN NUEVO....................................................
 
@@ -557,13 +592,21 @@ export class IngresosInternoService {
 
   //MANEJO DE ERRORES
   private handleDBErrors(error: any): never {
-    if(error.code === "ER_DUP_ENTRY"){
-      throw new BadRequestException (error.sqlMessage);
-    }
     
-    if(error.status == 404) throw new NotFoundException(error.response);
-  
-    throw new InternalServerErrorException (error.message);
+    // Respetar las excepciones HTTP de NestJS
+    if (error instanceof HttpException) {
+        throw error;
+    }
+
+    // Error por registro duplicado en MySQL
+    if (error.code === 'ER_DUP_ENTRY') {
+        throw new BadRequestException(error.sqlMessage);
+    }
+
+    // Otros errores
+    console.error(error);
+
+    throw new InternalServerErrorException(error.message);
   }
   //FIN MANEJO DE ERRORES........................................
 }

@@ -455,8 +455,8 @@ export class EntradasSalidasService {
                 throw new BadRequestException('El ciudadano ya posee un ingreso en esta unidad el dia de la fecha con el numero de ficha: ' + entrada.numero_ficha)
             }
           }
-   
-  
+
+          
           // -----------------------------------
           // 9 . GUARDAR INGRESO
           // -----------------------------------
@@ -699,14 +699,34 @@ export class EntradasSalidasService {
                   ) 
                   .leftJoinAndSelect(
                       'vinculo.interno','interno',
-                  )                     
+                  )
+                  .leftJoinAndSelect('interno.organismo', 'organismo')
+                  .leftJoinAndSelect(
+                      'interno.ingresos','internoIngresos',                      
+                  )                        
                   .where('id_ciudadano = :idCiudadano', { idCiudadano: id_ciudadanox })                      
                   .getOne();
 
               if (!ciudadano) {
                   throw new NotFoundException('El ciudadano no existe.');
               }
+              
 
+              // ----------------------------------
+              // OBTENER FOTO
+              // ----------------------------------
+              let imgUrl: string = "";
+              let foto_nombre = ciudadano.foto;
+              
+              //obtener url de la imagen en drive y agregado en la respuesta
+              const file = await this.driveImagenesService.getFileByName(foto_nombre, "ciudadano");
+              if(file){
+                imgUrl = await file.webContentLink;
+                ciudadano.foto = imgUrl;
+              }
+              else{
+                ciudadano.foto = null;
+              }
 
               // ----------------------------------
               // OBTENER VINCULOS
@@ -738,7 +758,7 @@ export class EntradasSalidasService {
                
               //CREAR LISTA PARA RESPUESTA
               const listaEntradasResponse = entradasGuardados.map(entradaGuardado => {               
-            
+                
                 return {
                   
                   id_entrada_salida: entradaGuardado.id_entrada_salida,
@@ -760,7 +780,8 @@ export class EntradasSalidasService {
               return {              
                 id_ciudadano: ciudadano.id_ciudadano,
                 nombre_visita: ciudadano.apellido + " " + ciudadano.nombre,
-                dni: ciudadano.dni,                                     
+                dni: ciudadano.dni,     
+                foto: ciudadano.foto,                                
                 listaVinculosResponse: listaVinculos,
                 listaEntradasResponse: listaEntradasResponse, 
               };
@@ -840,6 +861,16 @@ export class EntradasSalidasService {
                   throw new NotFoundException('El interno no existe.');
               }
 
+              //---------------------------------
+              //BOTENER FOTO
+              //--------------------------------
+              //obtener url de la imagen en drive y agregado en la respuesta
+              const fileFotoFrente = await this.driveImagenesService.getFileByName(interno.foto, "interno");        
+              if(fileFotoFrente){
+                interno.foto = await fileFotoFrente.webContentLink;
+              } else{
+                interno.foto = null;
+              }
 
               // ----------------------------------
               // OBTENER VINCULOS
@@ -893,7 +924,8 @@ export class EntradasSalidasService {
               return {              
                 id_interno: interno.id_interno,
                 nombre_interno: interno.apellido + " " + interno.nombre,
-                prontuario: interno.prontuario,                  
+                prontuario: interno.prontuario, 
+                foto: interno.foto,                 
                 estado_procesal: estadoProcesal,
                 jurisdiccion: Jurisdiccion,
                 organismo: organismoInterno,
