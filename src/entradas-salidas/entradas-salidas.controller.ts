@@ -39,30 +39,46 @@ export class EntradasSalidasController {
   //FIN LISTA XID CIUDADANO....................................................
 
   //LISTA SABANA XID CIUDADANO
+  //retorna lista con los ingresos del ciudadano
   @Get('lista-sabana-xciudadano')  
   @Auth()
-  async findListaSabanaXCiudadano(
+  async findListaSabanaEntradasXCiudadano(
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
     @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string, 
     @Query('fecha_fin', DateValidationPipe) fecha_fin: string       
   ) {    
     
-    return this.entradasSalidasService.findListaSabanaXCiudadano(+id_ciudadano, fecha_inicio, fecha_fin);
+    return this.entradasSalidasService.findListaSabanaEntradasXCiudadano(+id_ciudadano, fecha_inicio, fecha_fin);
   }
   //FIN LISTA SABANA XID CIUDADANO....................................................
 
-  //LISTA SABANA XID CIUDADANO
-  @Get('lista-sabana-xinterno')  
+  //VISITA SABANA XID CIUDADANO
+  //retorna datos del ciudadano, la lista de vinculos y la lista de entradas del ciudadano
+  @Get('sabana-visita-xciudadano')  
   @Auth()
-  async findListaSabanaXInterno(
+  async findSabanaVisitaXCiudadano(
+    @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string,
+    @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string, 
+    @Query('fecha_fin', DateValidationPipe) fecha_fin: string       
+  ) {    
+    
+    return this.entradasSalidasService.findSabanaVisitaXCiudadano(+id_ciudadano, fecha_inicio, fecha_fin);
+  }
+  //FIN VISITA SABANA XID CIUDADANO....................................................
+
+  //INTERNO SABANA XID INTERNO
+  //retorna datos del interno, la lista de vinculos y la lista de entradas que recibio el interno
+  @Get('sabana-interno-xinterno')  
+  @Auth()
+  async findSabanaInternoXInterno(
     @Query('id_interno', ParseIntPipe) id_interno: string,
     @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string, 
     @Query('fecha_fin', DateValidationPipe) fecha_fin: string       
   ) {    
     
-    return this.entradasSalidasService.findListaSabanaXInterno(+id_interno, fecha_inicio, fecha_fin);
+    return this.entradasSalidasService.findSabanaInternoXInterno(+id_interno, fecha_inicio, fecha_fin);
   }
-  //FIN LISTA SABANA XID CIUDADANO....................................................
+  //FIN INTERNO SABANA XID INTERNO....................................................
 
   //LISTA PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida

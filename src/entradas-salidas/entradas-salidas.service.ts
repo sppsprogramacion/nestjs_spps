@@ -606,8 +606,8 @@ export class EntradasSalidasService {
     //FIN BUSCAR  LISTA INGRESOS XCIUDADANO
     //..................................................................
 
-    //BUSCAR LISTA SABANA XCIUDADANO
-    async findListaSabanaXCiudadano(id_ciudadanox: number, fecha_inicio: string, fecha_fin: string) {    
+    //BUSCAR LISTA SABANA ENTRADAS XCIUDADANO
+    async findListaSabanaEntradasXCiudadano(id_ciudadanox: number, fecha_inicio: string, fecha_fin: string) {    
         const fecha_actual: any = new Date().toISOString().split('T')[0];  
     
       return await this.dataSource.transaction(
@@ -670,11 +670,112 @@ export class EntradasSalidasService {
       );
 
     }
-    //FIN BUSCAR  LISTA SABANA XCIUDADANO
+    //FIN BUSCAR  LISTA SABANA ENTRADAS XCIUDADANO
     //..................................................................
 
-    //BUSCAR LISTA SABANA XINTERNO
-    async findListaSabanaXInterno(id_internox: number, fecha_inicio: string, fecha_fin: string) {    
+    //BUSCAR VISITA SABANA XCIUDADANO
+    async findSabanaVisitaXCiudadano(id_ciudadanox: number, fecha_inicio: string, fecha_fin: string) {    
+        const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+      return await this.dataSource.transaction(
+          async manager => {
+  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);  
+              const ciudadanoRepository = manager.getRepository(Ciudadano);
+              const internoRepository = manager.getRepository(Interno);
+
+
+              // ----------------------------------
+              // BUSCAR CIUIDADANO
+              // ----------------------------------
+              const ciudadano = await ciudadanoRepository
+                  .createQueryBuilder('ciudadano')                
+                  //DATOS DE VINCULOS
+                  .leftJoinAndSelect(
+                      'ciudadano.visitas_internos','vinculo',
+                  ) 
+                  .leftJoinAndSelect(
+                      'vinculo.parentesco','vinculoParentesco'
+                  ) 
+                  .leftJoinAndSelect(
+                      'vinculo.interno','interno',
+                  )                     
+                  .where('id_ciudadano = :idCiudadano', { idCiudadano: id_ciudadanox })                      
+                  .getOne();
+
+              if (!ciudadano) {
+                  throw new NotFoundException('El ciudadano no existe.');
+              }
+
+
+              // ----------------------------------
+              // OBTENER VINCULOS
+              // ----------------------------------
+              const listaVinculos = ciudadano.visitas_internos;
+
+              // ----------------------------------
+              // OBTENER ENTRADAS
+              // ----------------------------------
+              const entradasGuardados = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                  .leftJoinAndSelect('entrada.organismo', 'organismo')            
+                  .where('entrada.ciudadano_id = :idCiudadano', {
+                      idCiudadano: id_ciudadanox
+                  })
+                  .andWhere(
+                      'entrada.fecha_ingreso_principal BETWEEN :fecha_inicio AND :fecha_fin',
+                      {
+                          fecha_inicio: fecha_inicio,
+                          fecha_fin: fecha_fin
+                      }
+                  )
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })           
+                  .orderBy('entrada.fecha_ingreso_principal', 'DESC') 
+                  .getMany();
+               
+              //CREAR LISTA PARA RESPUESTA
+              const listaEntradasResponse = entradasGuardados.map(entradaGuardado => {               
+            
+                return {
+                  
+                  id_entrada_salida: entradaGuardado.id_entrada_salida,
+                  numero_ficha: entradaGuardado.numero_ficha,  
+                  nombre_interno: entradaGuardado.nombre_interno,
+                  parentesco: entradaGuardado.parentesco.parentesco,
+                  menores: entradaGuardado.menores,
+                  fecha_registro: entradaGuardado.fecha_ingreso_principal,
+                  hora_registro: entradaGuardado.hora_ingreso_principal,
+                  hora_egreso: entradaGuardado.hora_egreso_principal, 
+                  organismo: entradaGuardado.organismo.organismo        
+                };
+              });
+  
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
+              
+              return {              
+                id_ciudadano: ciudadano.id_ciudadano,
+                nombre_visita: ciudadano.apellido + " " + ciudadano.nombre,
+                dni: ciudadano.dni,                                     
+                listaVinculosResponse: listaVinculos,
+                listaEntradasResponse: listaEntradasResponse, 
+              };
+              
+              //formar respuesta 
+              //return listaEntradasResponse;
+          }
+      );
+
+    }
+    //FIN BUSCAR  VISITA SABANA XCIUDADANO
+    //..................................................................
+
+    //BUSCAR INTERNO SABANA XINTERNO
+    async findSabanaInternoXInterno(id_internox: number, fecha_inicio: string, fecha_fin: string) {    
         const fecha_actual: any = new Date().toISOString().split('T')[0];  
     
       return await this.dataSource.transaction(
@@ -725,7 +826,6 @@ export class EntradasSalidasService {
                   //DATOS DE VINCULOS
                   .leftJoinAndSelect(
                       'interno.visitas_internos','vinculo',
-                      'vinculo.vigente = :vinculoVigente', { vinculoVigente: true }
                   ) 
                   .leftJoinAndSelect(
                       'vinculo.parentesco','vinculoParentesco'
@@ -746,7 +846,9 @@ export class EntradasSalidasService {
               // ----------------------------------
               const listaVinculos = interno.visitas_internos;
 
-
+              // ----------------------------------
+              // OBTENER ENTRADAS
+              // ----------------------------------
               const entradasGuardados = await entradaSalidaRepository
                   .createQueryBuilder('entrada')
                   .leftJoinAndSelect('entrada.parentesco', 'parentesco')
@@ -766,19 +868,15 @@ export class EntradasSalidasService {
                   })           
                   .orderBy('entrada.fecha_ingreso_principal', 'DESC') 
                   .getMany();
-  
-              
-              //--------------------------------------------
-              //CONSTRUIR RESPUESTA
-              //--------------------------------------------
-              
+               
+              //CREAR LISTA PARA RESPUESTA
               const listaEntradasResponse = entradasGuardados.map(entradaGuardado => {               
             
                 return {
                   
                   id_entrada_salida: entradaGuardado.id_entrada_salida,
                   numero_ficha: entradaGuardado.numero_ficha,  
-                  nombre_interno: entradaGuardado.nombre_interno,
+                  nombre_visita: entradaGuardado.nombre_visita,
                   parentesco: entradaGuardado.parentesco.parentesco,
                   menores: entradaGuardado.menores,
                   fecha_registro: entradaGuardado.fecha_ingreso_principal,
@@ -788,19 +886,18 @@ export class EntradasSalidasService {
                 };
               });
   
-
-              return {
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
               
-                internoResponse: {
-                  id_interno: interno.id_interno,
-                  nombre_interno: interno.apellido + " " + interno.nombre,
-                  prontuario: interno.prontuario,                  
-                  estado_procesal: estadoProcesal,
-                  jurisdiccion: Jurisdiccion,
-                  organismo: organismoInterno,
-                  fecha_alojamiento: fechaAlojamiento,
-                  
-                },                 
+              return {              
+                id_interno: interno.id_interno,
+                nombre_interno: interno.apellido + " " + interno.nombre,
+                prontuario: interno.prontuario,                  
+                estado_procesal: estadoProcesal,
+                jurisdiccion: Jurisdiccion,
+                organismo: organismoInterno,
+                fecha_alojamiento: fechaAlojamiento,                                
                 listaEntradasResponse: listaEntradasResponse, 
                 listaVinculosResponse: listaVinculos
               };
@@ -811,7 +908,7 @@ export class EntradasSalidasService {
       );
 
     }
-    //FIN BUSCAR  LISTA SABANA XINTERNO
+    //FIN BUSCAR  INTERNO SABANA XINTERNO
     //..................................................................
   
     //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
@@ -1510,14 +1607,7 @@ export class EntradasSalidasService {
               // ----------------------------------
               // BUSCAR HUELLAS
               // ----------------------------------
-  
-              // const huellas = await huellasRepository.find({
-              //     where: {
-              //         ciudadano_id: ingresoGuardado.ciudadano.id_ciudadano,
-              //         activo: true,                    
-              //     }
-              // });
-  
+               
               const huellas = ingresoGuardado.ciudadano.huellas;
   
               //--------------------------------------------
@@ -1673,57 +1763,10 @@ export class EntradasSalidasService {
             return resultadoFinal;
 
           }
-    );
-        
-    //   // Consulta agrupada
-    //   const cantidades = await this.ingresossInternoRepository
-    //     .createQueryBuilder('i')
-    //     .select('i.estado_procesal_id', 'estado_procesal_id')
-    //     .addSelect('i.jurisdiccion_id', 'jurisdiccion_id')
-    //     .addSelect('COUNT(*)', 'cantidad')
-    //     .where('i.organismo_alojamiento_id = :id', {
-    //       id: id_organismox
-    //     })
-    //     .andWhere('i.esta_liberado = :liberado', {
-    //       liberado: false
-    //     })
-    //     .groupBy('i.estado_procesal_id')
-    //     .addGroupBy('i.jurisdiccion_id')
-    //     .orderBy('i.estado_procesal_id', 'ASC')
-    //     .getRawMany();
-    
-    //   // Estados posibles
-    //   const estadosProcesales = ['A', 'P', 'PROC'];
-    
-    //   // Jurisdicciones posibles
-    //   const jurisdicciones = ['P', 'F'];
-    
-    //   // Armar resultado completo
-    //   const resultadoFinal = [];
-    
-    //   for (const estado of estadosProcesales) {
-    
-    //     for (const jurisdiccion of jurisdicciones) {
-    
-    //       const encontrado = cantidades.find(
-    //         x =>
-    //           x.estado_procesal_id === estado &&
-    //           x.jurisdiccion_id === jurisdiccion
-    //       );
-    
-    //       resultadoFinal.push({
-    //         estado_procesal_id: estado,
-    //         jurisdiccion_id: jurisdiccion,
-    //         cantidad: encontrado
-    //           ? Number(encontrado.cantidad)
-    //           : 0
-    //       });
-    //     }
-    //   }
-  
-    // return resultadoFinal;
+    );    
   }
-  //FIN BUSCAR  X CONTAR ORGANISMO..................................................................
+  //FIN BUSCAR  X CONTAR ORGANISMO
+  //...................................................................
 
 
   //BUSCAR  XID
@@ -1769,51 +1812,7 @@ export class EntradasSalidasService {
   
   //REGISTRAR EGRESO
   async registrarEgreso(id_entrada: number, data: UpdateEntradaPrincipalEgresoDto, usuariox: Usuario) {
-    // //cargar datos por defecto
-    // let fecha_actual: any = new Date().toISOString().split('T')[0];    
-    // let hora_actual: string = new Date().toTimeString().split(' ')[0]; // HH:MM:SS 
-          
-  
-    // //controlar si el resgistro ya tiene egreso o esta anulado
-    // const registro = await this.entradaSalidasRepository.findOneBy({id_entrada_salida: id_registro});
-    // if(registro){
-    //   if(registro.cancelado) throw new NotFoundException("Este registro se encuentra cancelado");
-    //   if(registro.categoria != "ADULTO") throw new NotFoundException("El ciudadano que egresa debe ser Adulto");
-    //   if(registro.fecha_ingreso_principal != fecha_actual) throw new NotFoundException("El registro al que desea dar egreso no es de la fecha de hoy");
-    //   if(registro.hora_egreso_principal) throw new NotFoundException("Este registro ya tiene hora de egreso");
-    //   if(registro.hora_ingreso_principal > hora_actual) throw new NotFoundException("La hora de egreso no puede ser menor que la hora de ingreso");
-    // }
-    // else{
-    //   throw new NotFoundException("El elemento solicitado no existe.");
-    // }
     
-    // data.hora_egreso_principal = hora_actual;
-
-    // let obserbaciones_enviadas: string = data.observaciones_usuarios?.trim()
-    //         ? data.observaciones_usuarios.trim() 
-    //         : 'S/N';
-    
-    // let obs: string = "Egreso principal: Usuario: (id: " + usuariox.id_usuario + ") " + usuariox. apellido + " " + usuariox.nombre + ". Obs: " + obserbaciones_enviadas;
-    // if( isNotEmpty(registro.observaciones_usuarios) ){
-
-    //   data.observaciones_usuarios = obs + " // " + registro.observaciones_usuarios;
-    // }
-    // else{
-    //   data.observaciones_usuarios = obs;
-    // }
-
-    // //guardar
-    
-    // try{
-    //   const respuesta = await this.entradaSalidasRepository.update(id_registro, data);
-      
-    //   return respuesta;
-    // }
-    // catch(error){
-      
-    //   this.handleDBErrors(error); 
-    // }   
-
     const fecha_actual: any = new Date().toISOString().split('T')[0];  
   
       return await this.dataSource.transaction(
@@ -1926,6 +1925,7 @@ export class EntradasSalidasService {
 
   }  
   //FIN REGISTRAR EGRESO
+  //-------------------------------------------------------------------------------------------------------------
   
   //REGISTRAR HORARIO PASO CONTROL XCIUDADANO (tipoControl: puerta_principal, porton_4, mesa_control, control_interno)
   async registrarHorarioControlXIdEntrada(id_entrada: number, tipoControl: string, tipoAcceso: string, usuario: Usuario) {    
