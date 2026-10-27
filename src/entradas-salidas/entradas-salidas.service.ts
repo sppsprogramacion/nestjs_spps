@@ -17,10 +17,7 @@ import { Huella } from 'src/huellas/entities/huella.entity';
 import { ProhibicionVisita } from 'src/prohibiciones-visita/entities/prohibiciones-visita.entity';
 import { EntradaSalidaCorrelativo } from './entities/entradas-salida-correlativos.entity';
 import { MenorHabilitadoEntradaDto } from './dto/menor-habilitado-entrada.dto';
-import { isNotEmpty } from 'class-validator';
-import { use } from 'passport';
 import { UpdateEntradaRegistrarControlDto } from './dto/update-entrada-registrar-control.dto';
-import { Jurisdiccion } from '../jurisdiccion/entities/jurisdiccion.entity';
 
 @Injectable()
 export class EntradasSalidasService {
@@ -689,7 +686,16 @@ export class EntradasSalidasService {
               // BUSCAR CIUIDADANO
               // ----------------------------------
               const ciudadano = await ciudadanoRepository
-                  .createQueryBuilder('ciudadano')                
+                  .createQueryBuilder('ciudadano')
+                  .leftJoinAndSelect(
+                      'ciudadano.provincia','provincia',
+                  )     
+                  .leftJoinAndSelect(
+                      'ciudadano.departamento','departamento',
+                  )
+                  .leftJoinAndSelect(
+                      'ciudadano.municipio','municipio',
+                  )          
                   //DATOS DE VINCULOS
                   .leftJoinAndSelect(
                       'ciudadano.visitas_internos','vinculo',
@@ -780,7 +786,10 @@ export class EntradasSalidasService {
               return {              
                 id_ciudadano: ciudadano.id_ciudadano,
                 nombre_visita: ciudadano.apellido + " " + ciudadano.nombre,
-                dni: ciudadano.dni,     
+                dni: ciudadano.dni, 
+                domicilio: ciudadano.provincia.provincia + ", " + ciudadano.departamento.departamento + ", " + ciudadano.municipio.municipio 
+                  + ", " + ciudadano.ciudad 
+                  + " - direccion: " + ciudadano.barrio + " " + ciudadano.direccion + " N° " + ciudadano.numero_dom, 
                 foto: ciudadano.foto,                                
                 listaVinculosResponse: listaVinculos,
                 listaEntradasResponse: listaEntradasResponse, 
@@ -853,7 +862,22 @@ export class EntradasSalidasService {
                   ) 
                   .leftJoinAndSelect(
                       'vinculo.ciudadano','ciudadano',
-                  )                     
+                  )
+                  //DATOS DE PROHIBICIONES
+                  .leftJoinAndSelect(
+                      'ciudadano.prohibiciones_visita','prohibicion',
+                      `
+                      prohibicion.anulado = :prohibicionAnulado
+                      AND prohibicion.fecha_fin >= :fechaActual
+                      `,
+                      {
+                          prohibicionAnulado: false,
+                          fechaActual: fecha_actual,
+                      }
+                  ) 
+                  .leftJoinAndSelect(
+                      'prohibicion.organismo','organismo',
+                  )                            
                   .where('id_interno = :idInterno', { idInterno: id_internox })                      
                   .getOne();
 
@@ -876,6 +900,21 @@ export class EntradasSalidasService {
               // OBTENER VINCULOS
               // ----------------------------------
               const listaVinculos = interno.visitas_internos;
+              // const listaVinculosResponse = listaVinculos.map(vinculo => {               
+                
+              //   return {
+                  
+              //     id_entrada_salida: entradaGuardado.id_entrada_salida,
+              //     numero_ficha: entradaGuardado.numero_ficha,  
+              //     nombre_visita: entradaGuardado.nombre_visita,
+              //     parentesco: entradaGuardado.parentesco.parentesco,
+              //     menores: entradaGuardado.menores,
+              //     fecha_registro: entradaGuardado.fecha_ingreso_principal,
+              //     hora_registro: entradaGuardado.hora_ingreso_principal,
+              //     hora_egreso: entradaGuardado.hora_egreso_principal, 
+              //     organismo: entradaGuardado.organismo.organismo        
+              //   };
+              // });
 
               // ----------------------------------
               // OBTENER ENTRADAS
@@ -902,7 +941,7 @@ export class EntradasSalidasService {
                
               //CREAR LISTA PARA RESPUESTA
               const listaEntradasResponse = entradasGuardados.map(entradaGuardado => {               
-            
+                
                 return {
                   
                   id_entrada_salida: entradaGuardado.id_entrada_salida,
