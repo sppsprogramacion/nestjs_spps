@@ -603,8 +603,8 @@ export class EntradasSalidasService {
     //FIN BUSCAR  LISTA INGRESOS XCIUDADANO
     //..................................................................
 
-    //BUSCAR LISTA SABANA ENTRADAS XCIUDADANO
-    async findListaSabanaEntradasXCiudadano(id_ciudadanox: number, fecha_inicio: string, fecha_fin: string) {    
+    //BUSCAR LISTA SABANA ENTRADAS XINTERNO
+    async findListaSabanaEntradasXCiudadano(id_internox: number, fecha_inicio: string, fecha_fin: string) {    
         const fecha_actual: any = new Date().toISOString().split('T')[0];  
     
       return await this.dataSource.transaction(
@@ -619,8 +619,8 @@ export class EntradasSalidasService {
                   .createQueryBuilder('entrada')
                   .leftJoinAndSelect('entrada.parentesco', 'parentesco')
                   .leftJoinAndSelect('entrada.organismo', 'organismo')            
-                  .where('entrada.ciudadano_id = :idCiudadano', {
-                      idCiudadano: id_ciudadanox
+                  .where('entrada.interno = :idInterno', {
+                      idInterno: id_internox
                   })
                   .andWhere(
                       'entrada.fecha_ingreso_principal BETWEEN :fecha_inicio AND :fecha_fin',
@@ -635,9 +635,7 @@ export class EntradasSalidasService {
                   .orderBy('entrada.fecha_ingreso_principal', 'DESC')
                   .getMany();
   
-              // if (!ingresosGuardados) {
-              //     throw new NotFoundException('No hay una ingreso registrado .');
-              // }
+              
               
               
               //--------------------------------------------
@@ -651,7 +649,7 @@ export class EntradasSalidasService {
                   
                   id_entrada_salida: ingresoGuardado.id_entrada_salida,
                   numero_ficha: ingresoGuardado.numero_ficha,  
-                  nombre_interno: ingresoGuardado.nombre_interno,
+                  nombre_visita: ingresoGuardado.nombre_visita,
                   parentesco: ingresoGuardado.parentesco.parentesco,
                   menores: ingresoGuardado.menores,
                   fecha_registro: ingresoGuardado.fecha_ingreso_principal,
@@ -667,7 +665,7 @@ export class EntradasSalidasService {
       );
 
     }
-    //FIN BUSCAR  LISTA SABANA ENTRADAS XCIUDADANO
+    //FIN BUSCAR  LISTA SABANA ENTRADAS XINTERNO
     //..................................................................
 
     //BUSCAR VISITA SABANA XCIUDADANO
@@ -687,6 +685,9 @@ export class EntradasSalidasService {
               // ----------------------------------
               const ciudadano = await ciudadanoRepository
                   .createQueryBuilder('ciudadano')
+                  .leftJoinAndSelect(
+                      'ciudadano.sexo','sexo',
+                  )  
                   .leftJoinAndSelect(
                       'ciudadano.provincia','provincia',
                   )     
@@ -732,6 +733,22 @@ export class EntradasSalidasService {
               }
               else{
                 ciudadano.foto = null;
+              }
+
+              // ----------------------------------
+              // CALCULAR EDAD DEL CIUDADANO
+              // ---------------------------------- 
+              let edad = 0;
+              if (ciudadano.fecha_nac) {
+                const fechaNac = new Date(ciudadano.fecha_nac);
+                const hoy = new Date();
+                edad = hoy.getFullYear() - fechaNac.getFullYear();
+          
+                // Ajustar si el cumpleaños no ha pasado este año
+                const mes = hoy.getMonth() - fechaNac.getMonth();
+                if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edad--;
+                }
               }
 
               // ----------------------------------
@@ -787,9 +804,11 @@ export class EntradasSalidasService {
                 id_ciudadano: ciudadano.id_ciudadano,
                 nombre_visita: ciudadano.apellido + " " + ciudadano.nombre,
                 dni: ciudadano.dni, 
+                sexo: ciudadano.sexo.sexo,
+                edad: edad,
                 domicilio: ciudadano.provincia.provincia + ", " + ciudadano.departamento.departamento + ", " + ciudadano.municipio.municipio 
                   + ", " + ciudadano.ciudad 
-                  + " - direccion: " + ciudadano.barrio + " " + ciudadano.direccion + " N° " + ciudadano.numero_dom, 
+                  + " - direccion: Barrio " + ciudadano.barrio + ", " + ciudadano.direccion + " N° " + ciudadano.numero_dom, 
                 foto: ciudadano.foto,                                
                 listaVinculosResponse: listaVinculos,
                 listaEntradasResponse: listaEntradasResponse, 
@@ -899,22 +918,8 @@ export class EntradasSalidasService {
               // ----------------------------------
               // OBTENER VINCULOS
               // ----------------------------------
-              const listaVinculos = interno.visitas_internos;
-              // const listaVinculosResponse = listaVinculos.map(vinculo => {               
-                
-              //   return {
-                  
-              //     id_entrada_salida: entradaGuardado.id_entrada_salida,
-              //     numero_ficha: entradaGuardado.numero_ficha,  
-              //     nombre_visita: entradaGuardado.nombre_visita,
-              //     parentesco: entradaGuardado.parentesco.parentesco,
-              //     menores: entradaGuardado.menores,
-              //     fecha_registro: entradaGuardado.fecha_ingreso_principal,
-              //     hora_registro: entradaGuardado.hora_ingreso_principal,
-              //     hora_egreso: entradaGuardado.hora_egreso_principal, 
-              //     organismo: entradaGuardado.organismo.organismo        
-              //   };
-              // });
+              const listaVinculos = interno.visitas_internos;            
+                             
 
               // ----------------------------------
               // OBTENER ENTRADAS
