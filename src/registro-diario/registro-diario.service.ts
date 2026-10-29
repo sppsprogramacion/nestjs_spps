@@ -102,14 +102,15 @@ export class RegistroDiarioService {
 //FIN BUSCAR  PENDIENTES SALIDA..................................................................
 
   //BUSCAR  XCIUDADANO
-  async findXFechaHoraIngresoEgreso(fecha_ingresox: string, hora_iniciox: string, hora_finx: string, usuario: Usuario) {    
+  async findXFechaHoraIngresoEgreso(fecha_iniciox: string, fecha_finx: string, hora_iniciox: string, hora_finx: string, usuario: Usuario) {    
     
-    const f_ingreso: any = new Date(fecha_ingresox).toISOString().split('T')[0];
+    const f_inicio: any = new Date(fecha_iniciox).toISOString().split('T')[0];
+    const f_fin: any = new Date(fecha_finx).toISOString().split('T')[0];
 
     const registros = await this.registroDiarioRepository.find(
       {        
         where: {
-          fecha_ingreso: f_ingreso,
+          fecha_ingreso:Between(f_inicio,f_fin),
           hora_ingreso: Between(hora_iniciox, hora_finx),
           organismo_id: usuario.organismo_id,
           anulado: false

@@ -56,13 +56,14 @@ export class RegistroDiarioController {
   @Auth()
   async findXFechaHoraIngresoEgreso(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-    @Query('fecha_ingreso', DateValidationPipe) fecha_ingreso: string,
+    @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string,
+    @Query('fecha_fin', DateValidationPipe) fecha_fin: string,
     @Query('hora_inicio', TimeValidationPipe) hora_inicio: string,
     @Query('hora_fin', TimeValidationPipe) hora_fin: string,      
   ) {    
     
     
-    return this.registroDiarioService.findXFechaHoraIngresoEgreso(fecha_ingreso,hora_inicio, hora_fin, user);
+    return this.registroDiarioService.findXFechaHoraIngresoEgreso(fecha_inicio, fecha_fin,hora_inicio, hora_fin, user);
   }
   //FIN BUSCAR  XFECHA_INGRESO....................................................
 
