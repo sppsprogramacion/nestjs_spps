@@ -52,6 +52,7 @@ export class EntradasSalidasController {
   }
   //FIN LISTA SABANA XID CIUDADANO....................................................
 
+  //LISTA SABANA XID INTERNO
   //retorna lista con los ingresos del ciudadano
   @Get('lista-sabana-xinterno')  
   @Auth()
@@ -61,9 +62,9 @@ export class EntradasSalidasController {
     @Query('fecha_fin', DateValidationPipe) fecha_fin: string       
   ) {    
     
-    return this.entradasSalidasService.findListaSabanaEntradasXCiudadano(+id_interno, fecha_inicio, fecha_fin);
+    return this.entradasSalidasService.findListaSabanaEntradasXInterno(+id_interno, fecha_inicio, fecha_fin);
   }
-  //FIN LISTA SABANA XID CIUDADANO....................................................
+  //FIN LISTA SABANA XID INTERNO....................................................
 
   //VISITA SABANA XID CIUDADANO
   //retorna datos del ciudadano, la lista de vinculos y la lista de entradas del ciudadano

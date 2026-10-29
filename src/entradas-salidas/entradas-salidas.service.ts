@@ -603,8 +603,8 @@ export class EntradasSalidasService {
     //FIN BUSCAR  LISTA INGRESOS XCIUDADANO
     //..................................................................
 
-    //BUSCAR LISTA SABANA ENTRADAS XINTERNO
-    async findListaSabanaEntradasXCiudadano(id_internox: number, fecha_inicio: string, fecha_fin: string) {    
+    //BUSCAR LISTA SABANA ENTRADAS XCIUDADANO
+    async findListaSabanaEntradasXCiudadano(id_ciudadanox: number, fecha_inicio: string, fecha_fin: string) {    
         const fecha_actual: any = new Date().toISOString().split('T')[0];  
     
       return await this.dataSource.transaction(
@@ -619,7 +619,72 @@ export class EntradasSalidasService {
                   .createQueryBuilder('entrada')
                   .leftJoinAndSelect('entrada.parentesco', 'parentesco')
                   .leftJoinAndSelect('entrada.organismo', 'organismo')            
-                  .where('entrada.interno = :idInterno', {
+                  .where('entrada.ciudadano_id = :idCiudadano', {
+                      idCiudadano: id_ciudadanox
+                  })
+                  .andWhere(
+                      'entrada.fecha_ingreso_principal BETWEEN :fecha_inicio AND :fecha_fin',
+                      {
+                          fecha_inicio: fecha_inicio,
+                          fecha_fin: fecha_fin
+                      }
+                  )
+                  .andWhere('entrada.cancelado = :cancelado', {
+                      cancelado: false
+                  })            
+                  .orderBy('entrada.fecha_ingreso_principal', 'DESC')
+                  .getMany();
+  
+              
+              
+              
+              //--------------------------------------------
+              //CONSTRUIR RESPUESTA
+              //--------------------------------------------
+              
+              const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
+                
+            
+                return {
+                  
+                  id_entrada_salida: ingresoGuardado.id_entrada_salida,
+                  numero_ficha: ingresoGuardado.numero_ficha,  
+                  nombre_interno: ingresoGuardado.nombre_interno,
+                  parentesco: ingresoGuardado.parentesco.parentesco,
+                  menores: ingresoGuardado.menores,
+                  fecha_registro: ingresoGuardado.fecha_ingreso_principal,
+                  hora_registro: ingresoGuardado.hora_ingreso_principal,
+                  hora_egreso: ingresoGuardado.hora_egreso_principal,   
+                  organismo: ingresoGuardado.organismo.organismo            
+                };
+              });
+  
+              //formar respuesta 
+              return listaIngresosResponse;
+          }
+      );
+
+    }
+    //FIN BUSCAR  LISTA SABANA ENTRADAS XCIUDADANO
+    //..................................................................
+
+    //BUSCAR LISTA SABANA ENTRADAS XINTERNO
+    async findListaSabanaEntradasXInterno(id_internox: number, fecha_inicio: string, fecha_fin: string) {    
+        const fecha_actual: any = new Date().toISOString().split('T')[0];  
+    
+      return await this.dataSource.transaction(
+          async manager => {
+  
+              const entradaSalidaRepository = manager.getRepository(EntradasSalida);
+  
+              // ----------------------------------
+              // BUSCAR INGRESOS
+              // ----------------------------------
+              const ingresosGuardados = await entradaSalidaRepository
+                  .createQueryBuilder('entrada')
+                  .leftJoinAndSelect('entrada.parentesco', 'parentesco')
+                  .leftJoinAndSelect('entrada.organismo', 'organismo')            
+                  .where('entrada.interno_id = :idInterno', {
                       idInterno: id_internox
                   })
                   .andWhere(
