@@ -7,13 +7,14 @@ import { AnularProhibicionesVisitaDto } from './dto/anular-prohibiciones-visita.
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
+import { DateValidationPipe } from 'src/pipes/date-validation.pipe';
 
 @Controller('prohibiciones-visita')
 export class ProhibicionesVisitaController {
   constructor(private readonly prohibicionesVisitaService: ProhibicionesVisitaService) {}
 
   @Post()
-  @Auth()
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateProhibicionesVisitaDto
@@ -22,14 +23,26 @@ export class ProhibicionesVisitaController {
     return this.prohibicionesVisitaService.create(data, user);
   }  
 
-  @Get('todos')
-  findAll() {
-    return this.prohibicionesVisitaService.findAll();
-  }
+  //BUSCAR LISTA XORGANISMO Y FECHA 
+    @Get('lista-organismo-fecha')  
+    @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
+    async findListaXOrganismoFecha(
+      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+      @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string,
+      @Query('fecha_fin', DateValidationPipe) fecha_fin: string,
+      
+    ) {    
+      
+      
+      return this.prohibicionesVisitaService.findListaXFechaXOrganismo(fecha_inicio, fecha_fin, user);
+    }
+    //FIN BUSCAR  LISTA XORGANISMO Y FECHA 
+    // ....................................................--------------------------------------
+  
 
   //BUSCAR  XID CIUDADANO
   @Get('buscar-xciudadano')  
-  @Auth()
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin, ValidRoles.ciudadanoOperador,ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoConsulta)
   async findXCiudadano(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string
@@ -55,7 +68,7 @@ export class ProhibicionesVisitaController {
 
   //LEVANTAMIENTO MANUAL
   @Put('levantar-manual')
-  @Auth()
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
   updateLevantarManual(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
@@ -68,7 +81,7 @@ export class ProhibicionesVisitaController {
 
   //PROHIBIR MANUAL
   @Put('prohibir-manual')
-  @Auth()
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
   updateProhibirManual(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
@@ -81,7 +94,7 @@ export class ProhibicionesVisitaController {
 
   //ANULAR PROHIBICION
   @Put('anular')
-  @Auth()
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
   updateAnular(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_prohibicion', ParseIntPipe) id_prohibicion: string ,
@@ -93,7 +106,7 @@ export class ProhibicionesVisitaController {
   //FIN ANULAR PROHIBICION.................................
 
   @Put(':id')
-  @Auth()
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
   update(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Param('id', ParseIntPipe) id: string, 

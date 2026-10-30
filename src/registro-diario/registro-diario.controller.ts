@@ -8,12 +8,13 @@ import { TimeValidationPipe } from 'src/pipes/time-validation.pipe';
 import { UpdateAnularDto } from './dto/update-anular.dto';
 import { UpdateEgresoDto } from './dto/update-egreso.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/interfaces';
 @Controller('registro-diario')
 export class RegistroDiarioController {
   constructor(private readonly registroDiarioService: RegistroDiarioService) {}
 
   @Post()
-  @Auth()
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin)
   create(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Body() data: CreateRegistroDiarioDto
@@ -22,14 +23,16 @@ export class RegistroDiarioController {
     return this.registroDiarioService.create(data, user);
   }  
 
-  @Get('todos')
-  findAll() {
-    return this.registroDiarioService.findAll();
-  }
+  // @Get('todos')
+  // findAll() {
+  //   return this.registroDiarioService.findAll();
+  // }
 
   //BUSCAR  XID CIUDADANO
-  @Get('lista-xciudadano')  
+  @Get('lista-xciudadano') 
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin, ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin) 
   async findXCiudadano(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_ciudadano', ParseIntPipe) id_ciudadano: string    
   ) {    
     
@@ -40,12 +43,11 @@ export class RegistroDiarioController {
   //BUSCAR PENDIENTES SALIDA - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-pendientes-salida')  
-  @Auth()
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin)
   async findPendientesSalida(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {    
     
-
     return this.registroDiarioService.findPendientesSalidaFechaActual(user);
   }
   //FIN BUSCAR  PENDIENTES SALIDA....................................................
@@ -53,7 +55,7 @@ export class RegistroDiarioController {
   //BUSCAR XFECHA_HORA_INGRESO_EGRESO - fecha de ingreso actual - segun organismo del usuario, los que aun no registran.. 
   //..hora de salida
   @Get('lista-fecha-hora')  
-  @Auth()
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin)
   async findXFechaHoraIngresoEgreso(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string,
@@ -65,11 +67,16 @@ export class RegistroDiarioController {
     
     return this.registroDiarioService.findXFechaHoraIngresoEgreso(fecha_inicio, fecha_fin,hora_inicio, hora_fin, user);
   }
-  //FIN BUSCAR  XFECHA_INGRESO....................................................
+  //FIN BUSCAR  XFECHA_INGRESO
+  // ....................................................--------------------------------------
 
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: string) {    
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin, ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
+  findOne(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Param('id', ParseIntPipe) id: string
+  ) {    
     
     return this.registroDiarioService.findOne(+id);
   }
@@ -84,7 +91,7 @@ export class RegistroDiarioController {
 
   //EGRESO REGISTRO
   @Put('egreso')
-  @Auth()
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin)
   updateEgreso(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,
@@ -98,7 +105,7 @@ export class RegistroDiarioController {
 
   //ANULAR REGISTRO
   @Put('anular')
-  @Auth()
+  @Auth(ValidRoles.ciudadanoOperador, ValidRoles.ciudadanoAdmin)
   updateAnular(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_registro', ParseIntPipe) id_registro: string ,

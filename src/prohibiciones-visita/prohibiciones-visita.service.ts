@@ -3,7 +3,7 @@ import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProhibicionVisita } from './entities/prohibiciones-visita.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { BitacoraProhibicionesVisitaService } from 'src/bitacora-prohibiciones-visita/bitacora-prohibiciones-visita.service';
 import { CreateBitacoraProhibicionesVisitaDto } from 'src/bitacora-prohibiciones-visita/dto/create-bitacora-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
@@ -72,6 +72,30 @@ export class ProhibicionesVisitaService {
     
   }
   //FIN BUSCAR  XCIUDADANO..................................................................
+
+  //BUSCAR  LISTA XORGANISMO Y FECHA
+  async findListaXFechaXOrganismo(fecha_iniciox: string, fecha_finx: string, usuario: Usuario) {    
+      
+      const f_inicio: any = new Date(fecha_iniciox).toISOString().split('T')[0];
+      const f_fin: any = new Date(fecha_finx).toISOString().split('T')[0];
+  
+      const prohibiciones = await this.prohibicionVisitaRepository.find(
+        {        
+          where: {
+            fecha_inicio:Between(f_inicio,f_fin),
+            organismo_id: usuario.organismo_id,
+            anulado: false
+          },
+          order:{
+            fecha_inicio: "DESC"
+          }
+        }
+      );   
+          
+      return prohibiciones;    
+  }
+  //FIN BUSCAR  LISTA XORGANISMO Y FECHA
+  // ..................................................................
 
   //BUSCAR  XORGANISMO
   async findXOrganismo(id_organismox: number) {    
