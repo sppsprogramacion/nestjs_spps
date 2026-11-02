@@ -3,7 +3,7 @@ import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProhibicionVisita } from './entities/prohibiciones-visita.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, MoreThanOrEqual, Repository } from 'typeorm';
 import { BitacoraProhibicionesVisitaService } from 'src/bitacora-prohibiciones-visita/bitacora-prohibiciones-visita.service';
 import { CreateBitacoraProhibicionesVisitaDto } from 'src/bitacora-prohibiciones-visita/dto/create-bitacora-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
@@ -55,7 +55,7 @@ export class ProhibicionesVisitaService {
   //FIN BUSCAR TODOS...........................................
 
   //BUSCAR  XCIUDADANO
-  async findXCiudano(id_ciudanox: number) { 
+  async findListaXCiudano(id_ciudanox: number) { 
       const prohibiciiones = await this.prohibicionVisitaRepository.find(
         {        
           where: {
@@ -84,7 +84,7 @@ export class ProhibicionesVisitaService {
           where: {
             fecha_inicio:Between(f_inicio,f_fin),
             organismo_id: usuario.organismo_id,
-            anulado: false
+            anulado: false,            
           },
           order:{
             fecha_inicio: "DESC"
@@ -96,6 +96,33 @@ export class ProhibicionesVisitaService {
   }
   //FIN BUSCAR  LISTA XORGANISMO Y FECHA
   // ..................................................................
+
+  //BUSCAR  LISTA IGENTES XORGANISMO Y FECHA
+  async findListaVigentesXFechaXOrganismo(fecha_iniciox: string, fecha_finx: string, usuario: Usuario) {    
+      let fecha_actual: any = new Date().toISOString().split('T')[0]; 
+      const f_inicio: any = new Date(fecha_iniciox).toISOString().split('T')[0];
+      const f_fin: any = new Date(fecha_finx).toISOString().split('T')[0];
+  
+      const prohibiciones = await this.prohibicionVisitaRepository.find(
+        {        
+          where: {
+            fecha_inicio:Between(f_inicio,f_fin),
+            organismo_id: usuario.organismo_id,
+            anulado: false,            
+            fecha_fin: MoreThanOrEqual(fecha_actual)
+          
+          },
+          order:{
+            fecha_inicio: "DESC"
+          }
+        }
+      );   
+          
+      return prohibiciones;    
+  }
+  //FIN BUSCAR  LISTA IGENTES XORGANISMO Y FECHA
+  // ..................................................................
+
 
   //BUSCAR  XORGANISMO
   async findXOrganismo(id_organismox: number) {    

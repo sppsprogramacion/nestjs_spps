@@ -24,24 +24,24 @@ export class ProhibicionesVisitaController {
   }  
 
   //BUSCAR LISTA XORGANISMO Y FECHA 
-    @Get('lista-organismo-fecha')  
-    @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
-    async findListaXOrganismoFecha(
-      @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
-      @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string,
-      @Query('fecha_fin', DateValidationPipe) fecha_fin: string,
-      
-    ) {    
-      
-      
-      return this.prohibicionesVisitaService.findListaXFechaXOrganismo(fecha_inicio, fecha_fin, user);
-    }
-    //FIN BUSCAR  LISTA XORGANISMO Y FECHA 
-    // ....................................................--------------------------------------
+  @Get('lista-organismo-fecha')  
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
+  async findListaXOrganismoFecha(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string,
+    @Query('fecha_fin', DateValidationPipe) fecha_fin: string,
+    
+  ) {    
+    
+    
+    return this.prohibicionesVisitaService.findListaXFechaXOrganismo(fecha_inicio, fecha_fin, user);
+  }
+  //FIN BUSCAR  LISTA XORGANISMO Y FECHA 
+  // ....................................................--------------------------------------
   
 
   //BUSCAR  XID CIUDADANO
-  @Get('buscar-xciudadano')  
+  @Get('lista-xciudadano')  
   @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin, ValidRoles.ciudadanoOperador,ValidRoles.ciudadanoAdmin, ValidRoles.ciudadanoConsulta)
   async findXCiudadano(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
@@ -49,7 +49,7 @@ export class ProhibicionesVisitaController {
     
   ) {    
     
-    return this.prohibicionesVisitaService.findXCiudano(+id_ciudadano);
+    return this.prohibicionesVisitaService.findListaXCiudano(+id_ciudadano);
   }
   //FIN BUSCAR  XID CIUDADANO....................................................
 
