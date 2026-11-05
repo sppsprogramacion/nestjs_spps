@@ -22,8 +22,13 @@ export class ProhibicionesVisitaService {
   //NUEVO
   async create(data: CreateProhibicionesVisitaDto, usuario: Usuario): Promise<ProhibicionVisita> {
     
-    let fecha_actual: any = new Date().toISOString().split('T')[0];               
+    let fecha_actual: any = new Date().toISOString().split('T')[0]; 
     
+    //control de fecha fin
+    if(data.fecha_fin <= data.fecha_inicio){
+      throw new NotFoundException("La <fecha fin> debe ser mayor que la fecha de inicio.");    
+    }  
+
     //cargar datos por defecto
     data.fecha_prohibicion = fecha_actual;
     data.usuario_id = usuario.id_usuario;
@@ -108,8 +113,9 @@ export class ProhibicionesVisitaService {
           where: {
             fecha_inicio:Between(f_inicio,f_fin),
             organismo_id: usuario.organismo_id,
-            anulado: false,            
-            fecha_fin: MoreThanOrEqual(fecha_actual)
+            anulado: false, 
+            vigente: true           
+            //fecha_fin: MoreThanOrEqual(fecha_actual)
           
           },
           order:{
@@ -158,6 +164,7 @@ export class ProhibicionesVisitaService {
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
     let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
     let motivo: string="";
+
     
     try{
       //buscar prohibicion antes de modificar los datos  
@@ -184,6 +191,16 @@ export class ProhibicionesVisitaService {
         if(!dataProhibicion.vigente){
           throw new NotFoundException("No se puede levantar ésta prohibicion. Ya se encontraba levantada.");
         }
+
+        //control de fecha fin con fecha actual
+        let fecha_actual: any = new Date().toISOString().split('T')[0]; 
+        if(data.fecha_fin < dataProhibicion.fecha_inicio){
+          throw new NotFoundException("La <fecha fin> debe ser igual o mayor que la fecha de inicio.");    
+        }  
+
+        if(data.fecha_fin >= fecha_actual){
+          throw new NotFoundException("La <fecha fin> no puede ser igual o mayor que la fecha actual. Debe ser una fecha menor a la actual.");    
+        }  
 
         motivo = "LEVANTAMIENTO MANUAL";
         //carga de datos a modificar
@@ -231,8 +248,6 @@ export class ProhibicionesVisitaService {
   async levantarProhibicionesConControl( usuario: Usuario) {
     
     let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
-    let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
-    let motivo: string="";
     
     try{
 
@@ -249,7 +264,8 @@ export class ProhibicionesVisitaService {
       {
         organismo_id: usuario.organismo_id,
         fecha_fin: LessThan(fecha_actual),
-        anulado: false
+        anulado: false,
+        vigente: true
       },
       dataProhibicion
     );
@@ -343,8 +359,19 @@ export class ProhibicionesVisitaService {
         throw new NotFoundException("No se puede modificar una prohibicion que no este vigente");
     
 
-      //preparar datos para la bitacora      
-      let fecha_actual: any = new Date().toISOString().split('T')[0];        
+      
+      //control de fecha fin
+      let fecha_actual: any = new Date().toISOString().split('T')[0]; 
+      if(data.fecha_fin < dataProhibicion.fecha_inicio){
+          throw new NotFoundException("La <fecha fin> debe ser igual o mayor que la fecha de inicio.");    
+      } 
+      if(dataProhibicion.fecha_fin != nuevaData.fecha_fin){
+        if(nuevaData.fecha_fin < fecha_actual){
+          throw new NotFoundException("La <fecha fin> no puede ser menor a la fecha actual. Si desea que la fecha fin sea esta fecha debe realizar el levantamiento de la prohibicion ");    
+        }   
+      }
+      
+      //preparar datos para la bitacora  
       dataBitacora.prohibicion_visita_id = dataProhibicion.id_prohibicion_visita;
       dataBitacora.disposicion = dataProhibicion.disposicion;
       dataBitacora.detalle = dataProhibicion.detalle;

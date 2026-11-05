@@ -4,6 +4,8 @@ import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UpdateUsuarioPassDto } from './dto/update-usuario-pass.dto';
+import { Usuario } from './entities/usuario.entity';
+import { Auth, GetUser } from 'src/auth/decorators';
 
 @Controller('usuarios')
 export class UsuarioController {
@@ -63,6 +65,17 @@ export class UsuarioController {
   ) {
     
     return this.usuarioService.updatePassword(+id, dataPasswordDto);
+
+  }
+
+  @Patch('cambiar-mi-password')
+  @Auth()
+  updateMiPassword(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Body() dataPasswordDto: UpdateUsuarioPassDto
+  ) {
+    
+    return this.usuarioService.updatePassword(user.id_usuario, dataPasswordDto);
 
   }
 
