@@ -38,6 +38,21 @@ export class ProhibicionesVisitaController {
   }
   //FIN BUSCAR  LISTA XORGANISMO Y FECHA 
   // ....................................................--------------------------------------
+
+  //BUSCAR LISTA VIGENTES XORGANISMO Y FECHA 
+  @Get('lista-vigentes-organismo-fecha')  
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
+  async findListaVigentesXOrganismoFecha(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('fecha_inicio', DateValidationPipe) fecha_inicio: string,
+    @Query('fecha_fin', DateValidationPipe) fecha_fin: string,
+    
+  ) {    
+        
+    return this.prohibicionesVisitaService.findListaVigentesXFechaXOrganismo(fecha_inicio, fecha_fin, user);
+  }
+  //FIN BUSCAR  LISTA VIGENTES XORGANISMO Y FECHA 
+  // ....................................................--------------------------------------
   
 
   //BUSCAR  XID CIUDADANO
@@ -78,6 +93,17 @@ export class ProhibicionesVisitaController {
     return this.prohibicionesVisitaService.levantarYProhibirManualmente(+id_prohibicion, dataDto, "levantar", user);
   }
   //FIN LEVANTAMIENTO MANUAL.................................
+
+  //LEVANTAMIENTO CONTROL
+  @Put('levantar-prohibiciones-concontrol')
+  @Auth(ValidRoles.restriccionOperador, ValidRoles.restriccionAdmin)
+  updateLevantarConControl(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {
+    
+    return this.prohibicionesVisitaService.levantarProhibicionesConControl(user);
+  }
+  //FIN LEVANTAMIENTO CONTROL.................................
 
   //PROHIBIR MANUAL
   @Put('prohibir-manual')

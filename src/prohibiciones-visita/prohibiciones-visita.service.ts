@@ -3,7 +3,7 @@ import { CreateProhibicionesVisitaDto } from './dto/create-prohibiciones-visita.
 import { UpdateProhibicionesVisitaDto } from './dto/update-prohibiciones-visita.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProhibicionVisita } from './entities/prohibiciones-visita.entity';
-import { Between, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { BitacoraProhibicionesVisitaService } from 'src/bitacora-prohibiciones-visita/bitacora-prohibiciones-visita.service';
 import { CreateBitacoraProhibicionesVisitaDto } from 'src/bitacora-prohibiciones-visita/dto/create-bitacora-prohibiciones-visita.dto';
 import { LevantarManualProhibicionesVisitaDto } from './dto/levantar-manual-prohibiciones-visita.dto';
@@ -97,7 +97,7 @@ export class ProhibicionesVisitaService {
   //FIN BUSCAR  LISTA XORGANISMO Y FECHA
   // ..................................................................
 
-  //BUSCAR  LISTA IGENTES XORGANISMO Y FECHA
+  //BUSCAR  LISTA VIGENTES XORGANISMO Y FECHA
   async findListaVigentesXFechaXOrganismo(fecha_iniciox: string, fecha_finx: string, usuario: Usuario) {    
       let fecha_actual: any = new Date().toISOString().split('T')[0]; 
       const f_inicio: any = new Date(fecha_iniciox).toISOString().split('T')[0];
@@ -120,7 +120,7 @@ export class ProhibicionesVisitaService {
           
       return prohibiciones;    
   }
-  //FIN BUSCAR  LISTA IGENTES XORGANISMO Y FECHA
+  //FIN BUSCAR  LISTA VIGENTES XORGANISMO Y FECHA
   // ..................................................................
 
 
@@ -217,6 +217,43 @@ export class ProhibicionesVisitaService {
         await this.bitacoraProhibicionesVisitaService.create(dataBitacora);
       }
 
+      return respuestaProhibicion;
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+    
+  }  
+  //FIN LEVANTAR PROHIBICION MANUAL
+
+  //LEVANTAR CON CONTROL
+  async levantarProhibicionesConControl( usuario: Usuario) {
+    
+    let dataProhibicion: CreateProhibicionesVisitaDto = new CreateProhibicionesVisitaDto;
+    let dataBitacora: CreateBitacoraProhibicionesVisitaDto = new CreateBitacoraProhibicionesVisitaDto;
+    let motivo: string="";
+    
+    try{
+
+      //prepara los primeros datos para la bitacora de la prohibicion
+      let fecha_actual: any = new Date().toISOString().split('T')[0];      
+            
+      //carga de datos a modificar
+      dataProhibicion.vigente = false;
+      dataProhibicion.tipo_levantamiento = "LEV. AUTOMATICO";
+
+      //guardadr modificacion registro
+      //guardar el levantamineto
+      const respuestaProhibicion = await this.prohibicionVisitaRepository.update(
+      {
+        organismo_id: usuario.organismo_id,
+        fecha_fin: LessThan(fecha_actual),
+        anulado: false
+      },
+      dataProhibicion
+    );
+      
       return respuestaProhibicion;
     }
     catch(error){
