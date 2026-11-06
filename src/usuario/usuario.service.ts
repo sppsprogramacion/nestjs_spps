@@ -41,7 +41,7 @@ export class UsuarioService {
   }
 
   //BUSCAR USUARIOS ACTIVOS O INACTIVOS
-  async findUsuarios(activox: boolean) {
+  async findUsuariosActivos(activox: boolean) {
     const usuarios = await this.usuariosRepository.findAndCount(
       {        
         where: {
@@ -55,36 +55,8 @@ export class UsuarioService {
     return usuarios;
   }
   //FIN BUSCAR USUARIOS ACTIVOS O INACTIVOS ..........................................
+    
   
-  //BUSCAR USUARIOS ACTIVOS O INACTIVOS CON CENTROS DE MEDIACION
-  async findUsuariosCentrosMediacion(activox: boolean) {
-    const usuarios_centros = await this.usuariosRepository.findAndCount(
-      {
-        relations: ['centros_mediacion'], 
-        where: {
-          activo: activox,          
-        },
-        order: {
-          apellido: "ASC"
-        }
-      }
-    );   
-    return usuarios_centros;
-  }
-  //FIN BUSCAR TRAMITES NUEVOS..........................................
-
-  //BUSCAR  XDni
-  async findXDni(dnix: number) {
-    const respuesta = await this.usuariosRepository.findOneBy(
-      {
-        dni: dnix
-      }
-    );
-    if (!respuesta) throw new NotFoundException("No se encontró el registro de usuario solicitado.");
-    return respuesta;
-  }
-  //FIN BUSCAR  XDni..................................................................
-
   //BUSCAR  XID
   async findOne(id: number) {
     const respuesta = await this.usuariosRepository.findOne(

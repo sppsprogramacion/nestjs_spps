@@ -6,53 +6,50 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UpdateUsuarioPassDto } from './dto/update-usuario-pass.dto';
 import { Usuario } from './entities/usuario.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
   @Post()
+  @Auth(ValidRoles.superAdmin)
   create(@Body() data: CreateUsuarioDto) {
     return this.usuarioService.create(data);
   }
+  
 
-  @Get('buscar-xdni')  
-  async findUsuarioXDni(
-    @Req()
-    req: Request
+  @Get('activos')
+  @Auth(ValidRoles.superAdmin)
+  findActivos(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {
-    
-    if(!req.query.dni) throw new NotFoundException("El dni no fue ingresado.")
-    if(isNaN(Number(req.query.dni.toString()))) throw new NotFoundException("El dni debe ser un número.")
-    let dnix: number = parseFloat(req.query.dni.toString());
-    if(!Number.isInteger(dnix)) throw new NotFoundException("El dni debe ser un número entero.")
-    return this.usuarioService.findXDni(dnix);
+
+    return this.usuarioService.findUsuariosActivos(true);
   }
 
-  //BUSCAR USUARIOS CON CENTRO DE MEDIACION
-  @Get('centros-asignados')
-  async findCentrosAsignados(    
+  @Get('inactivos')
+  @Auth(ValidRoles.superAdmin)
+  findAll(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+  ) {
+
+    return this.usuarioService.findUsuariosActivos(false);
+  }
+  
+  @Get('mi-cuenta')
+  @Auth()
+  findOneToken(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
   ) {    
-    return this.usuarioService.findUsuariosCentrosMediacion(true);
-  } 
-  //FIN BUSCAR USUARIOS CON CENTRO DE MEDIACION.......................................
-
-  @Get()
-  findAll() {
-    return this.usuarioService.findUsuarios(true);
-  }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
     
-  //   if(isNaN(Number(id))) throw new NotFoundException("El id del ciudadano debe ser un número.")
-  //   let id_ciudadano: number = parseFloat(id);
-  //   if(!Number.isInteger(id_ciudadano)) throw new NotFoundException("El id del ciudadano debe ser un número entero.")
-  //   return this.ciudadanosService.findOne(id_ciudadano);
-  // }
+    return this.usuarioService.findOne(user.id_usuario);
+  }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: string) {    
+  findOne(
+    @Param('id', ParseIntPipe) id: string
+  ) {    
     
     return this.usuarioService.findOne(+id);
   }
