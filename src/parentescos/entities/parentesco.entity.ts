@@ -19,4 +19,7 @@ export class Parentesco {
     })
     parentesco: string
     
+    
+
+    
 }

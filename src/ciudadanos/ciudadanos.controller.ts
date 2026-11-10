@@ -33,7 +33,7 @@ export class CiudadanosController {
 
     let ciudadanoImagen: UpdateCiudadanoDto= new UpdateCiudadanoDto;
     //controlar si exite el ciudadano
-    let ciudadano = await this.findOne(id_ciudadano);
+    //let ciudadano = await this.findOne(id_ciudadano);
     
     //Controlar si tiene o no imagen cargada
     let foto_nombre = "foto-ciudadano-" + id_ciudadano + ".jpg";

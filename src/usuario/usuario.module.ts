@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UsuarioController } from './usuario.controller';
@@ -7,7 +8,8 @@ import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    AuthModule,
+    ConfigModule, //aqui se importa para ser usado en la JwtStrategy - jwt-strategy
+    AuthModule,    
     TypeOrmModule.forFeature([
       Usuario
     ])

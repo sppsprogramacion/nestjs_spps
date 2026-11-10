@@ -643,10 +643,8 @@ export class EntradasSalidasService {
               //--------------------------------------------
               
               const listaIngresosResponse = ingresosGuardados.map(ingresoGuardado => {
-                
-            
-                return {
-                  
+
+                return {                  
                   id_entrada_salida: ingresoGuardado.id_entrada_salida,
                   numero_ficha: ingresoGuardado.numero_ficha,  
                   nombre_interno: ingresoGuardado.nombre_interno,

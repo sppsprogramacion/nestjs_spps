@@ -82,6 +82,7 @@ import { DedosHuellaModule } from './dedos_huella/dedos_huella.module';
 import { HuellasModule } from './huellas/huellas.module';
 import { HuellasCambiosModule } from './huellas-cambios/huellas-cambios.module';
 import { BiometriaVersionModule } from './biometria_version/biometria_version.module';
+import { RequisitosVisitaModule } from './requisitos-visita/requisitos-visita.module';
 
 @Module({
   imports: [
@@ -171,6 +172,7 @@ import { BiometriaVersionModule } from './biometria_version/biometria_version.mo
     HuellasModule,
     HuellasCambiosModule,
     BiometriaVersionModule,
+    RequisitosVisitaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

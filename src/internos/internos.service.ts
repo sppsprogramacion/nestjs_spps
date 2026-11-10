@@ -247,6 +247,6 @@ export class InternosService {
     if(error.status == 404) throw new NotFoundException(error.response);
   
     throw new InternalServerErrorException (error.message);
-    }
-    //FIN MANEJO DE ERRORES........................................
+  }
+  //FIN MANEJO DE ERRORES........................................
 }
