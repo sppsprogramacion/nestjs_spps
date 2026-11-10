@@ -39,6 +39,7 @@ export class RequisitosVisita {
     @Column({
         type: 'int',
         nullable: false,
+        unique: true,
         default: 1
     })
     organismo_id: number;

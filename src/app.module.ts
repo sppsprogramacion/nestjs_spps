@@ -83,6 +83,8 @@ import { HuellasModule } from './huellas/huellas.module';
 import { HuellasCambiosModule } from './huellas-cambios/huellas-cambios.module';
 import { BiometriaVersionModule } from './biometria_version/biometria_version.module';
 import { RequisitosVisitaModule } from './requisitos-visita/requisitos-visita.module';
+import { ParentescosMenoresPrincipalesModule } from './parentescos_menores_principales/parentescos_menores_principales.module';
+
 
 @Module({
   imports: [
@@ -173,6 +175,7 @@ import { RequisitosVisitaModule } from './requisitos-visita/requisitos-visita.mo
     HuellasCambiosModule,
     BiometriaVersionModule,
     RequisitosVisitaModule,
+    ParentescosMenoresPrincipalesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

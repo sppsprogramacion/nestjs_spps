@@ -44,7 +44,8 @@ export class RequisitosVisitaService {
     }
     //FIN BUSCAR  XID..................................................................
   
-    async update(id: number, data: UpdateRequisitoVisitaDto, usuario: Usuario) {
+    //ACTUALIZAR CANTIDADES
+    async updateCantidades(id: number, data: UpdateRequisitoVisitaDto, usuario: Usuario) {
   
       try{
         const respuesta = await this.requisitosVisitaRepository.update(id, data);
@@ -58,6 +59,7 @@ export class RequisitosVisitaService {
         this.handleDBErrors(error); 
       }   
     }
+    //ACTUALIZAR CANTIDADES
   
     //MANEJO DE ERRORES
     private handleDBErrors(error: any): never {
