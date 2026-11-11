@@ -9,8 +9,14 @@ export class CreateInternoUnidadDto {
     @IsInt({message: "El dni debe ser un número entero."})
     dni: number;
 
-    @IsInt({message: "El prontuario debe ser un número entero."})
+    @IsInt({message: "El prontuario/numero alcaidia, debe ser un número entero."})
     prontuario: number;
+
+    num_alc_1: number;
+
+    num_alc_2: number;
+
+    num_alc_3: number;
 
     @Length(1,300,{message: "El apellido debe tener entre $constraint1 y $constraint2 caracteres."})
     apellido: string;

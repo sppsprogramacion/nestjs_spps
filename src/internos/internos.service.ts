@@ -29,12 +29,22 @@ export class InternosService {
     //   excludeExtraneousValues: true, // Solo incluye propiedades decoradas en CreateInternoDto
     // });
 
-    // if(usuariox.organismo.es_alcaidia){
-    //   createDto.prontuario == null;
-    // }
-    // else{
-    //   createDto.num_oc == null;
-    // }
+    //identificar si el usuario es de una unidad carcelaria o de una alcaidia
+    if(usuariox.organismo_id == 9){
+      createDto.num_alc_1 = createDto.prontuario;
+      createDto.prontuario = null;
+    }
+
+    if(usuariox.organismo_id == 20){
+      createDto.num_alc_2 = createDto.prontuario;
+      createDto.prontuario = null;
+    }
+
+    if(usuariox.organismo_id == 21){
+      createDto.num_alc_1 = createDto.prontuario;
+      createDto.prontuario = null;
+    }
+
     //obtener numero de interno
     const num_interno_max = await this.internoRepository.createQueryBuilder('internos')
     .select('COUNT(internos.codigo)','num_max')
@@ -49,8 +59,8 @@ export class InternosService {
     //cargar datos por defecto
     createDto.codigo = usuariox.organismo_id + "-" + num_tramite_nuevo;
     createDto.organismo_id = usuariox.organismo_id;
+    createDto.usuario_carga_id = usuariox.id_usuario;
     createDto.organismo_carga_id = usuariox.organismo_id;
-    
 
     try {
 
@@ -63,7 +73,7 @@ export class InternosService {
       if(error.code=='ER_DUP_ENTRY'){
       
         let existe = await this.internoRepository.findOneBy({prontuario: createDto.prontuario});
-        if(existe) throw new BadRequestException ("El prontuario ya existe.");
+        if(existe) throw new BadRequestException ("El prontuario/numero alcaidia, ya existe.");
       }   
 
       throw new InternalServerErrorException('Error al crear el interno: ' + error.message);
@@ -85,7 +95,7 @@ export class InternosService {
 
     return this.internoRepository
       .createQueryBuilder('interno')
-      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
+      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario', 'interno.num_alc_1', 'interno.num_alc_2', 'interno.num_alc_3']) // Campos específicos
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
       .where('interno.prontuario = :prontuario', {prontuario: prontuariox})
       .orderBy('interno.apellido', 'ASC')
@@ -99,7 +109,7 @@ export class InternosService {
     
     return this.internoRepository
       .createQueryBuilder('interno')
-      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
+      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario', 'interno.num_alc_1', 'interno.num_alc_2', 'interno.num_alc_3']) // Campos específicos
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
       .leftJoin('interno.ingresos', 'ingresos')
       .where('interno.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
@@ -119,7 +129,7 @@ export class InternosService {
     
     return this.internoRepository
       .createQueryBuilder('interno')
-      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario']) // Campos específicos
+      .select(['interno.id_interno', 'interno.apellido', 'interno.nombre', 'interno.prontuario', 'interno.num_alc_1', 'interno.num_alc_2', 'interno.num_alc_3']) // Campos específicos
       .leftJoinAndSelect('interno.sexo', 'sexo') // Relación
       .where('interno.apellido LIKE :apellido', {apellido: `%${apellidox}%`})
       .orderBy('interno.apellido', 'ASC')

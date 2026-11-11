@@ -48,7 +48,23 @@ export class Interno {
         unique: true,
         default: null
     })
-    num_oc: number;
+    num_alc_1: number;
+
+    @Column({
+        type: 'int',
+        nullable: true,
+        unique: true,
+        default: null
+    })
+    num_alc_2: number;
+
+    @Column({
+        type: 'int',
+        nullable: true,
+        unique: true,
+        default: null
+    })
+    num_alc_3: number;
 
     @Column({
         type: 'int',
