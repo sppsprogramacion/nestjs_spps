@@ -22,6 +22,15 @@ export class UpdateEstablecerCondenaDto{
     })
     fecha_condena: Date;
 
+    @IsInt({message: "pena_anios debe ser un número entero."})
+    detencion_anterior_anios: number;
+
+    @IsInt({message: "pena_meses debe ser un número entero."})
+    detencion_anterior_meses: number;
+
+    @IsInt({message: "pena_dias debe ser un número entero."})
+    detencion_anterior_dias: number;
+
     @Length(1,10,{message: "tribunal_condena_id debe tener entre $constraint1 y $constraint2 caracteres."})
     tribunal_condena_id: string;
    

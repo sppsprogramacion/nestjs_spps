@@ -13,6 +13,7 @@ import { UpdateInternoDatosPersonalesDto } from './dto/update-interno-datosperso
 import { UpdateInternoCaracteristicasPersonalesDto } from './dto/update-interno-caracteristicaspersonales.dto';
 import { UpdateInternoDatosFiliatoriosDto } from './dto/update-interno-datosfiliatorios.dto';
 import { isNotEmpty } from 'class-validator';
+import { UpdateInternoControlProntuarios } from './dto/update-interno-control-prontuarios.dto';
 
 @Controller('internos')
 export class InternosController {
@@ -40,7 +41,7 @@ export class InternosController {
   // }
 
   @Post('upload-img-interno')
-  @Auth()
+  @Auth(ValidRoles.judicialAdmin, ValidRoles.judicialOperador)
   @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
@@ -206,7 +207,7 @@ export class InternosController {
 
   //MODIFICAR DATOS PERSONALES
   @Put('update-datos-personales')
-  @Auth()
+  @Auth(ValidRoles.judicialAdmin, ValidRoles.judicialOperador)
   updateDatosPersonales(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_interno', ParseIntPipe) id_interno: string ,
@@ -219,9 +220,24 @@ export class InternosController {
   }
   //FIN MODIFICAR DATOS PERSONALES...........................................
 
+  //MODIFICAR DATOS PERSONALES
+  @Put('update-prontuario')
+  @Auth(ValidRoles.judicialAdmin, ValidRoles.judicialOperador)
+  updateProntuarios(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('id_interno', ParseIntPipe) id_interno: string ,
+    @Body() dataDto: UpdateInternoControlProntuarios
+  ) {
+
+    //domicilio: para que solo se modifiquen los datos de domicilio e identificar
+    //que se guarde en tabla domicilios_ciudadano
+    return this.internosService.updateProntuario(+id_interno, dataDto, user);
+  }
+  //FIN MODIFICAR DATOS PERSONALES...........................................
+
   //MODIFICAR CARACTERISTICAS PERSONALES
   @Put('update-caracteristicas-personales')
-  @Auth()
+  @Auth(ValidRoles.judicialAdmin, ValidRoles.judicialOperador)
   updateCaracteristicasPersonales(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_interno', ParseIntPipe) id_interno: string ,
@@ -236,7 +252,7 @@ export class InternosController {
 
   //MODIFICAR DATOS FILIATORIOS
   @Put('update-datos-filiatorios')
-  @Auth()
+  @Auth(ValidRoles.judicialAdmin, ValidRoles.judicialOperador)
   updateDatosFiliatorios(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_interno', ParseIntPipe) id_interno: string ,
@@ -264,7 +280,7 @@ export class InternosController {
 
   //QUITAR IMAGEN
   @Delete('quitar-imagen')
-  @Auth()
+  @Auth(ValidRoles.judicialAdmin, ValidRoles.judicialOperador)
   async deleteImagenes(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
     @Query('id_interno', ParseIntPipe) id_interno: string,    

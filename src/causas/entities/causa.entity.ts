@@ -177,6 +177,27 @@ export class Causa {
     })
     fecha_condena: Date;
 
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 0
+    })
+    detencion_anterior_anios: number;
+
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 0
+    })
+    detencion_anterior_meses: number;
+
+    @Column({
+        type: 'int',
+        nullable: false,
+        default: 0
+    })
+    detencion_anterior_dias: number;   
+
     //TRIBUNAL CONDENA
     @Column({
         type: 'varchar',

@@ -9,7 +9,7 @@ export class UpdateInternoDatosPersonalesDto {
     @IsInt({message: "El dni debe ser un número entero."})
     dni: number;
 
-    @IsInt({message: "El prontuario debe ser un número entero."})
+    //@IsInt({message: "El prontuario debe ser un número entero."})
     prontuario: number;
 
     @Length(1,300,{message: "El apellido debe tener entre $constraint1 y $constraint2 caracteres."})

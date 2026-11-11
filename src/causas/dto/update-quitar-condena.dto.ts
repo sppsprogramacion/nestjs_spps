@@ -13,6 +13,12 @@ export class UpdateQuitarCondenaDto{
   fecha_condena: Date;
   
   tribunal_condena_id: string;
+
+  detencion_anterior_anios: number;
+
+  detencion_anterior_meses: number;
+
+  detencion_anterior_dias: number;
     
   pena_anios: number;
   

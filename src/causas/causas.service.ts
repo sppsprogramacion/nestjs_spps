@@ -177,6 +177,11 @@ export class CausasService {
       dataUpdate.fecha_condena = null;
       dataUpdate.tribunal_condena_id = "0SINESP";
       dataUpdate.fecha_cumple_pena = null;
+      dataUpdate.detencion_anterior_anios = 0;
+      dataUpdate.detencion_anterior_meses = 0;
+      dataUpdate.detencion_anterior_dias = 0;
+      dataUpdate.pena_meses = 0;
+      dataUpdate.pena_dias = 0;
       dataUpdate.pena_anios = 0;
       dataUpdate.pena_meses = 0;
       dataUpdate.pena_dias = 0;
