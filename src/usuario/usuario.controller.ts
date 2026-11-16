@@ -32,6 +32,20 @@ export class UsuarioController {
   //FIN LISTA DE ACTIVOS
   //-------------------------------------------------------------------------------------
 
+
+  //LISTA DE ACTIVOS X ORGANISMO
+  @Get('lista-activos-xorganismo')
+  @Auth(ValidRoles.superAdmin)
+  findActivosXOrganismo(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('idOrganismo', ParseIntPipe) idOrganismo: string,
+  ) {
+
+    return this.usuarioService.findUsuariosActivosXOrganismo(+idOrganismo);
+  }
+  //FIN LISTA DE ACTIVOS
+  //-------------------------------------------------------------------------------------
+
   //LISTA DE ACTIVOS X ORGANISMO PARA RESTRICCION DE VISITAS
   @Get('lista-activos-organismo-restriccion')
   @Auth(ValidRoles.superAdmin, ValidRoles.restriccionAdmin)

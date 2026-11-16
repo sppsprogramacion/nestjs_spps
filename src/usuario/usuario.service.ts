@@ -45,17 +45,60 @@ export class UsuarioService {
 
   //BUSCAR USUARIOS ACTIVOS O INACTIVOS
   async findUsuariosActivos(activox: boolean) {
-    const usuarios = await this.usuariosRepository.findAndCount(
-      {        
-        where: {
-          activo: activox,          
-        },
-        order:{
-          apellido: "ASC"
-        }
-      }
-    );   
-    return usuarios;
+    const listaUsuarios = await this.usuariosRepository
+      .createQueryBuilder('usuario')
+      .leftJoinAndSelect('usuario.sexo', 'sexo')
+      .leftJoinAndSelect('usuario.organismo', 'organismo')
+      .leftJoinAndSelect('usuario.roles','roles',
+          'roles.activo = :rolActivo',
+          { rolActivo: true }
+      )
+      .innerJoinAndSelect('roles.rol', 'rol')
+      .innerJoinAndSelect('rol.sistema', 'sistema')
+      .where('usuario.activo = :activo', { activo: activox })    
+      .orderBy('usuario.apellido', 'ASC')
+      .getMany();
+
+
+    // Transformar los roles
+    const usuariosResponse = listaUsuarios.map(usuario => ({
+      ...usuario,
+      roles: usuario.roles.map(rol => rol.rol_id)
+    }));
+    
+    return usuariosResponse;
+  }
+  //FIN BUSCAR USUARIOS ACTIVOS O INACTIVOS 
+  // .......................................................................
+
+
+  //BUSCAR USUARIOS ACTIVOS O INACTIVOS
+  async findUsuariosActivosXOrganismo(idOrganismo: number) {
+    const listaUsuarios = await this.usuariosRepository
+      .createQueryBuilder('usuario')
+      .leftJoinAndSelect('usuario.sexo', 'sexo')
+      .leftJoinAndSelect('usuario.organismo', 'organismo')
+      .leftJoinAndSelect('usuario.roles','roles',
+          'roles.activo = :rolActivo',
+          { rolActivo: true }
+      )
+      .innerJoinAndSelect('roles.rol', 'rol')
+      .innerJoinAndSelect('rol.sistema', 'sistema')
+      .where('usuario.activo = :activo', { activo: true })    
+      .andWhere('usuario.organismo_id = :organismoId', {
+        organismoId: idOrganismo
+      })
+      .orderBy('usuario.apellido', 'ASC')
+      .getMany();
+
+
+    // Transformar los roles
+    const usuariosResponse = listaUsuarios.map(usuario => ({
+      ...usuario,
+      roles: usuario.roles.map(rol => rol.rol_id)
+    }));
+    
+    return usuariosResponse;
   }
   //FIN BUSCAR USUARIOS ACTIVOS O INACTIVOS 
   // .......................................................................

@@ -10,6 +10,16 @@ import { LoginUsuarioDto } from './dto/login-usuario.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}  
 
+  @Post('login-administrador')
+  async loginAdministrador(
+    @Body()
+    loginUsuarioDto: LoginUsuarioDto
+
+  ) {
+    return this.authService.loginUsuario(loginUsuarioDto,"admin");
+    
+  }
+
   @Post('login-ciudadano')
   async loginCiudadano(
     @Body()
