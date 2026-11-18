@@ -17,6 +17,8 @@ export class UsuarioService {
     private readonly usuariosRepository: Repository<Usuario>,
     private readonly dataSource: DataSource,
   ){}
+
+
   async create(data: CreateUsuarioDto): Promise<Usuario> {      
 
     try {
@@ -135,6 +137,45 @@ export class UsuarioService {
   }
   //FIN BUSCAR USUARIOS ACTIVOS X ORGANISMO y  SISTEMA
   // .......................................................................
+
+  //DESHABILITAR ROL DE UN USUARIO
+  async findRolesUsuario(idUsuario: number, usuario: Usuario) {
+    
+    return await this.dataSource.transaction(
+        async manager => {
+
+          const usuarioRolRepository = manager.getRepository(UsuarioRol);
+
+          // ----------------------------------
+          // BUSCAR ROLES DEL USUARIO
+          // ----------------------------------
+          const listaRolesUsuario = await usuarioRolRepository
+              .createQueryBuilder('usuarios_rol')
+              .innerJoinAndSelect('usuarios_rol.usuario', 'usuario')           
+              .where('usuarios_rol.usuario_id = :idUsuario', {
+                  idUsuario: idUsuario
+              })
+              .andWhere('usuarios_rol.activo = :isActivo', {
+                  isActivo: true
+              })
+              .getMany();
+
+
+          if(!listaRolesUsuario){
+            throw new NotFoundException('El usuario no tiene roles asignados.');
+          }
+   
+          //--------------------------------------------
+          //CONSTRUIR RESPUESTA
+          //--------------------------------------------
+          return listaRolesUsuario;
+                        
+        }
+    );
+  }
+  //FIN DESHABILITAR ROL DE UN USUARIO
+  //.................................................................................
+
 
   //BUSCAR  XID
   async findOne(id: number) {
@@ -257,8 +298,129 @@ export class UsuarioService {
   //FIN MODIFICAR MI PASSWORD
   // .................................................................................
 
+
+  //DESHABILITAR UN USUARIO
+  async updateDeshabilitarUsuario(idUsuarioDeshabilitar: number, usuario: Usuario) {
+    
+    return await this.dataSource.transaction(
+        async manager => {
+  
+          const usuarioRepository = manager.getRepository(Usuario);
+
+          // ----------------------------------
+          // BUSCAR USUARIO A DESHABILITAR
+          // ----------------------------------
+          const usuarioDeshabilitar = await usuarioRepository
+              .createQueryBuilder('usuario')
+              .leftJoinAndSelect('usuario.roles','roles')           
+              .where('usuario.id_usuario = :idUsuario', {
+                  idUsuario: idUsuarioDeshabilitar
+              })
+              .getOne();
+
+          if (!usuarioDeshabilitar) {
+              throw new NotFoundException('No se encontraron datos del usuario que quiere deshabilitar.');
+          }
+         
+          if(!usuarioDeshabilitar.activo)
+            throw new UnauthorizedException ("El usuario que quiere deshabilitar ya se encontraba deshabilitado.");
+          
+          
+          //--------------------------------------------
+          //CONSTRUIR RESPUESTA
+          //--------------------------------------------
+          try {
+
+              // Deshabilitar todos los roles del usuario en ese sistema
+              const respuesta = await usuarioRepository.update(
+                  {
+                      id_usuario: idUsuarioDeshabilitar
+                  },
+                  {
+                      activo: false
+                  }
+              );
+          
+              return respuesta;
+          
+          }
+          catch(error) {
+              this.handleDBErrors(error);
+          }
+            
+                        
+        }
+    );
+  }
+  //FIN DESHABILITAR UN USUARIO
+  //.................................................................................
+
+
   //DESHABILITAR ROL DE UN USUARIO
-  async updateDeshabilitarRol(idUsuarioDeshabilitar: number, sistema: string, usuario: Usuario) {
+  async updateDeshabilitarUnRol(idUsuarioRolDeshabilitar: number, usuario: Usuario) {
+    
+    return await this.dataSource.transaction(
+        async manager => {
+
+          const usuarioRolRepository = manager.getRepository(UsuarioRol);
+
+          // ----------------------------------
+          // BUSCAR USUARIO-ROL A DESHABILITAR
+          // ----------------------------------
+          const usuarioRolDeshabilitar = await usuarioRolRepository
+              .createQueryBuilder('usuarios_rol')
+              .innerJoinAndSelect('usuario', 'usuario')           
+              .where('usuarios_rol.id_usuario_rol = :idUsuarioRol', {
+                  idUsuarioRol: idUsuarioRolDeshabilitar
+              })
+              .getOne();
+
+
+          if(usuarioRolDeshabilitar){
+            throw new NotFoundException('El usuario no tiene asignado este rol.');
+          }
+
+
+          if (!usuarioRolDeshabilitar.usuario) {
+              throw new NotFoundException('No se encontraron datos del usuario que quiere deshabilitar.');
+          }
+          
+                    
+          //--------------------------------------------
+          //CONSTRUIR RESPUESTA
+          //--------------------------------------------
+          try {
+              
+              let observacionesAux : string = usuarioRolDeshabilitar.observaciones +  " // BAJA ROL: " + usuario.apellido + " " + usuario.nombre + "(dni: " + usuario.dni + ")";
+              // Deshabilitar el rol del usuario
+              const respuesta = await usuarioRolRepository.update(
+                  {
+                      id_usuario_rol: idUsuarioRolDeshabilitar
+                  },
+                  {
+                      activo: false,
+                      fecha_baja: new Date(),
+                      observaciones: observacionesAux
+                  }
+              );
+          
+              return respuesta;
+          
+          }
+          catch(error) {
+              this.handleDBErrors(error);
+          }
+                        
+        }
+    );
+  }
+  //FIN DESHABILITAR ROL DE UN USUARIO
+  //.................................................................................
+
+
+
+  //DESHABILITAR ROL DE UN USUARIO
+  async updateDeshabilitarRoles(idUsuarioDeshabilitar: number, sistema: string, usuario: Usuario) {
     
     return await this.dataSource.transaction(
         async manager => {
@@ -343,6 +505,8 @@ export class UsuarioService {
   //FIN DESHABILITAR ROL DE UN USUARIO
   //.................................................................................
 
+  
+
   async remove(dnix: number) {
     const respuesta = await this.usuariosRepository.findOneBy({dni: dnix});
     if(!respuesta) throw new NotFoundException("No existe el registro de usuario que intenta eliminar");
@@ -358,7 +522,7 @@ export class UsuarioService {
     if(error.status == 404) throw new NotFoundException(error.response);
   
     throw new InternalServerErrorException (error.message);
-    }
-    //FIN MANEJO DE ERRORES........................................
+  }
+  //FIN MANEJO DE ERRORES........................................
 
 }

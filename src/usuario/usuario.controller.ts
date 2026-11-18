@@ -94,7 +94,20 @@ export class UsuarioController {
   //FIN LISTA DE INACTIVOS
   //---------------------------------------------------------------------------------------
 
-  
+  //LISTA DE INACTIVOS
+  @Get('lista-roles-usuario')
+  @Auth(ValidRoles.superAdmin)
+  findListaRolesUsuario(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+    @Query('idUsuario', ParseIntPipe) idUsuario: string,
+  ) {
+
+    return this.usuarioService.findRolesUsuario(+idUsuario, user);
+  }
+  //FIN LISTA DE INACTIVOS
+  //---------------------------------------------------------------------------------------
+
+
   //OBTENER DATOS DE MI CUENTA
   @Get('mi-cuenta')
   @Auth()
@@ -145,6 +158,35 @@ export class UsuarioController {
   //FIN CAMBIAR MI PASSWORD
   //--------------------------------------------------------------------------------------------
 
+  //DESHABILITAR USUARIO 
+  @Put('deshabilitar-usuario')
+  @Auth(ValidRoles.restriccionAdmin)
+  updateDeshabilitarUsuario(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+     @Query('idUsuario', ParseIntPipe) idUsuario: string,
+  ) {
+    
+    return this.usuarioService.updateDeshabilitarUsuario(+idUsuario, user);
+
+  }
+  //FIN DESHABILITAR USUARIO
+  //--------------------------------------------------------------------------------------------
+
+
+  //DESHABILITAR USUARIO 
+  @Put('deshabilitar-unrol')
+  @Auth(ValidRoles.restriccionAdmin)
+  updateDeshabilitarUnRol(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+     @Query('idUsuarioRol', ParseIntPipe) idUsuarioRol: string,
+  ) {
+    
+    return this.usuarioService.updateDeshabilitarUnRol(+idUsuarioRol, user);
+
+  }
+  //FIN DESHABILITAR USUARIO
+  //--------------------------------------------------------------------------------------------
+  
   //DESHABILITAR ROL DE USUARIO EN SISTEMA RESTRICCION
   @Put('deshabilitar-ensistema-restriccion')
   @Auth(ValidRoles.restriccionAdmin)
@@ -153,7 +195,7 @@ export class UsuarioController {
      @Query('idUsuario', ParseIntPipe) idUsuario: string,
   ) {
     
-    return this.usuarioService.updateDeshabilitarRol(+idUsuario, "restriccion", user);
+    return this.usuarioService.updateDeshabilitarRoles(+idUsuario, "restriccion", user);
 
   }
   //FIN DESHABILITAR ROL DE USUARIO EN SISTEMA RESTRICCION
@@ -167,7 +209,7 @@ export class UsuarioController {
     @Query('idUsuario', ParseIntPipe) idUsuario: string,
   ) {
     
-    return this.usuarioService.updateDeshabilitarRol(+idUsuario, "ciudadano", user);
+    return this.usuarioService.updateDeshabilitarRoles(+idUsuario, "ciudadano", user);
 
   }
   //FIN DESHABILITAR ROL DE USUARIO EN SISTEMA CIUDADANO
@@ -181,7 +223,7 @@ export class UsuarioController {
      @Query('idUsuario', ParseIntPipe) idUsuario: string,
   ) {
     
-    return this.usuarioService.updateDeshabilitarRol(+idUsuario, "judicial", user);
+    return this.usuarioService.updateDeshabilitarRoles(+idUsuario, "judicial", user);
 
   }
   //FIN DESHABILITAR ROL DE USUARIO EN SISTEMA JUDICIALES
