@@ -369,14 +369,14 @@ export class UsuarioService {
           // ----------------------------------
           const usuarioRolDeshabilitar = await usuarioRolRepository
               .createQueryBuilder('usuarios_rol')
-              .innerJoinAndSelect('usuario', 'usuario')           
+              .innerJoinAndSelect('usuarios_rol.usuario', 'usuario')           
               .where('usuarios_rol.id_usuario_rol = :idUsuarioRol', {
                   idUsuarioRol: idUsuarioRolDeshabilitar
               })
               .getOne();
 
 
-          if(usuarioRolDeshabilitar){
+          if(!usuarioRolDeshabilitar){
             throw new NotFoundException('El usuario no tiene asignado este rol.');
           }
 
