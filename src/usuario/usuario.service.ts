@@ -55,8 +55,8 @@ export class UsuarioService {
           'roles.activo = :rolActivo',
           { rolActivo: true }
       )
-      .innerJoinAndSelect('roles.rol', 'rol')
-      .innerJoinAndSelect('rol.sistema', 'sistema')
+      .leftJoinAndSelect('roles.rol', 'rol')
+      .leftJoinAndSelect('rol.sistema', 'sistema')
       .where('usuario.activo = :activo', { activo: activox })    
       .orderBy('usuario.apellido', 'ASC')
       .getMany();
@@ -84,8 +84,8 @@ export class UsuarioService {
           'roles.activo = :rolActivo',
           { rolActivo: true }
       )
-      .innerJoinAndSelect('roles.rol', 'rol')
-      .innerJoinAndSelect('rol.sistema', 'sistema')
+      .leftJoinAndSelect('roles.rol', 'rol')
+      .leftJoinAndSelect('rol.sistema', 'sistema')
       .where('usuario.activo = :activo', { activo: true })    
       .andWhere('usuario.organismo_id = :organismoId', {
         organismoId: idOrganismo
