@@ -94,7 +94,7 @@ export class UsuarioController {
   //FIN LISTA DE INACTIVOS
   //---------------------------------------------------------------------------------------
 
-  //LISTA DE INACTIVOS
+  //LISTA DE ROLES
   @Get('lista-roles-usuario')
   @Auth(ValidRoles.superAdmin)
   findListaRolesUsuario(
@@ -104,7 +104,7 @@ export class UsuarioController {
 
     return this.usuarioService.findRolesUsuario(+idUsuario, user);
   }
-  //FIN LISTA DE INACTIVOS
+  //FIN LISTA DE ROLES
   //---------------------------------------------------------------------------------------
 
 
@@ -166,7 +166,22 @@ export class UsuarioController {
      @Query('idUsuario', ParseIntPipe) idUsuario: string,
   ) {
     
-    return this.usuarioService.updateDeshabilitarUsuario(+idUsuario, user);
+    return this.usuarioService.updateHabilitarDeshabilitarUsuario(+idUsuario, false, user);
+
+  }
+  //FIN DESHABILITAR USUARIO
+  //--------------------------------------------------------------------------------------------
+
+
+  //DESHABILITAR USUARIO 
+  @Put('habilitar-usuario')
+  @Auth(ValidRoles.restriccionAdmin)
+  updateHabilitarUsuario(
+    @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
+     @Query('idUsuario', ParseIntPipe) idUsuario: string,
+  ) {
+    
+    return this.usuarioService.updateHabilitarDeshabilitarUsuario(+idUsuario, true, user);
 
   }
   //FIN DESHABILITAR USUARIO
@@ -217,7 +232,7 @@ export class UsuarioController {
 
   //DESHABILITAR ROL DE USUARIO EN SISTEMA JUDICIALES
   @Put('deshabilitar-ensistema-judicial')
-  @Auth(ValidRoles.ciudadanoAdmin)
+  @Auth(ValidRoles.judicialAdmin)
   updateDeshabilitarEnSistemaJudiciales(
     @GetUser("usuario") user: Usuario, //decorador  personalizado obtiene Usuario de la ruta donde esta autenticado
      @Query('idUsuario', ParseIntPipe) idUsuario: string,

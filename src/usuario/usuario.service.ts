@@ -138,7 +138,7 @@ export class UsuarioService {
   //FIN BUSCAR USUARIOS ACTIVOS X ORGANISMO y  SISTEMA
   // .......................................................................
 
-  //DESHABILITAR ROL DE UN USUARIO
+  //LISTA ROLES DE UN USUARIO
   async findRolesUsuario(idUsuario: number, usuario: Usuario) {
     
     return await this.dataSource.transaction(
@@ -173,7 +173,7 @@ export class UsuarioService {
         }
     );
   }
-  //FIN DESHABILITAR ROL DE UN USUARIO
+  //FIN LISTA ROLES DE UN USUARIO
   //.................................................................................
 
 
@@ -300,7 +300,7 @@ export class UsuarioService {
 
 
   //DESHABILITAR UN USUARIO
-  async updateDeshabilitarUsuario(idUsuarioDeshabilitar: number, usuario: Usuario) {
+  async updateHabilitarDeshabilitarUsuario(idUsuarioDeshabilitar: number, nuevoEstado: boolean, usuario: Usuario) {
     
     return await this.dataSource.transaction(
         async manager => {
@@ -322,10 +322,14 @@ export class UsuarioService {
               throw new NotFoundException('No se encontraron datos del usuario que quiere deshabilitar.');
           }
          
-          if(!usuarioDeshabilitar.activo)
+          if(!usuarioDeshabilitar.activo && nuevoEstado == false)
             throw new UnauthorizedException ("El usuario que quiere deshabilitar ya se encontraba deshabilitado.");
           
+          if(usuarioDeshabilitar.activo && nuevoEstado == true)
+            throw new UnauthorizedException ("El usuario que quiere habilitar ya se encontraba habilitado.");
           
+
+
           //--------------------------------------------
           //CONSTRUIR RESPUESTA
           //--------------------------------------------
@@ -337,7 +341,7 @@ export class UsuarioService {
                       id_usuario: idUsuarioDeshabilitar
                   },
                   {
-                      activo: false
+                      activo: nuevoEstado
                   }
               );
           

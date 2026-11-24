@@ -124,11 +124,6 @@ export class EntradasSalidasService {
           // -----------------------------------
           // 2 . VALIDAR CIUDADANO
           // -----------------------------------
-          // const ciudadano = await ciudadanoRepository.findOne({
-          //     where: {
-          //         id_ciudadano: data.ciudadano_id
-          //     }
-          // });
 
           const ciudadano = await ciudadanoRepository
               .createQueryBuilder('ciudadano')     
