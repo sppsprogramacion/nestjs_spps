@@ -179,7 +179,16 @@ export class IngresosInternoController {
     @Body() dataDto: EstablecerConductaConceptoDto
   ) {
            
-    return this.ingresosInternoService.update(+id_ingreso, dataDto,user);
+    let dataIngresoRequest: UpdateIngresosInternoDto = new UpdateIngresosInternoDto();
+    let dataHistorialRequest: CreateHistorialProcesalDto = new CreateHistorialProcesalDto();
+    
+    dataIngresoRequest.trimestre_id = dataDto.trimestre_id;
+    dataIngresoRequest.conducta_id = dataDto.conducta_id;
+    dataIngresoRequest.concepto_id = dataDto.concepto_id;
+   
+    dataHistorialRequest.fecha = dataDto.fecha;
+
+    return this.ingresosInternoService.updateEstablecerConductaConcepto(+id_ingreso, dataIngresoRequest, dataHistorialRequest, user);
   }
   //FIN ESTABLECER CONDUCTA CONCEPTO
 

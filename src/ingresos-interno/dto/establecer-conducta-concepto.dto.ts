@@ -1,4 +1,5 @@
-import { IsInt } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsDateString, IsInt } from "class-validator";
 
 
 export class EstablecerConductaConceptoDto {
@@ -11,4 +12,12 @@ export class EstablecerConductaConceptoDto {
 
     @IsInt({message: "concepto_id debe ser un número entero."})
     concepto_id: number;
+
+    //para el historial procesal
+    @IsDateString()
+    @Transform(({ value }) => {
+        if (typeof value !== 'string') return value;
+        return value.split('T')[0];
+    })
+    fecha: Date;     
 }

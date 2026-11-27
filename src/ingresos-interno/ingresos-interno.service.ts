@@ -561,8 +561,75 @@ export class IngresosInternoService {
   }  
   //FIN CARGAR EGRESO
 
-  async update(id: number, data: UpdateIngresosInternoDto, usuario:Usuario) {
+  //CARGAR PROGRESIVIDAD
+  async updateEstablecerConductaConcepto(idIngreso: number, dataIngresoRequest: UpdateIngresosInternoDto, dataHistorialRequest: CreateHistorialProcesalDto, usuario:Usuario) {
         
+    try{
+      let resultado;
+
+      await this.dataSource.transaction(async (manager) => {
+  
+        // ⚠️ IMPORTANTE: usar manager también para leer
+        const dataIngreso = await manager.findOne(IngresoInterno, {
+          where: { id_ingreso_interno: idIngreso }
+        });
+  
+        if (!dataIngreso) {
+          throw new NotFoundException("Ingreso no encontrado");
+        }
+  
+        // validaciones
+        if (dataIngreso.organismo_alojamiento_id != usuario.organismo_id) 
+          throw new NotFoundException("No tiene acceso a modificar este registro.");
+  
+        if (dataIngreso.esta_liberado) 
+          throw new NotFoundException("El interno está liberado.");
+  
+        if (dataIngreso.eliminado) 
+          throw new NotFoundException("El ingreso está eliminado");
+  
+        const fecha_actual: any = new Date().toISOString().split('T')[0];
+                
+                
+        // seteo historial
+        dataHistorialRequest.ingreso_interno_id = idIngreso;
+        dataHistorialRequest.tipo_historial_procesal_id = 1;   
+        dataHistorialRequest.motivo = "CONDUCTA/CONCEPTO";     
+        dataHistorialRequest.fecha_carga = fecha_actual;
+        dataHistorialRequest.organismo_id = usuario.organismo_id;
+        dataHistorialRequest.usuario_id = usuario.id_usuario;
+  
+        // update
+        const respuesta = await manager.update(
+          IngresoInterno,
+          idIngreso,
+          dataIngresoRequest
+        );
+  
+        resultado = respuesta;
+
+        if (respuesta.affected !== 1) {
+          throw new Error("No se pudo actualizar el ingreso");
+        }
+  
+        // guardar historial ( usando manager)
+        if(dataIngresoRequest.progresividad_id != 1 && dataIngresoRequest.progresividad_id != 2 ){
+          await this.historialProcesalService.createLocal(dataHistorialRequest, manager);
+        }
+      });
+  
+      return resultado;
+
+    }
+    catch(error){
+      
+      this.handleDBErrors(error); 
+    }   
+  }  
+  //FIN CARGAR PROGRESIVIDAD
+
+  async update(id: number, data: UpdateIngresosInternoDto, usuario:Usuario) {
+   
     try{
       //buscar ingreso antes de modificar
       let dataIngreso = await this.findOne(id);
